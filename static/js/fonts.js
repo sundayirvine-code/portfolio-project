@@ -307,6 +307,7 @@
     
     /**
      * Preload font families for better performance
+     * Using dynamic CSS import instead of hardcoded WOFF2 URLs
      */
     function preloadFonts() {
         const fontFamilies = new Set();
@@ -317,28 +318,36 @@
             fontFamilies.add(palette.accent);
         });
         
+        // Preload Google Fonts using CSS imports instead of direct WOFF2 URLs
+        const googleFontsToLoad = [];
+        
         fontFamilies.forEach(fontFamily => {
-            const link = document.createElement('link');
-            link.rel = 'preload';
-            link.as = 'font';
-            link.type = 'font/woff2';
-            link.crossOrigin = 'anonymous';
-            
-            // Extract Google Font name for preload
-            if (fontFamily.includes('Inter')) {
-                link.href = 'https://fonts.gstatic.com/s/inter/v12/UcCO3FwrK3iLTeHuS_fvQtMwCp50KnMw2boKoduKmMEVuLyfAZJhiJ-Ek-_EeAmM.woff2';
-            } else if (fontFamily.includes('Playfair')) {
-                link.href = 'https://fonts.gstatic.com/s/playfairdisplay/v30/nuFvD-vYSZviVYUb_rj3ij__anPXJzDwcbmjWBN2PKdFvXDTbtXK-F2qO0isEw.woff2';
-            } else if (fontFamily.includes('JetBrains')) {
-                link.href = 'https://fonts.gstatic.com/s/jetbrainsmono/v13/tDbY2o-flEEny0FZhsfKu5WU4zr3E_BX0PnT8RD8yKxjPVmUsaaDhw.woff2';
-            } else if (fontFamily.includes('Source Sans Pro')) {
-                link.href = 'https://fonts.gstatic.com/s/sourcesanspro/v21/6xK3dSBYKcSV-LCoeQqfX1RYOo3qOK7lujVj9w.woff2';
-            }
-            
-            if (link.href) {
-                document.head.appendChild(link);
+            if (fontFamily.includes('Inter') && !googleFontsToLoad.includes('Inter')) {
+                googleFontsToLoad.push('Inter:wght@300;400;500;600;700;800');
+            } else if (fontFamily.includes('Playfair') && !googleFontsToLoad.includes('Playfair Display')) {
+                googleFontsToLoad.push('Playfair+Display:wght@400;500;600;700;800');
+            } else if (fontFamily.includes('JetBrains') && !googleFontsToLoad.includes('JetBrains Mono')) {
+                googleFontsToLoad.push('JetBrains+Mono:wght@300;400;500;600;700');
+            } else if (fontFamily.includes('Source Sans Pro') && !googleFontsToLoad.includes('Source Sans Pro')) {
+                googleFontsToLoad.push('Source+Sans+Pro:wght@300;400;600;700');
             }
         });
+        
+        // Create a single Google Fonts CSS link for all needed fonts
+        if (googleFontsToLoad.length > 0) {
+            const link = document.createElement('link');
+            link.rel = 'preload';
+            link.as = 'style';
+            link.onload = function() { this.rel = 'stylesheet'; };
+            link.href = `https://fonts.googleapis.com/css2?family=${googleFontsToLoad.join('&family=')}&display=swap`;
+            
+            // Add crossorigin for better caching
+            link.crossOrigin = 'anonymous';
+            
+            document.head.appendChild(link);
+            
+            console.log('Preloaded Google Fonts:', googleFontsToLoad.join(', '));
+        }
     }
     
     /**

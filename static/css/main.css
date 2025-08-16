@@ -64,13 +64,123 @@ h1, h2, h3, h4, h5, h6 {
   font-weight: 700;
 }
 
-/* Text Gradient */
+/* Enhanced Text Styling - Consistent white color approach */
 .text-gradient {
-  background: linear-gradient(135deg, var(--portfolio-primary), var(--portfolio-secondary));
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  color: white;
+  font-weight: 800;
+  position: relative;
   display: inline-block;
+  text-shadow: 
+    0 2px 4px rgba(0, 0, 0, 0.3),
+    0 4px 8px rgba(0, 0, 0, 0.2),
+    0 1px 0px rgba(255, 255, 255, 0.8);
+  transition: all 0.3s ease;
+}
+
+/* Animated underline effect */
+.text-gradient::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 100%;
+  height: 3px;
+  background: white;
+  border-radius: 2px;
+  transform: scaleX(0);
+  transform-origin: left;
+  animation: underlineGrow 2s ease-out 0.5s forwards;
+  box-shadow: 
+    0 2px 8px rgba(255, 255, 255, 0.4),
+    0 0 12px rgba(255, 255, 255, 0.3);
+}
+
+/* Hover effect */
+.text-gradient:hover {
+  color: white;
+  text-shadow: 
+    0 3px 6px rgba(0, 0, 0, 0.4),
+    0 6px 12px rgba(0, 0, 0, 0.3),
+    0 0 20px rgba(255, 255, 255, 0.6),
+    0 1px 0px rgba(255, 255, 255, 1);
+  transform: translateY(-1px);
+}
+
+/* Dark mode adaptation */
+[data-bs-theme="dark"] .text-gradient {
+  color: white;
+  text-shadow: 
+    0 2px 4px rgba(0, 0, 0, 0.6),
+    0 4px 8px rgba(0, 0, 0, 0.4),
+    0 0 20px rgba(255, 255, 255, 0.3),
+    0 1px 0px rgba(255, 255, 255, 0.9);
+}
+
+[data-bs-theme="dark"] .text-gradient::after {
+  background: white;
+  box-shadow: 
+    0 2px 8px rgba(255, 255, 255, 0.5),
+    0 0 16px rgba(255, 255, 255, 0.4);
+}
+
+[data-bs-theme="dark"] .text-gradient:hover {
+  color: white;
+  text-shadow: 
+    0 3px 6px rgba(0, 0, 0, 0.5),
+    0 6px 12px rgba(0, 0, 0, 0.4),
+    0 0 24px rgba(255, 255, 255, 0.5),
+    0 1px 0px rgba(255, 255, 255, 1);
+}
+
+/* High contrast mode */
+@media (prefers-contrast: high) {
+  .text-gradient {
+    color: white;
+    text-shadow: 
+      2px 2px 0px #000000,
+      -2px -2px 0px #000000,
+      2px -2px 0px #000000,
+      -2px 2px 0px #000000;
+    border-bottom: 3px solid white;
+  }
+  
+  .text-gradient::after {
+    display: none;
+  }
+  
+  [data-bs-theme="dark"] .text-gradient {
+    color: white;
+    text-shadow: 
+      2px 2px 0px #000000,
+      -2px -2px 0px #000000,
+      2px -2px 0px #000000,
+      -2px 2px 0px #000000;
+    border-bottom-color: white;
+  }
+}
+
+/* Reduced motion preference */
+@media (prefers-reduced-motion: reduce) {
+  .text-gradient::after {
+    animation: none;
+    transform: scaleX(1);
+  }
+  
+  .text-gradient,
+  .text-gradient:hover {
+    transition: none;
+    transform: none;
+  }
+}
+
+/* Underline grow animation */
+@keyframes underlineGrow {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
 }
 
 /* Utility Classes */
