@@ -11,10 +11,21 @@ from .widgets import Base64ImageWidget, MultipleBase64ImageWidget
 class CategoryAdmin(admin.ModelAdmin):
     """Admin interface for categories"""
     
-    list_display = ('name', 'slug', 'color_preview', 'icon', 'color')
+    list_display = ('name', 'slug', 'color_preview', 'icon', 'color', 'created_at')
     list_editable = ('color',)
     search_fields = ('name', 'description')
     prepopulated_fields = {'slug': ('name',)}
+    readonly_fields = ('created_at', 'updated_at')
+    
+    fieldsets = (
+        ('Category Information', {
+            'fields': ('name', 'slug', 'description', 'icon', 'color')
+        }),
+        ('Timestamps', {
+            'fields': ('created_at', 'updated_at'),
+            'classes': ('collapse',)
+        }),
+    )
     
     def color_preview(self, obj):
         return format_html(
@@ -28,11 +39,12 @@ class CategoryAdmin(admin.ModelAdmin):
 class TechnologyAdmin(admin.ModelAdmin):
     """Admin interface for technologies"""
     
-    list_display = ('name', 'proficiency', 'years_experience', 'icon')
+    list_display = ('name', 'proficiency', 'years_experience', 'icon', 'created_at')
     list_editable = ('proficiency', 'years_experience')
-    list_filter = ('proficiency',)
+    list_filter = ('proficiency', 'created_at')
     search_fields = ('name', 'description')
     prepopulated_fields = {'slug': ('name',)}
+    readonly_fields = ('created_at', 'updated_at')
     
     fieldsets = (
         ('Technology Information', {
@@ -40,6 +52,10 @@ class TechnologyAdmin(admin.ModelAdmin):
         }),
         ('Experience Level', {
             'fields': ('proficiency', 'years_experience')
+        }),
+        ('Timestamps', {
+            'fields': ('created_at', 'updated_at'),
+            'classes': ('collapse',)
         }),
     )
 
@@ -74,6 +90,10 @@ class ProjectAdmin(admin.ModelAdmin):
         }),
         ('SEO', {
             'fields': ('meta_title', 'meta_description'),
+            'classes': ('collapse',)
+        }),
+        ('Timestamps', {
+            'fields': ('created_at', 'updated_at'),
             'classes': ('collapse',)
         }),
     )
@@ -124,6 +144,10 @@ class BlogPostAdmin(admin.ModelAdmin):
             'fields': ('views_count',),
             'classes': ('collapse',)
         }),
+        ('Timestamps', {
+            'fields': ('created_at', 'updated_at'),
+            'classes': ('collapse',)
+        }),
     )
     
     readonly_fields = ('created_at', 'updated_at', 'views_count')
@@ -158,6 +182,10 @@ class TestimonialAdmin(admin.ModelAdmin):
         ('Settings', {
             'fields': ('is_featured', 'is_approved')
         }),
+        ('Timestamps', {
+            'fields': ('created_at', 'updated_at'),
+            'classes': ('collapse',)
+        }),
     )
     
     readonly_fields = ('created_at', 'updated_at')
@@ -191,6 +219,10 @@ class ServiceAdmin(admin.ModelAdmin):
         }),
         ('Settings', {
             'fields': ('is_active', 'is_featured', 'order')
+        }),
+        ('Timestamps', {
+            'fields': ('created_at', 'updated_at'),
+            'classes': ('collapse',)
         }),
     )
     
