@@ -1,0 +1,817 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Testimonials - {{ site_settings.site_name }}{% endblock %}
+
+{% block body_class %}testimonials-page{% endblock %}
+
+{% block extra_css %}
+<style>
+    .testimonials-hero {
+        background: linear-gradient(135deg, var(--theme-primary), var(--theme-secondary));
+        color: white;
+        padding: 4rem 0 2rem;
+        margin-top: 4rem;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .testimonials-hero::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.1'%3E%3Ccircle cx='30' cy='30' r='4'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E") repeat;
+        opacity: 0.3;
+    }
+    
+    .testimonial-card {
+        background: white;
+        border-radius: 1rem;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+        transition: all 0.3s ease;
+        position: relative;
+        border: 1px solid rgba(var(--theme-primary), 0.1);
+    }
+    
+    .testimonial-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+        border-color: var(--theme-primary);
+    }
+    
+    .testimonial-card.featured {
+        border: 2px solid var(--theme-primary);
+        background: linear-gradient(135deg, rgba(var(--theme-primary), 0.05), rgba(var(--theme-secondary), 0.05));
+    }
+    
+    .testimonial-card.featured::before {
+        content: '⭐ Featured';
+        position: absolute;
+        top: -10px;
+        right: 20px;
+        background: var(--theme-primary);
+        color: white;
+        padding: 0.25rem 0.75rem;
+        border-radius: 1rem;
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    
+    .quote-icon {
+        font-size: 3rem;
+        color: var(--theme-primary);
+        opacity: 0.3;
+        position: absolute;
+        top: 1rem;
+        left: 1.5rem;
+    }
+    
+    .testimonial-content {
+        position: relative;
+        z-index: 2;
+        padding-left: 2rem;
+    }
+    
+    .testimonial-text {
+        font-size: 1.1rem;
+        line-height: 1.7;
+        color: var(--bs-dark);
+        font-style: italic;
+        margin-bottom: 1.5rem;
+        text-align: justify;
+    }
+    
+    .client-info {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        margin-bottom: 1rem;
+    }
+    
+    .client-avatar {
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, var(--theme-primary), var(--theme-secondary));
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: bold;
+        font-size: 1.25rem;
+        flex-shrink: 0;
+        border: 3px solid white;
+        box-shadow: 0 3px 10px rgba(0, 0, 0, 0.15);
+    }
+    
+    .client-avatar img {
+        width: 100%;
+        height: 100%;
+        border-radius: 50%;
+        object-fit: cover;
+    }
+    
+    .client-details h5 {
+        margin: 0;
+        color: var(--bs-dark);
+        font-weight: 600;
+    }
+    
+    .client-title {
+        color: var(--bs-secondary-color);
+        font-size: 0.9rem;
+        margin: 0;
+    }
+    
+    .client-company {
+        color: var(--theme-primary);
+        font-size: 0.9rem;
+        font-weight: 500;
+        margin: 0;
+    }
+    
+    .testimonial-meta {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 1rem;
+        padding-top: 1rem;
+        border-top: 1px solid rgba(var(--theme-primary), 0.1);
+    }
+    
+    .rating {
+        display: flex;
+        gap: 0.25rem;
+    }
+    
+    .star {
+        color: #ffd700;
+        font-size: 1.25rem;
+    }
+    
+    .star.empty {
+        color: #e9ecef;
+    }
+    
+    .project-tags {
+        display: flex;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+    }
+    
+    .project-tag {
+        background: rgba(var(--theme-primary), 0.1);
+        color: var(--theme-primary);
+        padding: 0.25rem 0.75rem;
+        border-radius: 1rem;
+        font-size: 0.75rem;
+        font-weight: 500;
+        border: 1px solid rgba(var(--theme-primary), 0.2);
+    }
+    
+    .testimonial-date {
+        font-size: 0.875rem;
+        color: var(--bs-secondary-color);
+        font-style: normal;
+    }
+    
+    .stats-section {
+        background: #f8f9fa;
+        padding: 3rem 0;
+    }
+    
+    .stat-item {
+        text-align: center;
+        padding: 1.5rem;
+    }
+    
+    .stat-number {
+        font-size: 3rem;
+        font-weight: bold;
+        color: var(--theme-primary);
+        display: block;
+        margin-bottom: 0.5rem;
+        background: var(--theme-gradient-primary);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+    
+    .stat-label {
+        color: var(--bs-secondary-color);
+        font-weight: 500;
+        text-transform: uppercase;
+        font-size: 0.875rem;
+        letter-spacing: 0.5px;
+    }
+    
+    .cta-section {
+        background: var(--theme-gradient-primary);
+        color: white;
+        padding: 4rem 0;
+        text-align: center;
+    }
+    
+    .filter-tabs {
+        display: flex;
+        justify-content: center;
+        gap: 1rem;
+        margin-bottom: 3rem;
+        flex-wrap: wrap;
+    }
+    
+    .filter-tab {
+        padding: 0.75rem 1.5rem;
+        border: 2px solid var(--theme-primary);
+        border-radius: 2rem;
+        background: white;
+        color: var(--theme-primary);
+        text-decoration: none;
+        font-weight: 500;
+        transition: all 0.3s ease;
+    }
+    
+    .filter-tab:hover,
+    .filter-tab.active {
+        background: var(--theme-primary);
+        color: white;
+        text-decoration: none;
+        transform: translateY(-2px);
+    }
+    
+    /* Dark mode adjustments */
+    [data-bs-theme="dark"] .testimonial-card {
+        background: rgba(255, 255, 255, 0.05);
+        border-color: rgba(255, 255, 255, 0.1);
+        color: white;
+    }
+    
+    [data-bs-theme="dark"] .testimonial-text {
+        color: rgba(255, 255, 255, 0.9);
+    }
+    
+    [data-bs-theme="dark"] .client-details h5 {
+        color: white;
+    }
+    
+    [data-bs-theme="dark"] .stats-section {
+        background: rgba(0, 0, 0, 0.2);
+    }
+    
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+        .testimonial-content {
+            padding-left: 1rem;
+        }
+        
+        .quote-icon {
+            font-size: 2rem;
+            top: 0.5rem;
+            left: 1rem;
+        }
+        
+        .client-info {
+            flex-direction: column;
+            text-align: center;
+        }
+        
+        .testimonial-meta {
+            flex-direction: column;
+            text-align: center;
+        }
+        
+        .filter-tabs {
+            flex-direction: column;
+            align-items: center;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="testimonials-hero">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-8 mx-auto text-center" data-aos="fade-up">
+                <h1 class="display-4 fw-bold mb-3">Client Testimonials</h1>
+                <p class="lead mb-4">
+                    Don't just take my word for it. Here's what my clients have to say about working with me.
+                </p>
+                <div class="d-flex justify-content-center gap-3 flex-wrap">
+                    <span class="badge bg-white text-primary fs-6 px-3 py-2">
+                        <i class="bi bi-star-fill me-1"></i>
+                        {{ average_rating|default:"5.0" }}/5 Average Rating
+                    </span>
+                    <span class="badge bg-white text-primary fs-6 px-3 py-2">
+                        <i class="bi bi-people-fill me-1"></i>
+                        {{ total_testimonials|default:"50" }}+ Happy Clients
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Filter Tabs -->
+<section class="py-4">
+    <div class="container">
+        <div class="filter-tabs">
+            <a href="#" class="filter-tab active" data-filter="all">
+                <i class="bi bi-grid me-1"></i>All Projects
+            </a>
+            <a href="#" class="filter-tab" data-filter="web-development">
+                <i class="bi bi-code-slash me-1"></i>Web Development
+            </a>
+            <a href="#" class="filter-tab" data-filter="mobile-app">
+                <i class="bi bi-phone me-1"></i>Mobile Apps
+            </a>
+            <a href="#" class="filter-tab" data-filter="ecommerce">
+                <i class="bi bi-cart me-1"></i>E-commerce
+            </a>
+            <a href="#" class="filter-tab" data-filter="ui-design">
+                <i class="bi bi-palette me-1"></i>UI/UX Design
+            </a>
+        </div>
+    </div>
+</section>
+
+<!-- Testimonials Grid -->
+<section class="py-5">
+    <div class="container">
+        <div class="row" id="testimonials-grid">
+            {% if testimonials %}
+                {% for testimonial in testimonials %}
+                <div class="col-lg-6 mb-4" data-aos="fade-up" data-aos-delay="{{ forloop.counter|add:"00" }}">
+                    <div class="testimonial-card {% if testimonial.is_featured %}featured{% endif %}" 
+                         data-category="{{ testimonial.project_category|default:'web-development' }}">
+                        <div class="quote-icon">
+                            <i class="bi bi-quote"></i>
+                        </div>
+                        <div class="testimonial-content">
+                            <div class="testimonial-text">
+                                "{{ testimonial.content }}"
+                            </div>
+                            
+                            <div class="client-info">
+                                <div class="client-avatar">
+                                    {% if testimonial.client_image %}
+                                        <img src="{{ testimonial.client_image.url }}" alt="{{ testimonial.client_name }}">
+                                    {% else %}
+                                        {{ testimonial.client_name|first }}{{ testimonial.client_name|slice:"1:2"|upper }}
+                                    {% endif %}
+                                </div>
+                                <div class="client-details">
+                                    <h5>{{ testimonial.client_name }}</h5>
+                                    {% if testimonial.client_title %}
+                                    <p class="client-title">{{ testimonial.client_title }}</p>
+                                    {% endif %}
+                                    {% if testimonial.client_company %}
+                                    <p class="client-company">{{ testimonial.client_company }}</p>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            
+                            <div class="testimonial-meta">
+                                <div class="rating">
+                                    {% for i in "12345" %}
+                                        {% if forloop.counter <= testimonial.rating %}
+                                            <i class="bi bi-star-fill star"></i>
+                                        {% else %}
+                                            <i class="bi bi-star star empty"></i>
+                                        {% endif %}
+                                    {% endfor %}
+                                </div>
+                                
+                                {% if testimonial.project_tags %}
+                                <div class="project-tags">
+                                    {% for tag in testimonial.project_tags_list %}
+                                    <span class="project-tag">{{ tag }}</span>
+                                    {% endfor %}
+                                </div>
+                                {% endif %}
+                                
+                                {% if testimonial.created_at %}
+                                <div class="testimonial-date">
+                                    {{ testimonial.created_at|date:"F Y" }}
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+            <!-- Sample testimonials for demonstration -->
+            <div class="col-lg-6 mb-4" data-aos="fade-up" data-aos-delay="100">
+                <div class="testimonial-card featured" data-category="web-development">
+                    <div class="quote-icon">
+                        <i class="bi bi-quote"></i>
+                    </div>
+                    <div class="testimonial-content">
+                        <div class="testimonial-text">
+                            "Working with {{ site_settings.owner_name|default:"this developer" }} was an absolute pleasure. They delivered a stunning website that exceeded all our expectations. The attention to detail and professional communication throughout the project was outstanding."
+                        </div>
+                        
+                        <div class="client-info">
+                            <div class="client-avatar">SK</div>
+                            <div class="client-details">
+                                <h5>Sarah Johnson</h5>
+                                <p class="client-title">Marketing Director</p>
+                                <p class="client-company">TechStart Inc.</p>
+                            </div>
+                        </div>
+                        
+                        <div class="testimonial-meta">
+                            <div class="rating">
+                                <i class="bi bi-star-fill star"></i>
+                                <i class="bi bi-star-fill star"></i>
+                                <i class="bi bi-star-fill star"></i>
+                                <i class="bi bi-star-fill star"></i>
+                                <i class="bi bi-star-fill star"></i>
+                            </div>
+                            <div class="project-tags">
+                                <span class="project-tag">Web Development</span>
+                                <span class="project-tag">E-commerce</span>
+                                <span class="project-tag">React</span>
+                            </div>
+                            <div class="testimonial-date">October 2024</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-6 mb-4" data-aos="fade-up" data-aos-delay="200">
+                <div class="testimonial-card" data-category="mobile-app">
+                    <div class="quote-icon">
+                        <i class="bi bi-quote"></i>
+                    </div>
+                    <div class="testimonial-content">
+                        <div class="testimonial-text">
+                            "Exceptional work on our mobile app project. The developer was responsive, creative, and delivered on time. Our app store ratings improved significantly after the redesign."
+                        </div>
+                        
+                        <div class="client-info">
+                            <div class="client-avatar">MC</div>
+                            <div class="client-details">
+                                <h5>Michael Chen</h5>
+                                <p class="client-title">Product Manager</p>
+                                <p class="client-company">AppFlow Solutions</p>
+                            </div>
+                        </div>
+                        
+                        <div class="testimonial-meta">
+                            <div class="rating">
+                                <i class="bi bi-star-fill star"></i>
+                                <i class="bi bi-star-fill star"></i>
+                                <i class="bi bi-star-fill star"></i>
+                                <i class="bi bi-star-fill star"></i>
+                                <i class="bi bi-star star empty"></i>
+                            </div>
+                            <div class="project-tags">
+                                <span class="project-tag">Mobile Development</span>
+                                <span class="project-tag">React Native</span>
+                                <span class="project-tag">UI/UX Design</span>
+                            </div>
+                            <div class="testimonial-date">September 2024</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-6 mb-4" data-aos="fade-up" data-aos-delay="300">
+                <div class="testimonial-card" data-category="ecommerce">
+                    <div class="quote-icon">
+                        <i class="bi bi-quote"></i>
+                    </div>
+                    <div class="testimonial-content">
+                        <div class="testimonial-text">
+                            "Our e-commerce platform transformation was handled brilliantly. Sales increased by 40% in the first month after launch. Professional, reliable, and skilled."
+                        </div>
+                        
+                        <div class="client-info">
+                            <div class="client-avatar">ED</div>
+                            <div class="client-details">
+                                <h5>Emily Davis</h5>
+                                <p class="client-title">CEO</p>
+                                <p class="client-company">Fashion Forward</p>
+                            </div>
+                        </div>
+                        
+                        <div class="testimonial-meta">
+                            <div class="rating">
+                                <i class="bi bi-star-fill star"></i>
+                                <i class="bi bi-star-fill star"></i>
+                                <i class="bi bi-star-fill star"></i>
+                                <i class="bi bi-star-fill star"></i>
+                                <i class="bi bi-star-fill star"></i>
+                            </div>
+                            <div class="project-tags">
+                                <span class="project-tag">E-commerce</span>
+                                <span class="project-tag">Shopify</span>
+                                <span class="project-tag">Payment Integration</span>
+                            </div>
+                            <div class="testimonial-date">August 2024</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-6 mb-4" data-aos="fade-up" data-aos-delay="400">
+                <div class="testimonial-card" data-category="ui-design">
+                    <div class="quote-icon">
+                        <i class="bi bi-quote"></i>
+                    </div>
+                    <div class="testimonial-content">
+                        <div class="testimonial-text">
+                            "The UI/UX redesign completely transformed our user experience. User engagement increased dramatically, and the design is both beautiful and functional."
+                        </div>
+                        
+                        <div class="client-info">
+                            <div class="client-avatar">JW</div>
+                            <div class="client-details">
+                                <h5>James Wilson</h5>
+                                <p class="client-title">UX Lead</p>
+                                <p class="client-company">Digital Innovations</p>
+                            </div>
+                        </div>
+                        
+                        <div class="testimonial-meta">
+                            <div class="rating">
+                                <i class="bi bi-star-fill star"></i>
+                                <i class="bi bi-star-fill star"></i>
+                                <i class="bi bi-star-fill star"></i>
+                                <i class="bi bi-star-fill star"></i>
+                                <i class="bi bi-star-fill star"></i>
+                            </div>
+                            <div class="project-tags">
+                                <span class="project-tag">UI/UX Design</span>
+                                <span class="project-tag">Prototyping</span>
+                                <span class="project-tag">User Research</span>
+                            </div>
+                            <div class="testimonial-date">July 2024</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-6 mb-4" data-aos="fade-up" data-aos-delay="500">
+                <div class="testimonial-card" data-category="web-development">
+                    <div class="quote-icon">
+                        <i class="bi bi-quote"></i>
+                    </div>
+                    <div class="testimonial-content">
+                        <div class="testimonial-text">
+                            "Outstanding portfolio website development. The site perfectly represents our brand and has helped us attract new clients. Highly recommend!"
+                        </div>
+                        
+                        <div class="client-info">
+                            <div class="client-avatar">LR</div>
+                            <div class="client-details">
+                                <h5>Lisa Rodriguez</h5>
+                                <p class="client-title">Creative Director</p>
+                                <p class="client-company">Creative Studio</p>
+                            </div>
+                        </div>
+                        
+                        <div class="testimonial-meta">
+                            <div class="rating">
+                                <i class="bi bi-star-fill star"></i>
+                                <i class="bi bi-star-fill star"></i>
+                                <i class="bi bi-star-fill star"></i>
+                                <i class="bi bi-star-fill star"></i>
+                                <i class="bi bi-star-fill star"></i>
+                            </div>
+                            <div class="project-tags">
+                                <span class="project-tag">Portfolio Design</span>
+                                <span class="project-tag">Branding</span>
+                                <span class="project-tag">WordPress</span>
+                            </div>
+                            <div class="testimonial-date">June 2024</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-6 mb-4" data-aos="fade-up" data-aos-delay="600">
+                <div class="testimonial-card" data-category="web-development">
+                    <div class="quote-icon">
+                        <i class="bi bi-quote"></i>
+                    </div>
+                    <div class="testimonial-content">
+                        <div class="testimonial-text">
+                            "Fast, efficient, and professional. Our company website was delivered ahead of schedule and exceeded our expectations. Great communication throughout."
+                        </div>
+                        
+                        <div class="client-info">
+                            <div class="client-avatar">DT</div>
+                            <div class="client-details">
+                                <h5>David Thompson</h5>
+                                <p class="client-title">Operations Manager</p>
+                                <p class="client-company">Business Solutions Ltd</p>
+                            </div>
+                        </div>
+                        
+                        <div class="testimonial-meta">
+                            <div class="rating">
+                                <i class="bi bi-star-fill star"></i>
+                                <i class="bi bi-star-fill star"></i>
+                                <i class="bi bi-star-fill star"></i>
+                                <i class="bi bi-star-fill star"></i>
+                                <i class="bi bi-star star empty"></i>
+                            </div>
+                            <div class="project-tags">
+                                <span class="project-tag">Corporate Website</span>
+                                <span class="project-tag">Django</span>
+                                <span class="project-tag">CMS</span>
+                            </div>
+                            <div class="testimonial-date">May 2024</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+        
+        <!-- Load More Button -->
+        {% if testimonials|length > 6 %}
+        <div class="text-center mt-4">
+            <button class="btn btn-outline-primary btn-lg" id="load-more-btn">
+                <i class="bi bi-arrow-down-circle me-2"></i>
+                Load More Testimonials
+            </button>
+        </div>
+        {% endif %}
+    </div>
+</section>
+
+<!-- Statistics Section -->
+<section class="stats-section">
+    <div class="container">
+        <div class="row text-center">
+            <div class="col-lg-3 col-md-6 mb-4" data-aos="zoom-in" data-aos-delay="100">
+                <div class="stat-item">
+                    <span class="stat-number" data-count="{{ total_testimonials|default:'50' }}">0</span>
+                    <div class="stat-label">Happy Clients</div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6 mb-4" data-aos="zoom-in" data-aos-delay="200">
+                <div class="stat-item">
+                    <span class="stat-number" data-count="{{ average_rating|floatformat:1|default:'4.9' }}">0</span>
+                    <div class="stat-label">Average Rating</div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6 mb-4" data-aos="zoom-in" data-aos-delay="300">
+                <div class="stat-item">
+                    <span class="stat-number" data-count="{{ projects_completed|default:'75' }}">0</span>
+                    <div class="stat-label">Projects Completed</div>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6 mb-4" data-aos="zoom-in" data-aos-delay="400">
+                <div class="stat-item">
+                    <span class="stat-number" data-count="{{ repeat_clients|default:'85' }}">0</span>
+                    <div class="stat-label">% Repeat Clients</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- CTA Section -->
+<section class="cta-section">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-8 text-center" data-aos="fade-up">
+                <h2 class="h1 mb-4">Ready to Join These Happy Clients?</h2>
+                <p class="lead mb-4">
+                    Let's create something amazing together. I'd love to help bring your vision to life 
+                    with the same dedication and quality that my clients rave about.
+                </p>
+                <div class="d-flex justify-content-center gap-3 flex-wrap">
+                    <a href="{% url 'portfolio:contact' %}" class="btn btn-light btn-lg">
+                        <i class="bi bi-envelope me-2"></i>
+                        Start Your Project
+                    </a>
+                    <a href="{% url 'portfolio:projects' %}" class="btn btn-outline-light btn-lg">
+                        <i class="bi bi-collection me-2"></i>
+                        View My Work
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Filter functionality
+    const filterTabs = document.querySelectorAll('.filter-tab');
+    const testimonialCards = document.querySelectorAll('.testimonial-card');
+    
+    filterTabs.forEach(tab => {
+        tab.addEventListener('click', function(e) {
+            e.preventDefault();
+            
+            // Remove active class from all tabs
+            filterTabs.forEach(t => t.classList.remove('active'));
+            
+            // Add active class to clicked tab
+            this.classList.add('active');
+            
+            // Get filter value
+            const filter = this.dataset.filter;
+            
+            // Filter testimonials
+            testimonialCards.forEach(card => {
+                const cardParent = card.parentElement;
+                
+                if (filter === 'all' || card.dataset.category === filter) {
+                    cardParent.style.display = 'block';
+                    card.style.animation = 'fadeIn 0.5s ease';
+                } else {
+                    cardParent.style.display = 'none';
+                }
+            });
+        });
+    });
+    
+    // Counter animation
+    const counters = document.querySelectorAll('[data-count]');
+    const counterObserver = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                const counter = entry.target;
+                const target = parseFloat(counter.getAttribute('data-count'));
+                const duration = 2000;
+                const increment = target / (duration / 16);
+                
+                let current = 0;
+                const timer = setInterval(() => {
+                    current += increment;
+                    
+                    if (current >= target) {
+                        current = target;
+                        clearInterval(timer);
+                    }
+                    
+                    // Format number (handle decimals for ratings)
+                    if (target % 1 !== 0) {
+                        counter.textContent = current.toFixed(1);
+                    } else {
+                        counter.textContent = Math.floor(current);
+                    }
+                }, 16);
+                
+                counterObserver.unobserve(counter);
+            }
+        });
+    }, { threshold: 0.5 });
+    
+    counters.forEach(counter => {
+        counterObserver.observe(counter);
+    });
+    
+    // Load more functionality
+    const loadMoreBtn = document.getElementById('load-more-btn');
+    if (loadMoreBtn) {
+        loadMoreBtn.addEventListener('click', function() {
+            // This would typically load more testimonials via AJAX
+            console.log('Load more testimonials');
+            this.innerHTML = '<i class="bi bi-check-circle me-2"></i>All Testimonials Loaded';
+            this.disabled = true;
+        });
+    }
+    
+    // Testimonial card hover effects
+    testimonialCards.forEach(card => {
+        card.addEventListener('mouseenter', function() {
+            this.style.transform = 'translateY(-8px)';
+        });
+        
+        card.addEventListener('mouseleave', function() {
+            this.style.transform = 'translateY(-5px)';
+        });
+    });
+});
+
+// CSS animation for filtered items
+const style = document.createElement('style');
+style.textContent = `
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+`;
+document.head.appendChild(style);
+</script>
+{% endblock %}

@@ -1,6 +1,7 @@
 from django.db import models
 from django.core.validators import URLValidator
 from django.utils.translation import gettext_lazy as _
+import json
 
 
 class SiteParameter(models.Model):
@@ -17,6 +18,13 @@ class SiteParameter(models.Model):
         ('light', 'Light Mode'),
         ('dark', 'Dark Mode'),
         ('auto', 'Auto (System Preference)'),
+    ]
+    
+    FONT_PALETTE_CHOICES = [
+        ('modern_professional', 'Modern Professional'),
+        ('creative_editorial', 'Creative Editorial'),
+        ('tech_minimalist', 'Tech Minimalist'),
+        ('warm_humanist', 'Warm Humanist'),
     ]
     
     # Site Information
@@ -38,11 +46,49 @@ class SiteParameter(models.Model):
         choices=MODE_CHOICES, 
         default='auto'
     )
+    active_font_palette = models.CharField(
+        _("Active Font Palette"),
+        max_length=20,
+        choices=FONT_PALETTE_CHOICES,
+        default='modern_professional'
+    )
     
     # Contact Information
     email = models.EmailField(_("Contact Email"), blank=True)
     phone = models.CharField(_("Phone Number"), max_length=20, blank=True)
     location = models.CharField(_("Location"), max_length=100, blank=True)
+    
+    # Owner Information
+    owner_name = models.CharField(_("Owner Full Name"), max_length=100, blank=True)
+    owner_title = models.CharField(_("Professional Title"), max_length=200, blank=True)
+    profile_image_base64 = models.TextField(_("Profile Image (Base64)"), blank=True)
+    
+    # Dynamic About Content
+    about_me_text = models.TextField(_("About Me Text"), blank=True, 
+                                   help_text="Main about section content")
+    my_story_text = models.TextField(_("My Story Text"), blank=True,
+                                   help_text="Personal/professional story content")
+    bio = models.TextField(_("Bio"), blank=True, help_text="Short biography")
+    
+    # Values and Interests (stored as JSON)
+    values_interests = models.JSONField(_("Values & Interests"), default=dict, blank=True,
+                                      help_text="Store as JSON: {'values': [...], 'interests': [...]}")
+    
+    # Fun Facts (stored as JSON)
+    fun_facts = models.JSONField(_("Fun Facts"), default=dict, blank=True,
+                               help_text="Store as JSON: {'cups_of_coffee': 500, 'projects_completed': 50, ...}")
+    
+    # Contact Section Dynamic Content
+    availability_status = models.CharField(_("Availability Status"), max_length=20,
+                                         choices=[
+                                             ('available', 'Available for Projects'),
+                                             ('busy', 'Currently Busy'),
+                                             ('unavailable', 'Not Available'),
+                                         ], default='available')
+    availability_message = models.TextField(_("Availability Message"), blank=True,
+                                          help_text="Custom message about availability")
+    response_time = models.CharField(_("Response Time"), max_length=50, 
+                                   default="Usually within 24 hours")
     
     # SEO Settings
     meta_title = models.CharField(_("Meta Title"), max_length=60, blank=True)
@@ -146,3 +192,196 @@ class ColorPalette(models.Model):
         if self.is_default:
             ColorPalette.objects.filter(is_default=True).update(is_default=False)
         super().save(*args, **kwargs)
+
+
+class FontPalette(models.Model):
+    """Model for custom font palettes"""
+    
+    name = models.CharField(_("Palette Name"), max_length=50, unique=True)
+    slug = models.SlugField(_("Slug"), unique=True)
+    description = models.TextField(_("Description"), blank=True)
+    
+    # Font Family Definitions
+    heading_font = models.CharField(_("Heading Font"), max_length=200,
+                                  help_text="CSS font-family for headings")
+    body_font = models.CharField(_("Body Font"), max_length=200,
+                               help_text="CSS font-family for body text")
+    accent_font = models.CharField(_("Accent Font"), max_length=200, blank=True,
+                                 help_text="CSS font-family for accents/special elements")
+    
+    # Font Weights and Sizes
+    heading_weight = models.CharField(_("Heading Font Weight"), max_length=10, default="700")
+    body_weight = models.CharField(_("Body Font Weight"), max_length=10, default="400")
+    base_font_size = models.CharField(_("Base Font Size"), max_length=10, default="16px")
+    
+    # Google Fonts URLs (if needed)
+    google_fonts_url = models.URLField(_("Google Fonts URL"), blank=True,
+                                     help_text="URL to import Google Fonts")
+    
+    # Settings
+    is_active = models.BooleanField(_("Is Active"), default=True)
+    is_default = models.BooleanField(_("Is Default"), default=False)
+    
+    # Timestamps
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        verbose_name = _("Font Palette")
+        verbose_name_plural = _("Font Palettes")
+        ordering = ['name']
+    
+    def __str__(self):
+        return self.name
+    
+    def save(self, *args, **kwargs):
+        """Ensure only one default palette exists"""
+        if self.is_default:
+            FontPalette.objects.filter(is_default=True).update(is_default=False)
+        super().save(*args, **kwargs)
+
+
+class ProfessionalJourney(models.Model):
+    """Model for professional experience timeline"""
+    
+    ENTRY_TYPE_CHOICES = [
+        ('work', 'Work Experience'),
+        ('education', 'Education'),
+        ('certification', 'Certification'),
+        ('achievement', 'Achievement'),
+        ('project', 'Major Project'),
+    ]
+    
+    title = models.CharField(_("Title/Position"), max_length=200)
+    company = models.CharField(_("Company/Institution"), max_length=200)
+    location = models.CharField(_("Location"), max_length=100, blank=True)
+    
+    start_date = models.DateField(_("Start Date"))
+    end_date = models.DateField(_("End Date"), null=True, blank=True,
+                              help_text="Leave blank if current position")
+    is_current = models.BooleanField(_("Is Current Position"), default=False)
+    
+    description = models.TextField(_("Description"))
+    achievements = models.TextField(_("Key Achievements"), blank=True,
+                                  help_text="Bullet points of achievements")
+    technologies = models.TextField(_("Technologies Used"), blank=True,
+                                  help_text="Comma-separated list of technologies")
+    
+    entry_type = models.CharField(_("Entry Type"), max_length=20,
+                                choices=ENTRY_TYPE_CHOICES, default='work')
+    
+    # Ordering and visibility
+    order = models.PositiveIntegerField(_("Order"), default=0)
+    is_featured = models.BooleanField(_("Is Featured"), default=False,
+                                    help_text="Show in featured experience section")
+    is_active = models.BooleanField(_("Is Active"), default=True)
+    
+    # Timestamps
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        verbose_name = _("Professional Journey Entry")
+        verbose_name_plural = _("Professional Journey Entries")
+        ordering = ['-start_date', 'order']
+    
+    def __str__(self):
+        return f"{self.title} at {self.company}"
+    
+    @property
+    def duration(self):
+        """Calculate duration of experience"""
+        from datetime import date
+        end = self.end_date or date.today()
+        start = self.start_date
+        
+        years = end.year - start.year
+        months = end.month - start.month
+        
+        if months < 0:
+            years -= 1
+            months += 12
+        
+        if years > 0 and months > 0:
+            return f"{years} year{'s' if years > 1 else ''}, {months} month{'s' if months > 1 else ''}"
+        elif years > 0:
+            return f"{years} year{'s' if years > 1 else ''}"
+        elif months > 0:
+            return f"{months} month{'s' if months > 1 else ''}"
+        else:
+            return "Less than a month"
+    
+    @property
+    def achievements_list(self):
+        """Return achievements as a list"""
+        if self.achievements:
+            return [item.strip() for item in self.achievements.split('\n') if item.strip()]
+        return []
+    
+    @property
+    def technologies_list(self):
+        """Return technologies as a list"""
+        if self.technologies:
+            return [item.strip() for item in self.technologies.split(',') if item.strip()]
+        return []
+
+
+class FAQ(models.Model):
+    """Model for Frequently Asked Questions"""
+    
+    CATEGORY_CHOICES = [
+        ('general', 'General'),
+        ('services', 'Services'),
+        ('process', 'Process'),
+        ('pricing', 'Pricing'),
+        ('technical', 'Technical'),
+        ('contact', 'Contact'),
+    ]
+    
+    question = models.CharField(_("Question"), max_length=300)
+    answer = models.TextField(_("Answer"))
+    category = models.CharField(_("Category"), max_length=20,
+                              choices=CATEGORY_CHOICES, default='general')
+    
+    # Ordering and visibility
+    order = models.PositiveIntegerField(_("Order"), default=0)
+    is_active = models.BooleanField(_("Is Active"), default=True)
+    is_featured = models.BooleanField(_("Is Featured"), default=False,
+                                    help_text="Show in main FAQ section")
+    
+    # Timestamps
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        verbose_name = _("FAQ")
+        verbose_name_plural = _("FAQs")
+        ordering = ['category', 'order', 'question']
+    
+    def __str__(self):
+        return self.question
+
+
+class QuickAnswer(models.Model):
+    """Model for quick answers in contact section"""
+    
+    question = models.CharField(_("Question"), max_length=200)
+    answer = models.TextField(_("Answer"), max_length=500)
+    icon = models.CharField(_("Icon Class"), max_length=50, blank=True,
+                          help_text="Bootstrap icon class (e.g., bi-clock)")
+    
+    # Ordering and visibility
+    order = models.PositiveIntegerField(_("Order"), default=0)
+    is_active = models.BooleanField(_("Is Active"), default=True)
+    
+    # Timestamps
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        verbose_name = _("Quick Answer")
+        verbose_name_plural = _("Quick Answers")
+        ordering = ['order', 'question']
+    
+    def __str__(self):
+        return self.question

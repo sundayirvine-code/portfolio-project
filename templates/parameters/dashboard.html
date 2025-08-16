@@ -1,0 +1,324 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Parameters Dashboard - {{ site_settings.site_name }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .dashboard-header {
+        background: linear-gradient(135deg, var(--theme-primary), var(--theme-secondary));
+        color: white;
+        padding: 2rem 0;
+        margin-bottom: 2rem;
+        border-radius: 0.5rem;
+    }
+    
+    .stat-card {
+        background: white;
+        border: 1px solid var(--bs-border-color);
+        border-radius: 0.5rem;
+        padding: 1.5rem;
+        text-align: center;
+        transition: all 0.3s ease;
+        height: 100%;
+    }
+    
+    .stat-card:hover {
+        border-color: var(--theme-primary);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+    
+    .stat-number {
+        font-size: 2.5rem;
+        font-weight: bold;
+        color: var(--theme-primary);
+        display: block;
+        margin-bottom: 0.5rem;
+    }
+    
+    .stat-label {
+        color: var(--bs-secondary-color);
+        font-weight: 500;
+        text-transform: uppercase;
+        font-size: 0.875rem;
+        letter-spacing: 0.5px;
+    }
+    
+    .quick-action-card {
+        background: white;
+        border: 1px solid var(--bs-border-color);
+        border-radius: 0.5rem;
+        padding: 1.5rem;
+        text-align: center;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        color: inherit;
+        display: block;
+        height: 100%;
+    }
+    
+    .quick-action-card:hover {
+        border-color: var(--theme-primary);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        text-decoration: none;
+        color: inherit;
+    }
+    
+    .quick-action-icon {
+        font-size: 3rem;
+        color: var(--theme-primary);
+        margin-bottom: 1rem;
+    }
+    
+    .recent-activity {
+        background: white;
+        border: 1px solid var(--bs-border-color);
+        border-radius: 0.5rem;
+        padding: 1.5rem;
+    }
+    
+    .activity-item {
+        padding: 0.75rem 0;
+        border-bottom: 1px solid var(--bs-border-color-translucent);
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+    
+    .activity-item:last-child {
+        border-bottom: none;
+    }
+    
+    .activity-icon {
+        width: 40px;
+        height: 40px;
+        background: var(--theme-primary);
+        color: white;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.25rem;
+        flex-shrink: 0;
+    }
+    
+    .activity-content {
+        flex: 1;
+    }
+    
+    .activity-time {
+        font-size: 0.875rem;
+        color: var(--bs-secondary-color);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Dashboard Header -->
+    <div class="dashboard-header text-center">
+        <div class="container">
+            <h1 class="mb-3">
+                <i class="bi bi-speedometer2 me-3"></i>
+                Parameters Dashboard
+            </h1>
+            <p class="mb-0 fs-5">Manage your portfolio settings and content</p>
+        </div>
+    </div>
+    
+    <!-- Statistics Row -->
+    <div class="row mb-4">
+        <div class="col-md-3 mb-3">
+            <div class="stat-card">
+                <span class="stat-number">{{ total_parameters|default:"0" }}</span>
+                <div class="stat-label">Site Parameters</div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="stat-card">
+                <span class="stat-number">{{ font_palettes_count|default:"4" }}</span>
+                <div class="stat-label">Font Palettes</div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="stat-card">
+                <span class="stat-number">{{ professional_entries|default:"0" }}</span>
+                <div class="stat-label">Professional Entries</div>
+            </div>
+        </div>
+        <div class="col-md-3 mb-3">
+            <div class="stat-card">
+                <span class="stat-number">{{ faq_count|default:"0" }}</span>
+                <div class="stat-label">FAQ Items</div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Quick Actions -->
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <h3 class="mb-3">
+                <i class="bi bi-lightning-charge-fill text-warning me-2"></i>
+                Quick Actions
+            </h3>
+        </div>
+        <div class="col-md-3 mb-3">
+            <a href="/admin/parameters/siteparameter/" class="quick-action-card">
+                <div class="quick-action-icon">
+                    <i class="bi bi-gear-fill"></i>
+                </div>
+                <h5>Site Settings</h5>
+                <p class="text-muted mb-0">Configure basic site parameters</p>
+            </a>
+        </div>
+        <div class="col-md-3 mb-3">
+            <a href="/admin/parameters/fontpalette/" class="quick-action-card">
+                <div class="quick-action-icon">
+                    <i class="bi bi-fonts"></i>
+                </div>
+                <h5>Font Palettes</h5>
+                <p class="text-muted mb-0">Manage typography styles</p>
+            </a>
+        </div>
+        <div class="col-md-3 mb-3">
+            <a href="/admin/parameters/professionaljourney/" class="quick-action-card">
+                <div class="quick-action-icon">
+                    <i class="bi bi-briefcase-fill"></i>
+                </div>
+                <h5>Professional Journey</h5>
+                <p class="text-muted mb-0">Add work experience & education</p>
+            </a>
+        </div>
+        <div class="col-md-3 mb-3">
+            <a href="/admin/parameters/faq/" class="quick-action-card">
+                <div class="quick-action-icon">
+                    <i class="bi bi-question-circle-fill"></i>
+                </div>
+                <h5>FAQ Management</h5>
+                <p class="text-muted mb-0">Manage frequently asked questions</p>
+            </a>
+        </div>
+    </div>
+    
+    <!-- Content Management Row -->
+    <div class="row">
+        <!-- Recent Activity -->
+        <div class="col-md-8">
+            <div class="recent-activity">
+                <h4 class="mb-3">
+                    <i class="bi bi-clock-history me-2"></i>
+                    Recent Activity
+                </h4>
+                
+                {% if recent_activities %}
+                    {% for activity in recent_activities %}
+                    <div class="activity-item">
+                        <div class="activity-icon">
+                            <i class="bi bi-{{ activity.icon }}"></i>
+                        </div>
+                        <div class="activity-content">
+                            <div class="fw-medium">{{ activity.description }}</div>
+                            <div class="activity-time">{{ activity.timestamp|timesince }} ago</div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="text-center py-4 text-muted">
+                        <i class="bi bi-inbox display-4 d-block mb-3"></i>
+                        <p>No recent activity</p>
+                        <small>Start by updating your site parameters or adding content</small>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <!-- System Status -->
+        <div class="col-md-4">
+            <div class="recent-activity">
+                <h4 class="mb-3">
+                    <i class="bi bi-shield-check me-2"></i>
+                    System Status
+                </h4>
+                
+                <div class="activity-item">
+                    <div class="activity-icon bg-success">
+                        <i class="bi bi-check-lg"></i>
+                    </div>
+                    <div class="activity-content">
+                        <div class="fw-medium">Site Configuration</div>
+                        <div class="activity-time">All settings configured</div>
+                    </div>
+                </div>
+                
+                <div class="activity-item">
+                    <div class="activity-icon {% if site_settings.email %}bg-success{% else %}bg-warning{% endif %}">
+                        <i class="bi bi-{% if site_settings.email %}check-lg{% else %}exclamation-triangle{% endif %}"></i>
+                    </div>
+                    <div class="activity-content">
+                        <div class="fw-medium">Email Configuration</div>
+                        <div class="activity-time">
+                            {% if site_settings.email %}
+                                Email configured
+                            {% else %}
+                                Email not configured
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="activity-item">
+                    <div class="activity-icon {% if site_settings.font_palette %}bg-success{% else %}bg-info{% endif %}">
+                        <i class="bi bi-fonts"></i>
+                    </div>
+                    <div class="activity-content">
+                        <div class="fw-medium">Font Palette</div>
+                        <div class="activity-time">
+                            {% if site_settings.font_palette %}
+                                {{ site_settings.get_font_palette_display }}
+                            {% else %}
+                                Using default fonts
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="activity-item">
+                    <div class="activity-icon bg-info">
+                        <i class="bi bi-palette"></i>
+                    </div>
+                    <div class="activity-content">
+                        <div class="fw-medium">Color Palette</div>
+                        <div class="activity-time">Active: {{ active_palette.name|default:"Default" }}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Add some interactivity to stat cards
+    const statCards = document.querySelectorAll('.stat-card, .quick-action-card');
+    
+    statCards.forEach(card => {
+        card.addEventListener('mouseenter', function() {
+            this.style.transform = 'translateY(-4px)';
+        });
+        
+        card.addEventListener('mouseleave', function() {
+            this.style.transform = 'translateY(-2px)';
+        });
+    });
+    
+    // Auto-refresh activity every 5 minutes
+    setTimeout(function() {
+        location.reload();
+    }, 300000); // 5 minutes
+});
+</script>
+{% endblock %}

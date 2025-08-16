@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ cv_data.name }} - CV</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            font-size: 11pt;
+            line-height: 1.5;
+            color: #2d3748;
+            background: white;
+        }
+        
+        .cv-container {
+            max-width: 8.5in;
+            min-height: 11in;
+            margin: 0 auto;
+            padding: 0.75in;
+            background: white;
+        }
+        
+        /* Header Section */
+        .header {
+            border-bottom: 3px solid #4f46e5;
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .name {
+            font-size: 32pt;
+            font-weight: 700;
+            color: #1a202c;
+            margin-bottom: 8px;
+            letter-spacing: -0.5px;
+        }
+        
+        .title {
+            font-size: 16pt;
+            font-weight: 500;
+            color: #4f46e5;
+            margin-bottom: 15px;
+        }
+        
+        .contact-info {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            font-size: 10pt;
+            color: #4a5568;
+        }
+        
+        .contact-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        /* Section Styling */
+        .section {
+            margin-bottom: 25px;
+            page-break-inside: avoid;
+        }
+        
+        .section-title {
+            font-size: 14pt;
+            font-weight: 600;
+            color: #1a202c;
+            margin-bottom: 15px;
+            padding-bottom: 5px;
+            border-bottom: 2px solid #e2e8f0;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        /* Summary Section */
+        .summary {
+            font-size: 11pt;
+            line-height: 1.6;
+            color: #4a5568;
+            text-align: justify;
+        }
+        
+        /* Experience Section */
+        .experience-item {
+            margin-bottom: 20px;
+            page-break-inside: avoid;
+        }
+        
+        .job-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 8px;
+        }
+        
+        .job-title {
+            font-size: 13pt;
+            font-weight: 600;
+            color: #1a202c;
+        }
+        
+        .job-company {
+            font-size: 12pt;
+            font-weight: 500;
+            color: #4f46e5;
+            margin-bottom: 4px;
+        }
+        
+        .job-location {
+            font-size: 10pt;
+            color: #718096;
+            font-style: italic;
+        }
+        
+        .job-duration {
+            font-size: 10pt;
+            color: #718096;
+            text-align: right;
+            white-space: nowrap;
+        }
+        
+        .job-description {
+            font-size: 10pt;
+            line-height: 1.5;
+            color: #4a5568;
+            margin-bottom: 10px;
+        }
+        
+        .achievements {
+            margin: 10px 0;
+        }
+        
+        .achievements ul {
+            list-style: none;
+            padding-left: 0;
+        }
+        
+        .achievements li {
+            position: relative;
+            padding-left: 15px;
+            margin-bottom: 5px;
+            font-size: 10pt;
+            line-height: 1.4;
+        }
+        
+        .achievements li:before {
+            content: "▶";
+            position: absolute;
+            left: 0;
+            color: #4f46e5;
+            font-size: 8pt;
+        }
+        
+        .technologies {
+            margin-top: 8px;
+        }
+        
+        .tech-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+        
+        .tech-tag {
+            background: #edf2f7;
+            color: #4a5568;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 9pt;
+            font-weight: 500;
+        }
+        
+        /* Education Section */
+        .education-item {
+            margin-bottom: 15px;
+        }
+        
+        .degree {
+            font-size: 12pt;
+            font-weight: 600;
+            color: #1a202c;
+            margin-bottom: 4px;
+        }
+        
+        .institution {
+            font-size: 11pt;
+            font-weight: 500;
+            color: #4f46e5;
+            margin-bottom: 2px;
+        }
+        
+        .education-location {
+            font-size: 10pt;
+            color: #718096;
+            font-style: italic;
+        }
+        
+        /* Skills Section */
+        .skills-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+        
+        .skill-category {
+            margin-bottom: 12px;
+        }
+        
+        .skill-category-title {
+            font-size: 11pt;
+            font-weight: 600;
+            color: #1a202c;
+            margin-bottom: 6px;
+        }
+        
+        .skill-list {
+            font-size: 10pt;
+            color: #4a5568;
+            line-height: 1.4;
+        }
+        
+        /* Achievements Section */
+        .achievement-item {
+            margin-bottom: 12px;
+        }
+        
+        .achievement-title {
+            font-size: 11pt;
+            font-weight: 600;
+            color: #1a202c;
+            margin-bottom: 2px;
+        }
+        
+        .achievement-org {
+            font-size: 10pt;
+            color: #4f46e5;
+            font-weight: 500;
+        }
+        
+        .achievement-date {
+            font-size: 9pt;
+            color: #718096;
+            margin-left: 10px;
+        }
+        
+        /* Footer */
+        .footer {
+            margin-top: 30px;
+            padding-top: 15px;
+            border-top: 1px solid #e2e8f0;
+            text-align: center;
+            font-size: 9pt;
+            color: #a0aec0;
+        }
+        
+        /* Print Styles */
+        @media print {
+            body {
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+            
+            .cv-container {
+                padding: 0.5in;
+            }
+            
+            .section {
+                page-break-inside: avoid;
+            }
+            
+            .experience-item {
+                page-break-inside: avoid;
+            }
+        }
+        
+        /* ATS-Friendly Adjustments */
+        @media (max-width: 8.5in) {
+            .contact-info {
+                flex-direction: column;
+                gap: 8px;
+            }
+            
+            .job-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .job-duration {
+                text-align: left;
+                margin-top: 4px;
+            }
+            
+            .skills-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="cv-container">
+        {% if 'header' in include_sections %}
+        <!-- Header Section -->
+        <header class="header">
+            <h1 class="name">{{ cv_data.name }}</h1>
+            <div class="title">{{ cv_data.title }}</div>
+            <div class="contact-info">
+                <div class="contact-item">
+                    <span>📧</span> {{ cv_data.email }}
+                </div>
+                {% if cv_data.phone %}
+                <div class="contact-item">
+                    <span>📱</span> {{ cv_data.phone }}
+                </div>
+                {% endif %}
+                {% if cv_data.location %}
+                <div class="contact-item">
+                    <span>📍</span> {{ cv_data.location }}
+                </div>
+                {% endif %}
+                {% if cv_data.website %}
+                <div class="contact-item">
+                    <span>🌐</span> {{ cv_data.website }}
+                </div>
+                {% endif %}
+                {% if cv_data.social.linkedin %}
+                <div class="contact-item">
+                    <span>💼</span> LinkedIn
+                </div>
+                {% endif %}
+                {% if cv_data.social.github %}
+                <div class="contact-item">
+                    <span>💻</span> GitHub
+                </div>
+                {% endif %}
+            </div>
+        </header>
+        {% endif %}
+        
+        {% if 'summary' in include_sections and cv_data.summary %}
+        <!-- Summary Section -->
+        <section class="section">
+            <h2 class="section-title">Professional Summary</h2>
+            <div class="summary">{{ cv_data.summary }}</div>
+        </section>
+        {% endif %}
+        
+        {% if 'experience' in include_sections and cv_data.experience %}
+        <!-- Experience Section -->
+        <section class="section">
+            <h2 class="section-title">Professional Experience</h2>
+            {% for job in cv_data.experience %}
+            <div class="experience-item">
+                <div class="job-header">
+                    <div>
+                        <div class="job-title">{{ job.title }}</div>
+                        <div class="job-company">{{ job.company }}</div>
+                        {% if job.location %}
+                        <div class="job-location">{{ job.location }}</div>
+                        {% endif %}
+                    </div>
+                    <div class="job-duration">
+                        {{ job.start_date|date:"M Y" }} - 
+                        {% if job.is_current %}Present{% else %}{{ job.end_date|date:"M Y" }}{% endif %}
+                        {% if job.duration %}
+                        <br><small>({{ job.duration }})</small>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                {% if job.description %}
+                <div class="job-description">{{ job.description }}</div>
+                {% endif %}
+                
+                {% if job.achievements %}
+                <div class="achievements">
+                    <ul>
+                        {% for achievement in job.achievements %}
+                        <li>{{ achievement }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+                {% endif %}
+                
+                {% if job.technologies %}
+                <div class="technologies">
+                    <div class="tech-tags">
+                        {% for tech in job.technologies %}
+                        <span class="tech-tag">{{ tech }}</span>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+            {% endfor %}
+        </section>
+        {% endif %}
+        
+        {% if 'education' in include_sections and cv_data.education %}
+        <!-- Education Section -->
+        <section class="section">
+            <h2 class="section-title">Education</h2>
+            {% for edu in cv_data.education %}
+            <div class="education-item">
+                <div class="degree">{{ edu.degree }}</div>
+                <div class="institution">{{ edu.institution }}</div>
+                {% if edu.location %}
+                <div class="education-location">{{ edu.location }}</div>
+                {% endif %}
+                <div class="job-duration">
+                    {{ edu.start_date|date:"Y" }} - {{ edu.end_date|date:"Y" }}
+                </div>
+                {% if edu.achievements %}
+                <div class="achievements">
+                    <ul>
+                        {% for achievement in edu.achievements %}
+                        <li>{{ achievement }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+                {% endif %}
+            </div>
+            {% endfor %}
+        </section>
+        {% endif %}
+        
+        {% if 'skills' in include_sections and cv_data.skills %}
+        <!-- Skills Section -->
+        <section class="section">
+            <h2 class="section-title">Technical Skills</h2>
+            <div class="skills-grid">
+                {% for category, skills in cv_data.skills.items %}
+                <div class="skill-category">
+                    <div class="skill-category-title">{{ category|title|replace:"_":" " }}</div>
+                    <div class="skill-list">
+                        {% if skills|length > 0 %}
+                            {% for skill in skills %}{{ skill }}{% if not forloop.last %}, {% endif %}{% endfor %}
+                        {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </section>
+        {% endif %}
+        
+        {% if cv_data.achievements %}
+        <!-- Achievements Section -->
+        <section class="section">
+            <h2 class="section-title">Certifications & Achievements</h2>
+            {% for achievement in cv_data.achievements %}
+            <div class="achievement-item">
+                <div class="achievement-title">{{ achievement.title }}</div>
+                <span class="achievement-org">{{ achievement.organization }}</span>
+                {% if achievement.date %}
+                <span class="achievement-date">{{ achievement.date|date:"M Y" }}</span>
+                {% endif %}
+                {% if achievement.description %}
+                <div class="job-description">{{ achievement.description }}</div>
+                {% endif %}
+            </div>
+            {% endfor %}
+        </section>
+        {% endif %}
+        
+        <!-- Footer -->
+        <footer class="footer">
+            Generated on {{ generated_date|date:"F j, Y" }} | {{ cv_data.name }} CV | {{ format_type|title }} Format
+        </footer>
+    </div>
+</body>
+</html>

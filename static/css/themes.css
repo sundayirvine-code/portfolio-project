@@ -342,7 +342,9 @@ body,
   width: 12px;
   height: 12px;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.8);
+  background: rgba(255, 255, 255, 0.9);
+  border: 2px solid rgba(0, 0, 0, 0.3);
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.5);
   opacity: 0;
   transition: opacity 0.2s ease;
 }
@@ -351,21 +353,59 @@ body,
   opacity: 1;
 }
 
-/* Theme Option Colors */
-.theme-option.electric-neon {
+/* Theme Option Colors with better contrast */
+.theme-option {
+  position: relative;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.theme-option:hover {
+  border-color: rgba(255, 255, 255, 0.4);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.theme-option.active {
+  border-color: rgba(255, 255, 255, 0.6);
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.3), 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.theme-option[data-theme="electric-neon"] {
   background: linear-gradient(135deg, #6366f1, #8b5cf6);
 }
 
-.theme-option.sunset-gradient {
+.theme-option[data-theme="sunset-gradient"] {
   background: linear-gradient(135deg, #f59e0b, #ef4444);
 }
 
-.theme-option.ocean-deep {
+.theme-option[data-theme="ocean-deep"] {
   background: linear-gradient(135deg, #0ea5e9, #06b6d4);
 }
 
-.theme-option.forest-modern {
+.theme-option[data-theme="forest-modern"] {
   background: linear-gradient(135deg, #059669, #7c3aed);
+}
+
+/* Dark mode specific adjustments for theme options */
+[data-bs-theme="dark"] .theme-option {
+  border-color: rgba(0, 0, 0, 0.3);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+[data-bs-theme="dark"] .theme-option:hover {
+  border-color: rgba(0, 0, 0, 0.5);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+}
+
+[data-bs-theme="dark"] .theme-option.active {
+  border-color: rgba(0, 0, 0, 0.7);
+  box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.4), 0 4px 12px rgba(0, 0, 0, 0.5);
+}
+
+[data-bs-theme="dark"] .theme-option::after {
+  background: rgba(0, 0, 0, 0.8);
+  border-color: rgba(255, 255, 255, 0.3);
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.5);
 }
 
 /* ==========================================================================
@@ -456,6 +496,126 @@ body,
 
 @media (max-width: 576px) {
   .theme-picker {
+    display: none;
+  }
+}
+
+/* ==========================================================================
+   Font Picker Component
+   ========================================================================== */
+
+.font-picker {
+  position: fixed;
+  top: calc(50% + 60px);
+  right: -280px;
+  transform: translateY(-50%);
+  width: 280px;
+  background: white;
+  border-radius: 15px 0 0 15px;
+  box-shadow: -5px 0 25px rgba(0, 0, 0, 0.1);
+  transition: right 0.3s ease;
+  z-index: 1059;
+}
+
+.font-picker.show {
+  right: 0;
+}
+
+.font-picker-toggle {
+  position: absolute;
+  left: -40px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 40px;
+  height: 40px;
+  background: var(--theme-secondary);
+  color: white;
+  border: none;
+  border-radius: 8px 0 0 8px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.3s ease;
+}
+
+.font-picker-toggle:hover {
+  background: var(--theme-primary);
+}
+
+.font-option {
+  border: 2px solid transparent;
+  border-radius: 8px;
+  padding: 0.75rem;
+  margin-bottom: 0.5rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background: rgba(0, 0, 0, 0.02);
+}
+
+.font-option:hover {
+  border-color: var(--theme-primary);
+  background: rgba(var(--theme-primary), 0.05);
+  transform: translateY(-1px);
+}
+
+.font-option.active {
+  border-color: var(--theme-primary);
+  background: rgba(var(--theme-primary), 0.1);
+  box-shadow: 0 2px 8px rgba(var(--theme-primary), 0.2);
+}
+
+.font-preview {
+  text-align: center;
+}
+
+.font-heading-preview {
+  font-size: 1.5rem;
+  font-weight: bold;
+  margin-bottom: 0.25rem;
+  color: var(--theme-primary);
+}
+
+.font-name {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--theme-text);
+}
+
+.font-info {
+  background: rgba(var(--theme-primary), 0.05);
+  border-radius: 6px;
+  padding: 0.75rem;
+}
+
+/* Dark Mode Adjustments */
+[data-bs-theme="dark"] .font-picker {
+  background: #1e293b;
+  color: white;
+}
+
+[data-bs-theme="dark"] .font-option {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+[data-bs-theme="dark"] .font-option:hover {
+  background: rgba(var(--theme-primary), 0.1);
+}
+
+[data-bs-theme="dark"] .font-option.active {
+  background: rgba(var(--theme-primary), 0.15);
+}
+
+/* Responsive Font Picker */
+@media (max-width: 768px) {
+  .font-picker {
+    width: 250px;
+    right: -250px;
+  }
+}
+
+@media (max-width: 576px) {
+  .font-picker {
     display: none;
   }
 }

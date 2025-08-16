@@ -1,0 +1,637 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Color Palettes - {{ site_settings.site_name }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .palette-header {
+        background: linear-gradient(135deg, var(--theme-primary), var(--theme-secondary));
+        color: white;
+        padding: 2rem 0;
+        margin-bottom: 2rem;
+        border-radius: 0.5rem;
+    }
+    
+    .palette-card {
+        background: white;
+        border: 2px solid var(--bs-border-color);
+        border-radius: 1rem;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .palette-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    }
+    
+    .palette-card.active {
+        border-color: var(--theme-primary);
+        box-shadow: 0 0 0 3px rgba(var(--theme-primary), 0.1);
+    }
+    
+    .palette-preview {
+        display: flex;
+        border-radius: 0.75rem;
+        overflow: hidden;
+        margin-bottom: 1rem;
+        height: 60px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+    
+    .color-strip {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: 600;
+        font-size: 0.75rem;
+        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+        position: relative;
+    }
+    
+    .color-strip::after {
+        content: attr(data-color);
+        position: absolute;
+        bottom: 4px;
+        left: 50%;
+        transform: translateX(-50%);
+        font-size: 0.6rem;
+        opacity: 0.8;
+    }
+    
+    .palette-info {
+        margin-bottom: 1rem;
+    }
+    
+    .palette-name {
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: var(--bs-dark);
+        margin-bottom: 0.5rem;
+    }
+    
+    .palette-description {
+        color: var(--bs-secondary-color);
+        font-size: 0.9rem;
+        line-height: 1.5;
+    }
+    
+    .palette-details {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+        gap: 0.75rem;
+        margin-bottom: 1rem;
+    }
+    
+    .detail-item {
+        background: #f8f9fa;
+        border-radius: 0.5rem;
+        padding: 0.75rem;
+        text-align: center;
+    }
+    
+    .detail-label {
+        font-size: 0.75rem;
+        color: var(--bs-secondary-color);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 0.25rem;
+    }
+    
+    .detail-value {
+        font-weight: 600;
+        color: var(--bs-dark);
+        font-size: 0.875rem;
+    }
+    
+    .palette-actions {
+        display: flex;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+    }
+    
+    .active-badge {
+        position: absolute;
+        top: 1rem;
+        right: 1rem;
+        background: var(--theme-primary);
+        color: white;
+        padding: 0.25rem 0.75rem;
+        border-radius: 1rem;
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    
+    .custom-palette-card {
+        background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+        border: 2px dashed var(--bs-border-color);
+        border-radius: 1rem;
+        padding: 2rem;
+        text-align: center;
+        transition: all 0.3s ease;
+        margin-bottom: 2rem;
+    }
+    
+    .custom-palette-card:hover {
+        border-color: var(--theme-primary);
+        background: linear-gradient(135deg, var(--theme-primary), var(--theme-secondary));
+        color: white;
+        transform: translateY(-2px);
+    }
+    
+    .color-picker-group {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+        gap: 1rem;
+        margin-bottom: 1rem;
+    }
+    
+    .color-input-group {
+        text-align: center;
+    }
+    
+    .color-input {
+        width: 60px;
+        height: 60px;
+        border: 3px solid #fff;
+        border-radius: 50%;
+        cursor: pointer;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+        margin-bottom: 0.5rem;
+    }
+    
+    .color-label {
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: var(--bs-secondary-color);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Header -->
+    <div class="palette-header text-center">
+        <div class="container">
+            <h1 class="mb-3">
+                <i class="bi bi-palette-fill me-3"></i>
+                Color Palette Management
+            </h1>
+            <p class="mb-0 fs-5">Customize your portfolio's visual identity</p>
+        </div>
+    </div>
+    
+    <!-- Create Custom Palette -->
+    <div class="custom-palette-card" data-bs-toggle="modal" data-bs-target="#customPaletteModal">
+        <div class="row align-items-center">
+            <div class="col-md-8 text-start">
+                <h3 class="mb-2">
+                    <i class="bi bi-plus-circle me-2"></i>
+                    Create Custom Palette
+                </h3>
+                <p class="mb-0">Design your own unique color scheme</p>
+            </div>
+            <div class="col-md-4 text-end">
+                <i class="bi bi-brush display-4"></i>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Predefined Palettes -->
+    <div class="row">
+        <div class="col-md-12">
+            <h3 class="mb-4">
+                <i class="bi bi-collection me-2"></i>
+                Available Color Palettes
+            </h3>
+        </div>
+        
+        <!-- Electric Neon Palette -->
+        <div class="col-lg-6 col-xl-4">
+            <div class="palette-card {% if active_palette.slug == 'electric_neon' %}active{% endif %}">
+                {% if active_palette.slug == 'electric_neon' %}
+                <div class="active-badge">Active</div>
+                {% endif %}
+                
+                <div class="palette-preview">
+                    <div class="color-strip" style="background: #6366f1;" data-color="#6366f1">Primary</div>
+                    <div class="color-strip" style="background: #8b5cf6;" data-color="#8b5cf6">Secondary</div>
+                    <div class="color-strip" style="background: #06b6d4;" data-color="#06b6d4">Accent</div>
+                    <div class="color-strip" style="background: #f8fafc; color: #1e293b;" data-color="#f8fafc">Background</div>
+                    <div class="color-strip" style="background: #1e293b;" data-color="#1e293b">Text</div>
+                </div>
+                
+                <div class="palette-info">
+                    <div class="palette-name">Electric Neon</div>
+                    <div class="palette-description">Modern, vibrant colors perfect for tech portfolios. High contrast and excellent readability.</div>
+                </div>
+                
+                <div class="palette-details">
+                    <div class="detail-item">
+                        <div class="detail-label">Mood</div>
+                        <div class="detail-value">Modern & Bold</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Best For</div>
+                        <div class="detail-value">Tech/Creative</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Accessibility</div>
+                        <div class="detail-value">AAA Rated</div>
+                    </div>
+                </div>
+                
+                <div class="palette-actions">
+                    <button class="btn btn-primary btn-sm" onclick="applyPalette('electric_neon')">
+                        <i class="bi bi-check-lg me-1"></i>Apply
+                    </button>
+                    <button class="btn btn-outline-info btn-sm" onclick="previewPalette('electric_neon')">
+                        <i class="bi bi-eye me-1"></i>Preview
+                    </button>
+                    <button class="btn btn-outline-secondary btn-sm" onclick="duplicatePalette('electric_neon')">
+                        <i class="bi bi-files me-1"></i>Duplicate
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Sunset Gradient Palette -->
+        <div class="col-lg-6 col-xl-4">
+            <div class="palette-card {% if active_palette.slug == 'sunset_gradient' %}active{% endif %}">
+                {% if active_palette.slug == 'sunset_gradient' %}
+                <div class="active-badge">Active</div>
+                {% endif %}
+                
+                <div class="palette-preview">
+                    <div class="color-strip" style="background: #f59e0b;" data-color="#f59e0b">Primary</div>
+                    <div class="color-strip" style="background: #ef4444;" data-color="#ef4444">Secondary</div>
+                    <div class="color-strip" style="background: #ec4899;" data-color="#ec4899">Accent</div>
+                    <div class="color-strip" style="background: #fefbf3; color: #292524;" data-color="#fefbf3">Background</div>
+                    <div class="color-strip" style="background: #292524;" data-color="#292524">Text</div>
+                </div>
+                
+                <div class="palette-info">
+                    <div class="palette-name">Sunset Gradient</div>
+                    <div class="palette-description">Warm, energetic colors inspired by beautiful sunsets. Perfect for creative portfolios.</div>
+                </div>
+                
+                <div class="palette-details">
+                    <div class="detail-item">
+                        <div class="detail-label">Mood</div>
+                        <div class="detail-value">Warm & Creative</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Best For</div>
+                        <div class="detail-value">Creative/Art</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Accessibility</div>
+                        <div class="detail-value">AA Rated</div>
+                    </div>
+                </div>
+                
+                <div class="palette-actions">
+                    <button class="btn btn-primary btn-sm" onclick="applyPalette('sunset_gradient')">
+                        <i class="bi bi-check-lg me-1"></i>Apply
+                    </button>
+                    <button class="btn btn-outline-info btn-sm" onclick="previewPalette('sunset_gradient')">
+                        <i class="bi bi-eye me-1"></i>Preview
+                    </button>
+                    <button class="btn btn-outline-secondary btn-sm" onclick="duplicatePalette('sunset_gradient')">
+                        <i class="bi bi-files me-1"></i>Duplicate
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Ocean Deep Palette -->
+        <div class="col-lg-6 col-xl-4">
+            <div class="palette-card {% if active_palette.slug == 'ocean_deep' %}active{% endif %}">
+                {% if active_palette.slug == 'ocean_deep' %}
+                <div class="active-badge">Active</div>
+                {% endif %}
+                
+                <div class="palette-preview">
+                    <div class="color-strip" style="background: #0ea5e9;" data-color="#0ea5e9">Primary</div>
+                    <div class="color-strip" style="background: #06b6d4;" data-color="#06b6d4">Secondary</div>
+                    <div class="color-strip" style="background: #10b981;" data-color="#10b981">Accent</div>
+                    <div class="color-strip" style="background: #f0f9ff; color: #0c4a6e;" data-color="#f0f9ff">Background</div>
+                    <div class="color-strip" style="background: #0c4a6e;" data-color="#0c4a6e">Text</div>
+                </div>
+                
+                <div class="palette-info">
+                    <div class="palette-name">Ocean Deep</div>
+                    <div class="palette-description">Cool, professional blues and teals. Trustworthy and calming for business portfolios.</div>
+                </div>
+                
+                <div class="palette-details">
+                    <div class="detail-item">
+                        <div class="detail-label">Mood</div>
+                        <div class="detail-value">Professional</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Best For</div>
+                        <div class="detail-value">Business/Corp</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Accessibility</div>
+                        <div class="detail-value">AAA Rated</div>
+                    </div>
+                </div>
+                
+                <div class="palette-actions">
+                    <button class="btn btn-primary btn-sm" onclick="applyPalette('ocean_deep')">
+                        <i class="bi bi-check-lg me-1"></i>Apply
+                    </button>
+                    <button class="btn btn-outline-info btn-sm" onclick="previewPalette('ocean_deep')">
+                        <i class="bi bi-eye me-1"></i>Preview
+                    </button>
+                    <button class="btn btn-outline-secondary btn-sm" onclick="duplicatePalette('ocean_deep')">
+                        <i class="bi bi-files me-1"></i>Duplicate
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Forest Modern Palette -->
+        <div class="col-lg-6 col-xl-4">
+            <div class="palette-card {% if active_palette.slug == 'forest_modern' %}active{% endif %}">
+                {% if active_palette.slug == 'forest_modern' %}
+                <div class="active-badge">Active</div>
+                {% endif %}
+                
+                <div class="palette-preview">
+                    <div class="color-strip" style="background: #059669;" data-color="#059669">Primary</div>
+                    <div class="color-strip" style="background: #7c3aed;" data-color="#7c3aed">Secondary</div>
+                    <div class="color-strip" style="background: #f59e0b;" data-color="#f59e0b">Accent</div>
+                    <div class="color-strip" style="background: #f0fdf4; color: #064e3b;" data-color="#f0fdf4">Background</div>
+                    <div class="color-strip" style="background: #064e3b;" data-color="#064e3b">Text</div>
+                </div>
+                
+                <div class="palette-info">
+                    <div class="palette-name">Forest Modern</div>
+                    <div class="palette-description">Natural greens with modern purple accents. Eco-friendly and sustainable design aesthetic.</div>
+                </div>
+                
+                <div class="palette-details">
+                    <div class="detail-item">
+                        <div class="detail-label">Mood</div>
+                        <div class="detail-value">Natural & Fresh</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Best For</div>
+                        <div class="detail-value">Eco/Health</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Accessibility</div>
+                        <div class="detail-value">AA Rated</div>
+                    </div>
+                </div>
+                
+                <div class="palette-actions">
+                    <button class="btn btn-primary btn-sm" onclick="applyPalette('forest_modern')">
+                        <i class="bi bi-check-lg me-1"></i>Apply
+                    </button>
+                    <button class="btn btn-outline-info btn-sm" onclick="previewPalette('forest_modern')">
+                        <i class="bi bi-eye me-1"></i>Preview
+                    </button>
+                    <button class="btn btn-outline-secondary btn-sm" onclick="duplicatePalette('forest_modern')">
+                        <i class="bi bi-files me-1"></i>Duplicate
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Custom Palette Modal -->
+<div class="modal fade" id="customPaletteModal" tabindex="-1" aria-labelledby="customPaletteModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="customPaletteModalLabel">
+                    <i class="bi bi-brush me-2"></i>
+                    Create Custom Color Palette
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="customPaletteForm">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="paletteName" class="form-label">Palette Name</label>
+                                <input type="text" class="form-control" id="paletteName" placeholder="e.g., My Custom Palette">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="paletteDescription" class="form-label">Description</label>
+                                <input type="text" class="form-control" id="paletteDescription" placeholder="Brief description of your palette">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <h6 class="mb-3">Light Mode Colors</h6>
+                    <div class="color-picker-group">
+                        <div class="color-input-group">
+                            <input type="color" class="color-input" id="lightPrimary" value="#6366f1">
+                            <div class="color-label">Primary</div>
+                        </div>
+                        <div class="color-input-group">
+                            <input type="color" class="color-input" id="lightSecondary" value="#8b5cf6">
+                            <div class="color-label">Secondary</div>
+                        </div>
+                        <div class="color-input-group">
+                            <input type="color" class="color-input" id="lightAccent" value="#06b6d4">
+                            <div class="color-label">Accent</div>
+                        </div>
+                        <div class="color-input-group">
+                            <input type="color" class="color-input" id="lightBackground" value="#ffffff">
+                            <div class="color-label">Background</div>
+                        </div>
+                        <div class="color-input-group">
+                            <input type="color" class="color-input" id="lightText" value="#1e293b">
+                            <div class="color-label">Text</div>
+                        </div>
+                    </div>
+                    
+                    <h6 class="mb-3 mt-4">Dark Mode Colors</h6>
+                    <div class="color-picker-group">
+                        <div class="color-input-group">
+                            <input type="color" class="color-input" id="darkPrimary" value="#818cf8">
+                            <div class="color-label">Primary</div>
+                        </div>
+                        <div class="color-input-group">
+                            <input type="color" class="color-input" id="darkSecondary" value="#a78bfa">
+                            <div class="color-label">Secondary</div>
+                        </div>
+                        <div class="color-input-group">
+                            <input type="color" class="color-input" id="darkAccent" value="#67e8f9">
+                            <div class="color-label">Accent</div>
+                        </div>
+                        <div class="color-input-group">
+                            <input type="color" class="color-input" id="darkBackground" value="#0f172a">
+                            <div class="color-label">Background</div>
+                        </div>
+                        <div class="color-input-group">
+                            <input type="color" class="color-input" id="darkText" value="#f1f5f9">
+                            <div class="color-label">Text</div>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-4">
+                        <h6>Live Preview</h6>
+                        <div class="palette-preview" id="livePreview">
+                            <div class="color-strip" id="previewPrimary" data-color="#6366f1">Primary</div>
+                            <div class="color-strip" id="previewSecondary" data-color="#8b5cf6">Secondary</div>
+                            <div class="color-strip" id="previewAccent" data-color="#06b6d4">Accent</div>
+                            <div class="color-strip" id="previewBackground" data-color="#ffffff">Background</div>
+                            <div class="color-strip" id="previewText" data-color="#1e293b">Text</div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-outline-info" onclick="generateRandomPalette()">
+                    <i class="bi bi-shuffle me-2"></i>
+                    Random Palette
+                </button>
+                <button type="button" class="btn btn-primary" onclick="saveCustomPalette()">
+                    <i class="bi bi-check-lg me-2"></i>
+                    Save Palette
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function applyPalette(paletteSlug) {
+    // Apply the selected palette
+    console.log('Applying palette:', paletteSlug);
+    
+    // Make AJAX request to update active palette
+    // For now, just show success message
+    alert(`${paletteSlug} palette applied successfully!`);
+    
+    // Update UI to show active state
+    document.querySelectorAll('.palette-card').forEach(card => {
+        card.classList.remove('active');
+        const badge = card.querySelector('.active-badge');
+        if (badge) badge.remove();
+    });
+    
+    // Add active class to selected palette
+    event.target.closest('.palette-card').classList.add('active');
+    
+    // Add active badge
+    const badge = document.createElement('div');
+    badge.className = 'active-badge';
+    badge.textContent = 'Active';
+    event.target.closest('.palette-card').appendChild(badge);
+}
+
+function previewPalette(paletteSlug) {
+    console.log('Previewing palette:', paletteSlug);
+    alert(`Preview mode would show ${paletteSlug} palette applied to the site`);
+}
+
+function duplicatePalette(paletteSlug) {
+    console.log('Duplicating palette:', paletteSlug);
+    alert(`${paletteSlug} palette duplicated as custom palette`);
+}
+
+function updateLivePreview() {
+    const primary = document.getElementById('lightPrimary').value;
+    const secondary = document.getElementById('lightSecondary').value;
+    const accent = document.getElementById('lightAccent').value;
+    const background = document.getElementById('lightBackground').value;
+    const text = document.getElementById('lightText').value;
+    
+    document.getElementById('previewPrimary').style.background = primary;
+    document.getElementById('previewSecondary').style.background = secondary;
+    document.getElementById('previewAccent').style.background = accent;
+    document.getElementById('previewBackground').style.background = background;
+    document.getElementById('previewText').style.background = text;
+    
+    // Update data attributes
+    document.getElementById('previewPrimary').setAttribute('data-color', primary);
+    document.getElementById('previewSecondary').setAttribute('data-color', secondary);
+    document.getElementById('previewAccent').setAttribute('data-color', accent);
+    document.getElementById('previewBackground').setAttribute('data-color', background);
+    document.getElementById('previewText').setAttribute('data-color', text);
+}
+
+function generateRandomPalette() {
+    const colors = [
+        '#6366f1', '#8b5cf6', '#06b6d4', '#10b981', '#f59e0b',
+        '#ef4444', '#ec4899', '#8b7355', '#059669', '#7c3aed'
+    ];
+    
+    document.getElementById('lightPrimary').value = colors[Math.floor(Math.random() * colors.length)];
+    document.getElementById('lightSecondary').value = colors[Math.floor(Math.random() * colors.length)];
+    document.getElementById('lightAccent').value = colors[Math.floor(Math.random() * colors.length)];
+    
+    updateLivePreview();
+}
+
+function saveCustomPalette() {
+    const paletteData = {
+        name: document.getElementById('paletteName').value,
+        description: document.getElementById('paletteDescription').value,
+        light: {
+            primary: document.getElementById('lightPrimary').value,
+            secondary: document.getElementById('lightSecondary').value,
+            accent: document.getElementById('lightAccent').value,
+            background: document.getElementById('lightBackground').value,
+            text: document.getElementById('lightText').value
+        },
+        dark: {
+            primary: document.getElementById('darkPrimary').value,
+            secondary: document.getElementById('darkSecondary').value,
+            accent: document.getElementById('darkAccent').value,
+            background: document.getElementById('darkBackground').value,
+            text: document.getElementById('darkText').value
+        }
+    };
+    
+    if (!paletteData.name) {
+        alert('Please enter a palette name');
+        return;
+    }
+    
+    console.log('Saving custom palette:', paletteData);
+    alert('Custom palette saved successfully!');
+    
+    // Close modal and reset form
+    const modal = bootstrap.Modal.getInstance(document.getElementById('customPaletteModal'));
+    modal.hide();
+    document.getElementById('customPaletteForm').reset();
+}
+
+// Initialize color picker listeners
+document.addEventListener('DOMContentLoaded', function() {
+    const colorInputs = document.querySelectorAll('.color-input');
+    colorInputs.forEach(input => {
+        input.addEventListener('change', updateLivePreview);
+    });
+    
+    // Initialize preview
+    updateLivePreview();
+});
+</script>
+{% endblock %}

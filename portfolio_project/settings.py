@@ -41,6 +41,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'mathfilters',
+    'django_celery_beat',
+    'django_celery_results',
     'apps.user_management',
     'apps.parameters',
     'apps.project_management',
@@ -163,3 +165,39 @@ REST_FRAMEWORK = {
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# Celery Configuration
+CELERY_BROKER_URL = config('CELERY_BROKER_URL', default='redis://localhost:6379/0')
+CELERY_RESULT_BACKEND = config('CELERY_RESULT_BACKEND', default='redis://localhost:6379/0')
+CELERY_ACCEPT_CONTENT = ['json']
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'
+CELERY_TIMEZONE = TIME_ZONE
+CELERY_TASK_TRACK_STARTED = True
+CELERY_TASK_TIME_LIMIT = 30 * 60
+CELERY_TASK_SOFT_TIME_LIMIT = 25 * 60
+CELERY_BEAT_SCHEDULER = 'django_celery_beat.schedulers:DatabaseScheduler'
+
+# Task routing for different types of tasks
+CELERY_TASK_ROUTES = {
+    'apps.project_management.tasks.send_contact_acknowledgment': {'queue': 'emails'},
+    'apps.project_management.tasks.notify_admin_new_contact': {'queue': 'emails'},
+    'apps.project_management.tasks.generate_cv_pdf': {'queue': 'documents'},
+}
+
+# Queue configuration
+CELERY_TASK_DEFAULT_QUEUE = 'default'
+CELERY_TASK_QUEUES = {
+    'default': {
+        'exchange': 'default',
+        'routing_key': 'default',
+    },
+    'emails': {
+        'exchange': 'emails',
+        'routing_key': 'emails',
+    },
+    'documents': {
+        'exchange': 'documents',
+        'routing_key': 'documents',
+    },
+}

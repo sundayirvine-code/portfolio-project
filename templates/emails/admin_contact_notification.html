@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>New Contact Form Submission</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f8f9fa;
+        }
+        .email-container {
+            background: white;
+            border-radius: 8px;
+            padding: 30px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            border-bottom: 3px solid #dc3545;
+            padding-bottom: 20px;
+        }
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+            color: #dc3545;
+            margin-bottom: 10px;
+        }
+        .alert {
+            background: linear-gradient(135deg, #dc3545, #e74c3c);
+            color: white;
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            text-align: center;
+            font-weight: 500;
+        }
+        .contact-details {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 6px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .detail-row {
+            display: flex;
+            margin-bottom: 10px;
+            border-bottom: 1px solid #e9ecef;
+            padding-bottom: 10px;
+        }
+        .detail-row:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+        .detail-label {
+            font-weight: 600;
+            color: #495057;
+            min-width: 100px;
+            margin-right: 15px;
+        }
+        .detail-value {
+            flex: 1;
+            color: #212529;
+        }
+        .message-content {
+            background: white;
+            border: 1px solid #dee2e6;
+            border-radius: 6px;
+            padding: 15px;
+            margin-top: 10px;
+            white-space: pre-wrap;
+            font-family: Georgia, serif;
+            line-height: 1.8;
+        }
+        .actions {
+            margin: 30px 0;
+            text-align: center;
+        }
+        .btn {
+            display: inline-block;
+            padding: 12px 24px;
+            margin: 0 10px;
+            text-decoration: none;
+            border-radius: 6px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            color: white;
+        }
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+        .footer {
+            text-align: center;
+            padding-top: 20px;
+            border-top: 1px solid #e9ecef;
+            font-size: 14px;
+            color: #6c757d;
+        }
+        .timestamp {
+            color: #6c757d;
+            font-size: 12px;
+            text-align: right;
+            margin-top: 15px;
+        }
+        @media (max-width: 600px) {
+            body {
+                padding: 10px;
+            }
+            .email-container {
+                padding: 20px;
+            }
+            .detail-row {
+                flex-direction: column;
+            }
+            .detail-label {
+                margin-bottom: 5px;
+                min-width: auto;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="email-container">
+        <div class="header">
+            <div class="logo">🚨 Admin Alert</div>
+            <h1>New Contact Form Submission</h1>
+        </div>
+        
+        <div class="alert">
+            You have received a new message through your portfolio contact form!
+        </div>
+        
+        <div class="contact-details">
+            <h3 style="margin-top: 0; color: #495057;">Contact Information</h3>
+            
+            <div class="detail-row">
+                <div class="detail-label">Name:</div>
+                <div class="detail-value">{{ contact_data.name }}</div>
+            </div>
+            
+            <div class="detail-row">
+                <div class="detail-label">Email:</div>
+                <div class="detail-value">
+                    <a href="mailto:{{ contact_data.email }}" style="color: #6366f1;">{{ contact_data.email }}</a>
+                </div>
+            </div>
+            
+            <div class="detail-row">
+                <div class="detail-label">Subject:</div>
+                <div class="detail-value">{{ contact_data.subject|default:"No subject provided" }}</div>
+            </div>
+            
+            {% if contact_data.phone %}
+            <div class="detail-row">
+                <div class="detail-label">Phone:</div>
+                <div class="detail-value">
+                    <a href="tel:{{ contact_data.phone }}" style="color: #6366f1;">{{ contact_data.phone }}</a>
+                </div>
+            </div>
+            {% endif %}
+            
+            <div class="detail-row">
+                <div class="detail-label">Message:</div>
+                <div class="detail-value">
+                    <div class="message-content">{{ contact_data.message }}</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="actions">
+            <a href="mailto:{{ contact_data.email }}?subject=Re: {{ contact_data.subject|default:'Your Contact Form Message' }}" class="btn btn-primary">
+                Reply to {{ contact_data.name }}
+            </a>
+            <a href="#" class="btn btn-secondary">
+                View in Admin Panel
+            </a>
+        </div>
+        
+        <div class="footer">
+            <p><strong>Response Guidelines:</strong></p>
+            <ul style="text-align: left; max-width: 400px; margin: 0 auto;">
+                <li>Respond within 24 hours for best impression</li>
+                <li>Personalize your response based on their inquiry</li>
+                <li>Include relevant portfolio links if applicable</li>
+                <li>Thank them for their interest</li>
+            </ul>
+            
+            <div class="timestamp">
+                Received: {{ contact_data.timestamp|default:"Just now" }}
+            </div>
+            
+            <p style="margin-top: 20px;"><small>This notification was sent automatically by your portfolio contact system.</small></p>
+        </div>
+    </div>
+</body>
+</html>

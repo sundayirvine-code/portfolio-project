@@ -205,3 +205,8 @@ cython_debug/
 marimo/_static/
 marimo/_lsp/
 __marimo__/
+
+# Migrations - OPTIONAL: ignore if you don’t want to commit them during early dev
+*/migrations/
+*/migrations/*.py
+*/migrations/*.pyc

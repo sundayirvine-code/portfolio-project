@@ -277,8 +277,46 @@
                     
                     <!-- FAQ Section -->
                     <div class="faq-section mt-4">
-                        <h6 class="mb-3">Quick Answers</h6>
+                        <h6 class="mb-3">
+                            {% if quick_answers %}Quick Answers{% else %}Frequently Asked Questions{% endif %}
+                        </h6>
                         <div class="accordion accordion-flush" id="contactFAQ">
+                            {% if quick_answers %}
+                                {% for qa in quick_answers %}
+                                <div class="accordion-item">
+                                    <h2 class="accordion-header" id="qa{{ forloop.counter }}">
+                                        <button class="accordion-button collapsed" type="button" 
+                                                data-bs-toggle="collapse" data-bs-target="#collapseQA{{ forloop.counter }}">
+                                            {{ qa.question }}
+                                        </button>
+                                    </h2>
+                                    <div id="collapseQA{{ forloop.counter }}" class="accordion-collapse collapse" 
+                                         data-bs-parent="#contactFAQ">
+                                        <div class="accordion-body small">
+                                            {{ qa.answer|linebreaks }}
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            {% elif featured_faqs %}
+                                {% for faq in featured_faqs %}
+                                <div class="accordion-item">
+                                    <h2 class="accordion-header" id="faq{{ forloop.counter }}">
+                                        <button class="accordion-button collapsed" type="button" 
+                                                data-bs-toggle="collapse" data-bs-target="#collapse{{ forloop.counter }}">
+                                            {{ faq.question }}
+                                        </button>
+                                    </h2>
+                                    <div id="collapse{{ forloop.counter }}" class="accordion-collapse collapse" 
+                                         data-bs-parent="#contactFAQ">
+                                        <div class="accordion-body small">
+                                            {{ faq.answer|linebreaks }}
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            {% else %}
+                            <!-- Default FAQs -->
                             <div class="accordion-item">
                                 <h2 class="accordion-header" id="faq1">
                                     <button class="accordion-button collapsed" type="button" 
@@ -323,6 +361,7 @@
                                     </div>
                                 </div>
                             </div>
+                            {% endif %}
                         </div>
                     </div>
                 </div>

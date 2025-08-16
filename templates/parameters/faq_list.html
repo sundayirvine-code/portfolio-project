@@ -1,0 +1,809 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}FAQ Management - {{ site_settings.site_name }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .faq-header {
+        background: linear-gradient(135deg, var(--theme-primary), var(--theme-secondary));
+        color: white;
+        padding: 2rem 0;
+        margin-bottom: 2rem;
+        border-radius: 0.5rem;
+    }
+    
+    .faq-card {
+        background: white;
+        border: 1px solid var(--bs-border-color);
+        border-radius: 1rem;
+        margin-bottom: 1rem;
+        transition: all 0.3s ease;
+        overflow: hidden;
+    }
+    
+    .faq-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+    }
+    
+    .faq-card.featured {
+        border-color: var(--theme-primary);
+        background: linear-gradient(135deg, rgba(var(--theme-primary), 0.05), rgba(var(--theme-secondary), 0.05));
+    }
+    
+    .faq-header-section {
+        padding: 1.5rem;
+        border-bottom: 1px solid var(--bs-border-color);
+        cursor: pointer;
+        display: flex;
+        justify-content: between;
+        align-items: center;
+        gap: 1rem;
+    }
+    
+    .faq-question {
+        flex: 1;
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: var(--bs-dark);
+        margin: 0;
+    }
+    
+    .faq-toggle {
+        color: var(--theme-primary);
+        font-size: 1.5rem;
+        transition: transform 0.3s ease;
+    }
+    
+    .faq-toggle.expanded {
+        transform: rotate(180deg);
+    }
+    
+    .faq-content {
+        padding: 0 1.5rem;
+        max-height: 0;
+        overflow: hidden;
+        transition: all 0.3s ease;
+    }
+    
+    .faq-content.expanded {
+        padding: 1.5rem;
+        max-height: 500px;
+    }
+    
+    .faq-answer {
+        color: var(--bs-secondary-color);
+        line-height: 1.6;
+        margin-bottom: 1rem;
+    }
+    
+    .faq-meta {
+        display: flex;
+        justify-content: between;
+        align-items: center;
+        gap: 1rem;
+        flex-wrap: wrap;
+        padding-top: 1rem;
+        border-top: 1px solid var(--bs-border-color-translucent);
+    }
+    
+    .faq-badges {
+        display: flex;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+    }
+    
+    .badge-featured {
+        background: linear-gradient(135deg, var(--theme-primary), var(--theme-secondary));
+        color: white;
+        padding: 0.25rem 0.75rem;
+        border-radius: 1rem;
+        font-size: 0.75rem;
+        font-weight: 600;
+    }
+    
+    .badge-category {
+        background: #f8f9fa;
+        color: #495057;
+        padding: 0.25rem 0.75rem;
+        border-radius: 1rem;
+        font-size: 0.75rem;
+        font-weight: 500;
+        border: 1px solid #dee2e6;
+    }
+    
+    .faq-actions {
+        display: flex;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+    }
+    
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 1rem;
+        margin-bottom: 2rem;
+    }
+    
+    .stat-card {
+        background: white;
+        border: 1px solid var(--bs-border-color);
+        border-radius: 0.75rem;
+        padding: 1.5rem;
+        text-align: center;
+        transition: all 0.3s ease;
+    }
+    
+    .stat-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+    
+    .stat-number {
+        font-size: 2rem;
+        font-weight: bold;
+        color: var(--theme-primary);
+        display: block;
+        margin-bottom: 0.5rem;
+    }
+    
+    .stat-label {
+        color: var(--bs-secondary-color);
+        font-size: 0.875rem;
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    
+    .add-faq-card {
+        background: linear-gradient(135deg, var(--theme-primary), var(--theme-secondary));
+        color: white;
+        border: none;
+        border-radius: 1rem;
+        padding: 2rem;
+        text-align: center;
+        transition: all 0.3s ease;
+        margin-bottom: 2rem;
+        cursor: pointer;
+    }
+    
+    .add-faq-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    }
+    
+    .filter-bar {
+        background: #f8f9fa;
+        border-radius: 0.75rem;
+        padding: 1rem;
+        margin-bottom: 2rem;
+        display: flex;
+        gap: 1rem;
+        align-items: center;
+        flex-wrap: wrap;
+    }
+    
+    .category-tabs {
+        display: flex;
+        gap: 0.5rem;
+        margin-bottom: 2rem;
+        flex-wrap: wrap;
+    }
+    
+    .category-tab {
+        padding: 0.5rem 1rem;
+        border: 1px solid var(--bs-border-color);
+        border-radius: 2rem;
+        background: white;
+        color: var(--bs-secondary-color);
+        text-decoration: none;
+        transition: all 0.3s ease;
+        font-size: 0.875rem;
+        font-weight: 500;
+    }
+    
+    .category-tab:hover,
+    .category-tab.active {
+        background: var(--theme-primary);
+        color: white;
+        border-color: var(--theme-primary);
+        text-decoration: none;
+    }
+    
+    .empty-state {
+        text-align: center;
+        padding: 3rem 1rem;
+        color: var(--bs-secondary-color);
+    }
+    
+    .empty-state i {
+        font-size: 4rem;
+        margin-bottom: 1rem;
+        opacity: 0.5;
+    }
+    
+    .faq-preview {
+        background: #f8f9fa;
+        border-radius: 0.5rem;
+        padding: 1rem;
+        margin-top: 1rem;
+    }
+    
+    .sortable-handle {
+        color: var(--bs-secondary-color);
+        cursor: grab;
+        margin-right: 0.5rem;
+    }
+    
+    .sortable-handle:active {
+        cursor: grabbing;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Header -->
+    <div class="faq-header text-center">
+        <div class="container">
+            <h1 class="mb-3">
+                <i class="bi bi-question-circle-fill me-3"></i>
+                FAQ Management
+            </h1>
+            <p class="mb-0 fs-5">Manage frequently asked questions and help content</p>
+        </div>
+    </div>
+    
+    <!-- Statistics -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <span class="stat-number">{{ total_faqs|default:"0" }}</span>
+            <div class="stat-label">Total FAQs</div>
+        </div>
+        <div class="stat-card">
+            <span class="stat-number">{{ featured_faqs|default:"0" }}</span>
+            <div class="stat-label">Featured</div>
+        </div>
+        <div class="stat-card">
+            <span class="stat-number">{{ categories_count|default:"4" }}</span>
+            <div class="stat-label">Categories</div>
+        </div>
+        <div class="stat-card">
+            <span class="stat-number">{{ published_faqs|default:"0" }}</span>
+            <div class="stat-label">Published</div>
+        </div>
+    </div>
+    
+    <!-- Add New FAQ -->
+    <div class="add-faq-card" data-bs-toggle="modal" data-bs-target="#addFaqModal">
+        <div class="row align-items-center">
+            <div class="col-md-8 text-start">
+                <h3 class="mb-2">
+                    <i class="bi bi-plus-circle me-2"></i>
+                    Add New FAQ
+                </h3>
+                <p class="mb-0">Create helpful answers to common questions</p>
+            </div>
+            <div class="col-md-4 text-end">
+                <i class="bi bi-lightbulb display-4"></i>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Filter Bar -->
+    <div class="filter-bar">
+        <div class="flex-grow-1">
+            <div class="row align-items-center">
+                <div class="col-md-3">
+                    <select class="form-select" id="filterCategory">
+                        <option value="">All Categories</option>
+                        <option value="general">General</option>
+                        <option value="pricing">Pricing</option>
+                        <option value="technical">Technical</option>
+                        <option value="support">Support</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <select class="form-select" id="filterStatus">
+                        <option value="">All Status</option>
+                        <option value="featured">Featured</option>
+                        <option value="published">Published</option>
+                        <option value="draft">Draft</option>
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <input type="text" class="form-control" id="searchFaqs" placeholder="Search FAQs...">
+                </div>
+                <div class="col-md-2">
+                    <button class="btn btn-outline-primary w-100" onclick="clearFilters()">
+                        <i class="bi bi-arrow-clockwise me-1"></i>Reset
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Category Tabs -->
+    <div class="category-tabs">
+        <a href="#" class="category-tab active" data-category="all">
+            <i class="bi bi-grid me-1"></i>All FAQs
+        </a>
+        <a href="#" class="category-tab" data-category="general">
+            <i class="bi bi-info-circle me-1"></i>General
+        </a>
+        <a href="#" class="category-tab" data-category="pricing">
+            <i class="bi bi-currency-dollar me-1"></i>Pricing
+        </a>
+        <a href="#" class="category-tab" data-category="technical">
+            <i class="bi bi-gear me-1"></i>Technical
+        </a>
+        <a href="#" class="category-tab" data-category="support">
+            <i class="bi bi-headset me-1"></i>Support
+        </a>
+    </div>
+    
+    <!-- FAQ List -->
+    <div class="row">
+        <div class="col-md-12">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h3>
+                    <i class="bi bi-collection me-2"></i>
+                    Frequently Asked Questions
+                </h3>
+                <div class="btn-group" role="group">
+                    <button class="btn btn-outline-primary" onclick="toggleSortMode()">
+                        <i class="bi bi-arrow-up-down me-2"></i>
+                        Sort Mode
+                    </button>
+                    <button class="btn btn-outline-success" onclick="previewFaqs()">
+                        <i class="bi bi-eye me-2"></i>
+                        Preview
+                    </button>
+                </div>
+            </div>
+            
+            <div id="faqsList">
+                {% if faqs %}
+                    {% for faq in faqs %}
+                    <!-- Dynamic FAQs will be loaded here -->
+                    {% endfor %}
+                {% else %}
+                <!-- Sample FAQs for Demo -->
+                <div class="faq-card featured" data-category="general">
+                    <div class="faq-header-section" onclick="toggleFaq(this)">
+                        <span class="sortable-handle d-none">
+                            <i class="bi bi-grip-vertical"></i>
+                        </span>
+                        <h4 class="faq-question">What services do you offer?</h4>
+                        <div class="faq-toggle">
+                            <i class="bi bi-chevron-down"></i>
+                        </div>
+                    </div>
+                    <div class="faq-content">
+                        <div class="faq-answer">
+                            I offer a comprehensive range of web development services including custom website development, 
+                            e-commerce solutions, mobile app development, UI/UX design, and ongoing website maintenance. 
+                            I specialize in modern technologies like React, Django, and Node.js to create scalable, 
+                            performance-optimized solutions tailored to your business needs.
+                        </div>
+                        <div class="faq-meta">
+                            <div class="faq-badges">
+                                <span class="badge-featured">Featured</span>
+                                <span class="badge-category">General</span>
+                            </div>
+                            <div class="faq-actions">
+                                <button class="btn btn-outline-primary btn-sm">
+                                    <i class="bi bi-pencil me-1"></i>Edit
+                                </button>
+                                <button class="btn btn-outline-warning btn-sm">
+                                    <i class="bi bi-star me-1"></i>Unfeature
+                                </button>
+                                <button class="btn btn-outline-danger btn-sm">
+                                    <i class="bi bi-trash me-1"></i>Delete
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="faq-card" data-category="pricing">
+                    <div class="faq-header-section" onclick="toggleFaq(this)">
+                        <span class="sortable-handle d-none">
+                            <i class="bi bi-grip-vertical"></i>
+                        </span>
+                        <h4 class="faq-question">How do you structure your pricing?</h4>
+                        <div class="faq-toggle">
+                            <i class="bi bi-chevron-down"></i>
+                        </div>
+                    </div>
+                    <div class="faq-content">
+                        <div class="faq-answer">
+                            My pricing is project-based and depends on the scope, complexity, and timeline. I provide 
+                            detailed quotes after understanding your requirements. Generally, simple websites start from 
+                            $2,000, while complex applications can range from $5,000-$20,000+. I also offer hourly 
+                            rates for maintenance and small updates at $75-100/hour.
+                        </div>
+                        <div class="faq-meta">
+                            <div class="faq-badges">
+                                <span class="badge-category">Pricing</span>
+                            </div>
+                            <div class="faq-actions">
+                                <button class="btn btn-outline-primary btn-sm">
+                                    <i class="bi bi-pencil me-1"></i>Edit
+                                </button>
+                                <button class="btn btn-outline-success btn-sm">
+                                    <i class="bi bi-star me-1"></i>Feature
+                                </button>
+                                <button class="btn btn-outline-danger btn-sm">
+                                    <i class="bi bi-trash me-1"></i>Delete
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="faq-card" data-category="technical">
+                    <div class="faq-header-section" onclick="toggleFaq(this)">
+                        <span class="sortable-handle d-none">
+                            <i class="bi bi-grip-vertical"></i>
+                        </span>
+                        <h4 class="faq-question">What technologies do you use?</h4>
+                        <div class="faq-toggle">
+                            <i class="bi bi-chevron-down"></i>
+                        </div>
+                    </div>
+                    <div class="faq-content">
+                        <div class="faq-answer">
+                            I work with modern, industry-standard technologies including:<br><br>
+                            <strong>Frontend:</strong> React, Vue.js, JavaScript (ES6+), HTML5, CSS3, Bootstrap, Tailwind CSS<br>
+                            <strong>Backend:</strong> Django, Node.js, Express.js, Python, JavaScript<br>
+                            <strong>Databases:</strong> PostgreSQL, MongoDB, Redis<br>
+                            <strong>Tools:</strong> Git, Docker, AWS, Heroku, Vercel<br><br>
+                            I choose the best technology stack based on your project requirements and long-term goals.
+                        </div>
+                        <div class="faq-meta">
+                            <div class="faq-badges">
+                                <span class="badge-category">Technical</span>
+                            </div>
+                            <div class="faq-actions">
+                                <button class="btn btn-outline-primary btn-sm">
+                                    <i class="bi bi-pencil me-1"></i>Edit
+                                </button>
+                                <button class="btn btn-outline-success btn-sm">
+                                    <i class="bi bi-star me-1"></i>Feature
+                                </button>
+                                <button class="btn btn-outline-danger btn-sm">
+                                    <i class="bi bi-trash me-1"></i>Delete
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="faq-card" data-category="support">
+                    <div class="faq-header-section" onclick="toggleFaq(this)">
+                        <span class="sortable-handle d-none">
+                            <i class="bi bi-grip-vertical"></i>
+                        </span>
+                        <h4 class="faq-question">Do you provide ongoing support and maintenance?</h4>
+                        <div class="faq-toggle">
+                            <i class="bi bi-chevron-down"></i>
+                        </div>
+                    </div>
+                    <div class="faq-content">
+                        <div class="faq-answer">
+                            Yes! I offer comprehensive post-launch support including security updates, bug fixes, 
+                            content updates, performance optimization, and feature additions. I provide different 
+                            maintenance packages ranging from basic monthly maintenance to comprehensive support plans. 
+                            All projects include 30 days of free post-launch support.
+                        </div>
+                        <div class="faq-meta">
+                            <div class="faq-badges">
+                                <span class="badge-category">Support</span>
+                            </div>
+                            <div class="faq-actions">
+                                <button class="btn btn-outline-primary btn-sm">
+                                    <i class="bi bi-pencil me-1"></i>Edit
+                                </button>
+                                <button class="btn btn-outline-success btn-sm">
+                                    <i class="bi bi-star me-1"></i>Feature
+                                </button>
+                                <button class="btn btn-outline-danger btn-sm">
+                                    <i class="bi bi-trash me-1"></i>Delete
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="faq-card" data-category="general">
+                    <div class="faq-header-section" onclick="toggleFaq(this)">
+                        <span class="sortable-handle d-none">
+                            <i class="bi bi-grip-vertical"></i>
+                        </span>
+                        <h4 class="faq-question">How long does a typical project take?</h4>
+                        <div class="faq-toggle">
+                            <i class="bi bi-chevron-down"></i>
+                        </div>
+                    </div>
+                    <div class="faq-content">
+                        <div class="faq-answer">
+                            Project timelines vary based on complexity and scope. A simple business website typically 
+                            takes 2-4 weeks, while more complex applications can take 2-6 months. I provide detailed 
+                            project timelines during the planning phase and keep you updated throughout the development 
+                            process. Rush projects can be accommodated with adjusted pricing.
+                        </div>
+                        <div class="faq-meta">
+                            <div class="faq-badges">
+                                <span class="badge-category">General</span>
+                            </div>
+                            <div class="faq-actions">
+                                <button class="btn btn-outline-primary btn-sm">
+                                    <i class="bi bi-pencil me-1"></i>Edit
+                                </button>
+                                <button class="btn btn-outline-success btn-sm">
+                                    <i class="bi bi-star me-1"></i>Feature
+                                </button>
+                                <button class="btn btn-outline-danger btn-sm">
+                                    <i class="bi bi-trash me-1"></i>Delete
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add FAQ Modal -->
+<div class="modal fade" id="addFaqModal" tabindex="-1" aria-labelledby="addFaqModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addFaqModalLabel">
+                    <i class="bi bi-plus-circle me-2"></i>
+                    Add New FAQ
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="addFaqForm">
+                    <div class="mb-3">
+                        <label for="faqQuestion" class="form-label">Question</label>
+                        <input type="text" class="form-control" id="faqQuestion" placeholder="e.g., What is your typical project timeline?">
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="faqAnswer" class="form-label">Answer</label>
+                        <textarea class="form-control" id="faqAnswer" rows="5" placeholder="Provide a detailed answer to the question..."></textarea>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="faqCategory" class="form-label">Category</label>
+                                <select class="form-select" id="faqCategory">
+                                    <option value="general">General</option>
+                                    <option value="pricing">Pricing</option>
+                                    <option value="technical">Technical</option>
+                                    <option value="support">Support</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="faqOrder" class="form-label">Display Order</label>
+                                <input type="number" class="form-control" id="faqOrder" value="1" min="1">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="isFeatured">
+                                    <label class="form-check-label" for="isFeatured">
+                                        Featured FAQ
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="isPublished" checked>
+                                    <label class="form-check-label" for="isPublished">
+                                        Published
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="showOnHomepage">
+                                    <label class="form-check-label" for="showOnHomepage">
+                                        Show on Homepage
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="allowComments">
+                                    <label class="form-check-label" for="allowComments">
+                                        Allow Comments
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="faq-preview" id="faqPreview" style="display: none;">
+                        <h6>Preview:</h6>
+                        <div class="faq-card">
+                            <div class="faq-header-section" onclick="toggleFaq(this)">
+                                <h4 class="faq-question" id="previewQuestion">Your question will appear here</h4>
+                                <div class="faq-toggle">
+                                    <i class="bi bi-chevron-down"></i>
+                                </div>
+                            </div>
+                            <div class="faq-content expanded">
+                                <div class="faq-answer" id="previewAnswer">Your answer will appear here</div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-outline-info" onclick="previewFaq()">
+                    <i class="bi bi-eye me-2"></i>
+                    Preview
+                </button>
+                <button type="button" class="btn btn-primary" onclick="saveFaq()">
+                    <i class="bi bi-check-lg me-2"></i>
+                    Save FAQ
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+let sortModeActive = false;
+
+function toggleFaq(element) {
+    const content = element.nextElementSibling;
+    const toggle = element.querySelector('.faq-toggle i');
+    
+    content.classList.toggle('expanded');
+    toggle.classList.toggle('expanded');
+}
+
+function toggleSortMode() {
+    sortModeActive = !sortModeActive;
+    const handles = document.querySelectorAll('.sortable-handle');
+    const button = event.target.closest('button');
+    
+    if (sortModeActive) {
+        handles.forEach(handle => handle.classList.remove('d-none'));
+        button.innerHTML = '<i class="bi bi-check-lg me-2"></i>Done Sorting';
+        button.classList.remove('btn-outline-primary');
+        button.classList.add('btn-success');
+    } else {
+        handles.forEach(handle => handle.classList.add('d-none'));
+        button.innerHTML = '<i class="bi bi-arrow-up-down me-2"></i>Sort Mode';
+        button.classList.remove('btn-success');
+        button.classList.add('btn-outline-primary');
+    }
+}
+
+function clearFilters() {
+    document.getElementById('filterCategory').value = '';
+    document.getElementById('filterStatus').value = '';
+    document.getElementById('searchFaqs').value = '';
+    
+    // Reset category tabs
+    document.querySelectorAll('.category-tab').forEach(tab => {
+        tab.classList.remove('active');
+    });
+    document.querySelector('.category-tab[data-category="all"]').classList.add('active');
+    
+    filterFaqs();
+}
+
+function filterFaqs() {
+    const category = document.getElementById('filterCategory').value;
+    const status = document.getElementById('filterStatus').value;
+    const search = document.getElementById('searchFaqs').value.toLowerCase();
+    
+    console.log('Filtering FAQs:', { category, status, search });
+    // Implement filtering logic here
+}
+
+function previewFaqs() {
+    console.log('Previewing FAQs');
+    alert('Preview of how FAQs appear on the site');
+}
+
+function previewFaq() {
+    const question = document.getElementById('faqQuestion').value;
+    const answer = document.getElementById('faqAnswer').value;
+    
+    if (question && answer) {
+        document.getElementById('previewQuestion').textContent = question;
+        document.getElementById('previewAnswer').textContent = answer;
+        document.getElementById('faqPreview').style.display = 'block';
+    } else {
+        alert('Please enter both question and answer to preview');
+    }
+}
+
+function saveFaq() {
+    const faqData = {
+        question: document.getElementById('faqQuestion').value,
+        answer: document.getElementById('faqAnswer').value,
+        category: document.getElementById('faqCategory').value,
+        order: document.getElementById('faqOrder').value,
+        featured: document.getElementById('isFeatured').checked,
+        published: document.getElementById('isPublished').checked,
+        homepage: document.getElementById('showOnHomepage').checked,
+        comments: document.getElementById('allowComments').checked
+    };
+    
+    // Validate required fields
+    if (!faqData.question || !faqData.answer) {
+        alert('Please fill in both question and answer fields');
+        return;
+    }
+    
+    console.log('Saving FAQ:', faqData);
+    alert('FAQ saved successfully!');
+    
+    // Close modal and reset form
+    const modal = bootstrap.Modal.getInstance(document.getElementById('addFaqModal'));
+    modal.hide();
+    document.getElementById('addFaqForm').reset();
+    document.getElementById('faqPreview').style.display = 'none';
+}
+
+// Initialize event listeners
+document.addEventListener('DOMContentLoaded', function() {
+    // Filter event listeners
+    document.getElementById('filterCategory').addEventListener('change', filterFaqs);
+    document.getElementById('filterStatus').addEventListener('change', filterFaqs);
+    document.getElementById('searchFaqs').addEventListener('input', filterFaqs);
+    
+    // Category tab listeners
+    document.querySelectorAll('.category-tab').forEach(tab => {
+        tab.addEventListener('click', function(e) {
+            e.preventDefault();
+            
+            // Remove active from all tabs
+            document.querySelectorAll('.category-tab').forEach(t => t.classList.remove('active'));
+            
+            // Add active to clicked tab
+            this.classList.add('active');
+            
+            // Filter by category
+            const category = this.dataset.category;
+            console.log('Filtering by category:', category);
+            // Implement category filtering
+        });
+    });
+    
+    // Live preview for FAQ form
+    document.getElementById('faqQuestion').addEventListener('input', function() {
+        if (document.getElementById('faqPreview').style.display !== 'none') {
+            document.getElementById('previewQuestion').textContent = this.value || 'Your question will appear here';
+        }
+    });
+    
+    document.getElementById('faqAnswer').addEventListener('input', function() {
+        if (document.getElementById('faqPreview').style.display !== 'none') {
+            document.getElementById('previewAnswer').textContent = this.value || 'Your answer will appear here';
+        }
+    });
+});
+</script>
+{% endblock %}

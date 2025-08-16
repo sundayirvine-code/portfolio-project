@@ -1,0 +1,610 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Navigation Management - {{ site_settings.site_name }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .navigation-header {
+        background: linear-gradient(135deg, var(--theme-primary), var(--theme-secondary));
+        color: white;
+        padding: 2rem 0;
+        margin-bottom: 2rem;
+        border-radius: 0.5rem;
+    }
+    
+    .navigation-item {
+        background: white;
+        border: 1px solid var(--bs-border-color);
+        border-radius: 0.5rem;
+        padding: 1.5rem;
+        margin-bottom: 1rem;
+        transition: all 0.3s ease;
+    }
+    
+    .navigation-item:hover {
+        border-color: var(--theme-primary);
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+    
+    .nav-item-header {
+        display: flex;
+        justify-content: between;
+        align-items: center;
+        margin-bottom: 1rem;
+    }
+    
+    .nav-item-title {
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: var(--theme-primary);
+        margin: 0;
+    }
+    
+    .nav-item-status {
+        padding: 0.25rem 0.75rem;
+        border-radius: 1rem;
+        font-size: 0.875rem;
+        font-weight: 500;
+    }
+    
+    .status-active {
+        background: #d4edda;
+        color: #155724;
+    }
+    
+    .status-inactive {
+        background: #f8d7da;
+        color: #721c24;
+    }
+    
+    .nav-item-details {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+        margin-bottom: 1rem;
+    }
+    
+    .detail-item {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: var(--bs-secondary-color);
+        font-size: 0.875rem;
+    }
+    
+    .nav-item-actions {
+        display: flex;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+    }
+    
+    .btn-sm {
+        font-size: 0.875rem;
+        padding: 0.25rem 0.75rem;
+    }
+    
+    .add-navigation-card {
+        background: linear-gradient(135deg, var(--theme-primary), var(--theme-secondary));
+        color: white;
+        border: none;
+        border-radius: 0.5rem;
+        padding: 2rem;
+        text-align: center;
+        transition: all 0.3s ease;
+        margin-bottom: 2rem;
+    }
+    
+    .add-navigation-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    }
+    
+    .tips-card {
+        background: #f8f9fa;
+        border: 1px solid #e9ecef;
+        border-radius: 0.5rem;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+    }
+    
+    .sortable-list {
+        min-height: 200px;
+    }
+    
+    .sort-handle {
+        cursor: grab;
+        color: var(--bs-secondary-color);
+        margin-right: 0.5rem;
+    }
+    
+    .sort-handle:active {
+        cursor: grabbing;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Header -->
+    <div class="navigation-header text-center">
+        <div class="container">
+            <h1 class="mb-3">
+                <i class="bi bi-list-ul me-3"></i>
+                Navigation Management
+            </h1>
+            <p class="mb-0 fs-5">Configure your site navigation structure</p>
+        </div>
+    </div>
+    
+    <!-- Add New Navigation Item -->
+    <div class="add-navigation-card">
+        <div class="row align-items-center">
+            <div class="col-md-8 text-start">
+                <h3 class="mb-2">
+                    <i class="bi bi-plus-circle me-2"></i>
+                    Add New Navigation Item
+                </h3>
+                <p class="mb-0">Create custom navigation links for your portfolio</p>
+            </div>
+            <div class="col-md-4 text-end">
+                <button class="btn btn-light btn-lg" data-bs-toggle="modal" data-bs-target="#addNavigationModal">
+                    <i class="bi bi-plus-lg me-2"></i>
+                    Add Navigation Item
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Tips Card -->
+    <div class="tips-card">
+        <h5>
+            <i class="bi bi-lightbulb text-warning me-2"></i>
+            Navigation Tips
+        </h5>
+        <ul class="mb-0">
+            <li>Keep navigation simple and intuitive</li>
+            <li>Use descriptive labels that clearly indicate page content</li>
+            <li>Arrange items in order of importance</li>
+            <li>Consider mobile navigation experience</li>
+            <li>Use external links sparingly in main navigation</li>
+        </ul>
+    </div>
+    
+    <!-- Navigation Items List -->
+    <div class="row">
+        <div class="col-md-12">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h3>
+                    <i class="bi bi-collection me-2"></i>
+                    Navigation Items
+                </h3>
+                <div class="btn-group" role="group">
+                    <button class="btn btn-outline-primary" onclick="toggleSortMode()">
+                        <i class="bi bi-arrow-up-down me-2"></i>
+                        Sort Mode
+                    </button>
+                    <button class="btn btn-outline-success" onclick="previewNavigation()">
+                        <i class="bi bi-eye me-2"></i>
+                        Preview
+                    </button>
+                </div>
+            </div>
+            
+            <div class="sortable-list" id="navigationList">
+                <!-- Default Navigation Items -->
+                <div class="navigation-item" data-order="1">
+                    <div class="nav-item-header">
+                        <span class="sort-handle d-none">
+                            <i class="bi bi-grip-vertical"></i>
+                        </span>
+                        <h4 class="nav-item-title">Home</h4>
+                        <span class="nav-item-status status-active">Active</span>
+                    </div>
+                    <div class="nav-item-details">
+                        <div class="detail-item">
+                            <i class="bi bi-link-45deg"></i>
+                            <span>URL: {{ site_settings.site_url|default:"/" }}</span>
+                        </div>
+                        <div class="detail-item">
+                            <i class="bi bi-house"></i>
+                            <span>Type: Internal</span>
+                        </div>
+                        <div class="detail-item">
+                            <i class="bi bi-eye"></i>
+                            <span>Visible: Yes</span>
+                        </div>
+                        <div class="detail-item">
+                            <i class="bi bi-arrow-up"></i>
+                            <span>Order: 1</span>
+                        </div>
+                    </div>
+                    <div class="nav-item-actions">
+                        <button class="btn btn-outline-primary btn-sm">
+                            <i class="bi bi-pencil me-1"></i>Edit
+                        </button>
+                        <button class="btn btn-outline-info btn-sm">
+                            <i class="bi bi-eye me-1"></i>Preview
+                        </button>
+                        <button class="btn btn-outline-secondary btn-sm" disabled>
+                            <i class="bi bi-trash me-1"></i>Default
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="navigation-item" data-order="2">
+                    <div class="nav-item-header">
+                        <span class="sort-handle d-none">
+                            <i class="bi bi-grip-vertical"></i>
+                        </span>
+                        <h4 class="nav-item-title">About</h4>
+                        <span class="nav-item-status status-active">Active</span>
+                    </div>
+                    <div class="nav-item-details">
+                        <div class="detail-item">
+                            <i class="bi bi-link-45deg"></i>
+                            <span>URL: /about/</span>
+                        </div>
+                        <div class="detail-item">
+                            <i class="bi bi-person"></i>
+                            <span>Type: Internal</span>
+                        </div>
+                        <div class="detail-item">
+                            <i class="bi bi-eye"></i>
+                            <span>Visible: Yes</span>
+                        </div>
+                        <div class="detail-item">
+                            <i class="bi bi-arrow-up"></i>
+                            <span>Order: 2</span>
+                        </div>
+                    </div>
+                    <div class="nav-item-actions">
+                        <button class="btn btn-outline-primary btn-sm">
+                            <i class="bi bi-pencil me-1"></i>Edit
+                        </button>
+                        <button class="btn btn-outline-info btn-sm">
+                            <i class="bi bi-eye me-1"></i>Preview
+                        </button>
+                        <button class="btn btn-outline-secondary btn-sm" disabled>
+                            <i class="bi bi-trash me-1"></i>Default
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="navigation-item" data-order="3">
+                    <div class="nav-item-header">
+                        <span class="sort-handle d-none">
+                            <i class="bi bi-grip-vertical"></i>
+                        </span>
+                        <h4 class="nav-item-title">Projects</h4>
+                        <span class="nav-item-status status-active">Active</span>
+                    </div>
+                    <div class="nav-item-details">
+                        <div class="detail-item">
+                            <i class="bi bi-link-45deg"></i>
+                            <span>URL: /projects/</span>
+                        </div>
+                        <div class="detail-item">
+                            <i class="bi bi-briefcase"></i>
+                            <span>Type: Internal</span>
+                        </div>
+                        <div class="detail-item">
+                            <i class="bi bi-eye"></i>
+                            <span>Visible: Yes</span>
+                        </div>
+                        <div class="detail-item">
+                            <i class="bi bi-arrow-up"></i>
+                            <span>Order: 3</span>
+                        </div>
+                    </div>
+                    <div class="nav-item-actions">
+                        <button class="btn btn-outline-primary btn-sm">
+                            <i class="bi bi-pencil me-1"></i>Edit
+                        </button>
+                        <button class="btn btn-outline-info btn-sm">
+                            <i class="bi bi-eye me-1"></i>Preview
+                        </button>
+                        <button class="btn btn-outline-secondary btn-sm" disabled>
+                            <i class="bi bi-trash me-1"></i>Default
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="navigation-item" data-order="4">
+                    <div class="nav-item-header">
+                        <span class="sort-handle d-none">
+                            <i class="bi bi-grip-vertical"></i>
+                        </span>
+                        <h4 class="nav-item-title">Services</h4>
+                        <span class="nav-item-status status-active">Active</span>
+                    </div>
+                    <div class="nav-item-details">
+                        <div class="detail-item">
+                            <i class="bi bi-link-45deg"></i>
+                            <span>URL: /services/</span>
+                        </div>
+                        <div class="detail-item">
+                            <i class="bi bi-tools"></i>
+                            <span>Type: Internal</span>
+                        </div>
+                        <div class="detail-item">
+                            <i class="bi bi-eye"></i>
+                            <span>Visible: Yes</span>
+                        </div>
+                        <div class="detail-item">
+                            <i class="bi bi-arrow-up"></i>
+                            <span>Order: 4</span>
+                        </div>
+                    </div>
+                    <div class="nav-item-actions">
+                        <button class="btn btn-outline-primary btn-sm">
+                            <i class="bi bi-pencil me-1"></i>Edit
+                        </button>
+                        <button class="btn btn-outline-info btn-sm">
+                            <i class="bi bi-eye me-1"></i>Preview
+                        </button>
+                        <button class="btn btn-outline-secondary btn-sm" disabled>
+                            <i class="bi bi-trash me-1"></i>Default
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="navigation-item" data-order="5">
+                    <div class="nav-item-header">
+                        <span class="sort-handle d-none">
+                            <i class="bi bi-grip-vertical"></i>
+                        </span>
+                        <h4 class="nav-item-title">Blog</h4>
+                        <span class="nav-item-status status-active">Active</span>
+                    </div>
+                    <div class="nav-item-details">
+                        <div class="detail-item">
+                            <i class="bi bi-link-45deg"></i>
+                            <span>URL: /blog/</span>
+                        </div>
+                        <div class="detail-item">
+                            <i class="bi bi-journal-text"></i>
+                            <span>Type: Internal</span>
+                        </div>
+                        <div class="detail-item">
+                            <i class="bi bi-eye"></i>
+                            <span>Visible: Yes</span>
+                        </div>
+                        <div class="detail-item">
+                            <i class="bi bi-arrow-up"></i>
+                            <span>Order: 5</span>
+                        </div>
+                    </div>
+                    <div class="nav-item-actions">
+                        <button class="btn btn-outline-primary btn-sm">
+                            <i class="bi bi-pencil me-1"></i>Edit
+                        </button>
+                        <button class="btn btn-outline-info btn-sm">
+                            <i class="bi bi-eye me-1"></i>Preview
+                        </button>
+                        <button class="btn btn-outline-secondary btn-sm" disabled>
+                            <i class="bi bi-trash me-1"></i>Default
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="navigation-item" data-order="6">
+                    <div class="nav-item-header">
+                        <span class="sort-handle d-none">
+                            <i class="bi bi-grip-vertical"></i>
+                        </span>
+                        <h4 class="nav-item-title">Contact</h4>
+                        <span class="nav-item-status status-active">Active</span>
+                    </div>
+                    <div class="nav-item-details">
+                        <div class="detail-item">
+                            <i class="bi bi-link-45deg"></i>
+                            <span>URL: /contact/</span>
+                        </div>
+                        <div class="detail-item">
+                            <i class="bi bi-envelope"></i>
+                            <span>Type: Internal</span>
+                        </div>
+                        <div class="detail-item">
+                            <i class="bi bi-eye"></i>
+                            <span>Visible: Yes</span>
+                        </div>
+                        <div class="detail-item">
+                            <i class="bi bi-arrow-up"></i>
+                            <span>Order: 6</span>
+                        </div>
+                    </div>
+                    <div class="nav-item-actions">
+                        <button class="btn btn-outline-primary btn-sm">
+                            <i class="bi bi-pencil me-1"></i>Edit
+                        </button>
+                        <button class="btn btn-outline-info btn-sm">
+                            <i class="bi bi-eye me-1"></i>Preview
+                        </button>
+                        <button class="btn btn-outline-secondary btn-sm" disabled>
+                            <i class="bi bi-trash me-1"></i>Default
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Custom Navigation Items would be loaded here dynamically -->
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add Navigation Modal -->
+<div class="modal fade" id="addNavigationModal" tabindex="-1" aria-labelledby="addNavigationModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addNavigationModalLabel">
+                    <i class="bi bi-plus-circle me-2"></i>
+                    Add Navigation Item
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="addNavigationForm">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="navTitle" class="form-label">Navigation Title</label>
+                                <input type="text" class="form-control" id="navTitle" placeholder="e.g., Portfolio, Resume">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="navUrl" class="form-label">URL</label>
+                                <input type="url" class="form-control" id="navUrl" placeholder="e.g., /portfolio/, https://example.com">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="navIcon" class="form-label">Icon (Bootstrap Icons)</label>
+                                <input type="text" class="form-control" id="navIcon" placeholder="e.g., briefcase, person">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="navOrder" class="form-label">Display Order</label>
+                                <input type="number" class="form-control" id="navOrder" value="7" min="1">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Link Type</label>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="linkType" id="internal" value="internal" checked>
+                                    <label class="form-check-label" for="internal">Internal Link</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="linkType" id="external" value="external">
+                                    <label class="form-check-label" for="external">External Link</label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="navVisible" checked>
+                                    <label class="form-check-label" for="navVisible">
+                                        Visible in Navigation
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="openNewTab">
+                                    <label class="form-check-label" for="openNewTab">
+                                        Open in New Tab
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="navDescription" class="form-label">Description (Optional)</label>
+                        <textarea class="form-control" id="navDescription" rows="2" placeholder="Brief description of this page or link"></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" onclick="saveNavigation()">
+                    <i class="bi bi-check-lg me-2"></i>
+                    Save Navigation Item
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+let sortModeActive = false;
+
+function toggleSortMode() {
+    sortModeActive = !sortModeActive;
+    const handles = document.querySelectorAll('.sort-handle');
+    const button = event.target.closest('button');
+    
+    if (sortModeActive) {
+        handles.forEach(handle => handle.classList.remove('d-none'));
+        button.innerHTML = '<i class="bi bi-check-lg me-2"></i>Done Sorting';
+        button.classList.remove('btn-outline-primary');
+        button.classList.add('btn-success');
+        
+        // Enable sortable functionality here
+        console.log('Sort mode activated');
+    } else {
+        handles.forEach(handle => handle.classList.add('d-none'));
+        button.innerHTML = '<i class="bi bi-arrow-up-down me-2"></i>Sort Mode';
+        button.classList.remove('btn-success');
+        button.classList.add('btn-outline-primary');
+        
+        // Save sort order here
+        console.log('Sort mode deactivated');
+    }
+}
+
+function previewNavigation() {
+    // Open navigation preview in new tab/modal
+    console.log('Preview navigation');
+    alert('Navigation preview would open here');
+}
+
+function saveNavigation() {
+    const formData = {
+        title: document.getElementById('navTitle').value,
+        url: document.getElementById('navUrl').value,
+        icon: document.getElementById('navIcon').value,
+        order: document.getElementById('navOrder').value,
+        type: document.querySelector('input[name="linkType"]:checked').value,
+        visible: document.getElementById('navVisible').checked,
+        newTab: document.getElementById('openNewTab').checked,
+        description: document.getElementById('navDescription').value
+    };
+    
+    // Validate form
+    if (!formData.title || !formData.url) {
+        alert('Please fill in title and URL fields');
+        return;
+    }
+    
+    // Save navigation item (would make AJAX request in real implementation)
+    console.log('Saving navigation item:', formData);
+    
+    // Close modal and refresh list
+    const modal = bootstrap.Modal.getInstance(document.getElementById('addNavigationModal'));
+    modal.hide();
+    
+    // Reset form
+    document.getElementById('addNavigationForm').reset();
+    
+    alert('Navigation item saved successfully!');
+}
+
+// Initialize tooltips and other interactions
+document.addEventListener('DOMContentLoaded', function() {
+    // Add hover effects to navigation items
+    const navItems = document.querySelectorAll('.navigation-item');
+    navItems.forEach(item => {
+        item.addEventListener('mouseenter', function() {
+            this.style.transform = 'translateY(-2px)';
+        });
+        
+        item.addEventListener('mouseleave', function() {
+            this.style.transform = 'translateY(0)';
+        });
+    });
+});
+</script>
+{% endblock %}
