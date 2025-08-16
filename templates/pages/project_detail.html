@@ -1,0 +1,615 @@
+{% extends 'base.html' %}
+{% load static mathfilters %}
+
+{% block title %}{{ project.title }} - {{ site_settings.site_name }}{% endblock %}
+
+{% block meta_description %}{{ project.description }}{% endblock %}
+
+{% block body_class %}project-detail-page{% endblock %}
+
+{% block content %}
+<!-- Project Hero Section -->
+<section class="project-hero py-5 mt-5">
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <!-- Breadcrumb -->
+                <nav aria-label="breadcrumb" data-aos="fade-up">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item"><a href="{% url 'portfolio:home' %}">Home</a></li>
+                        <li class="breadcrumb-item"><a href="{% url 'portfolio:projects' %}">Projects</a></li>
+                        <li class="breadcrumb-item active" aria-current="page">{{ project.title }}</li>
+                    </ol>
+                </nav>
+                
+                <!-- Project Header -->
+                <div class="project-header" data-aos="fade-up" data-aos-delay="100">
+                    <div class="d-flex flex-wrap align-items-center gap-3 mb-3">
+                        {% if project.category %}
+                        <span class="badge rounded-pill fs-6" 
+                              style="background-color: {{ project.category.color }}; color: white;">
+                            {% if project.category.icon %}<i class="{{ project.category.icon }} me-1"></i>{% endif %}
+                            {{ project.category.name }}
+                        </span>
+                        {% endif %}
+                        
+                        {% if project.status == 'featured' %}
+                        <span class="badge bg-warning text-dark fs-6">
+                            <i class="bi bi-star-fill me-1"></i>Featured
+                        </span>
+                        {% endif %}
+                        
+                        <span class="text-muted">
+                            <i class="bi bi-calendar me-1"></i>{{ project.created_at|date:"F Y" }}
+                        </span>
+                        
+                        {% if project.completion_date %}
+                        <span class="text-muted">
+                            <i class="bi bi-check-circle me-1"></i>Completed {{ project.completion_date|date:"F Y" }}
+                        </span>
+                        {% endif %}
+                    </div>
+                    
+                    <h1 class="display-5 fw-bold mb-3">{{ project.title }}</h1>
+                    <p class="lead text-muted mb-4">{{ project.description }}</p>
+                    
+                    <!-- Project Actions -->
+                    <div class="project-actions d-flex flex-wrap gap-3">
+                        {% if project.live_url %}
+                        <a href="{{ project.live_url }}" 
+                           target="_blank" 
+                           rel="noopener noreferrer"
+                           class="btn btn-primary btn-lg">
+                            <i class="bi bi-box-arrow-up-right me-2"></i>View Live Project
+                        </a>
+                        {% endif %}
+                        
+                        {% if project.github_url %}
+                        <a href="{{ project.github_url }}" 
+                           target="_blank" 
+                           rel="noopener noreferrer"
+                           class="btn btn-outline-primary btn-lg">
+                            <i class="bi bi-github me-2"></i>View Source
+                        </a>
+                        {% endif %}
+                        
+                        {% if project.documentation_url %}
+                        <a href="{{ project.documentation_url }}" 
+                           target="_blank" 
+                           rel="noopener noreferrer"
+                           class="btn btn-outline-secondary btn-lg">
+                            <i class="bi bi-file-text me-2"></i>Documentation
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Project Gallery -->
+{% if project.featured_image_url or project.gallery_images %}
+<section class="project-gallery py-5 bg-light">
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                {% if project.featured_image_url %}
+                <div class="featured-image mb-4" data-aos="fade-up">
+                    <img src="{{ project.featured_image_url }}" 
+                         class="img-fluid rounded shadow-lg w-100" 
+                         alt="{{ project.title }}"
+                         style="max-height: 600px; object-fit: cover;">
+                </div>
+                {% endif %}
+                
+                {% if project.gallery_images %}
+                <div class="gallery-grid">
+                    <div class="row g-3">
+                        {% for image in project.gallery_images_list %}
+                        <div class="col-md-4" data-aos="fade-up" data-aos-delay="{{ forloop.counter0|mul:100 }}">
+                            <div class="gallery-item">
+                                <img src="{{ image }}" 
+                                     class="img-fluid rounded shadow-sm w-100 gallery-image" 
+                                     alt="Project Screenshot {{ forloop.counter }}"
+                                     style="height: 250px; object-fit: cover; cursor: pointer;"
+                                     data-bs-toggle="modal" 
+                                     data-bs-target="#imageModal"
+                                     data-image-src="{{ image }}">
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</section>
+{% endif %}
+
+<!-- Project Details -->
+<section class="project-details py-5">
+    <div class="container">
+        <div class="row g-5">
+            <!-- Main Content -->
+            <div class="col-lg-8">
+                <!-- Project Description -->
+                <div class="project-content" data-aos="fade-up">
+                    <h2 class="h3 mb-4">Project Overview</h2>
+                    
+                    {% if project.detailed_description %}
+                    <div class="content-text">
+                        {{ project.detailed_description|linebreaks }}
+                    </div>
+                    {% else %}
+                    <div class="content-text">
+                        <p>{{ project.description }}</p>
+                        <p>This project showcases modern web development practices and innovative solutions 
+                        to create exceptional user experiences. Built with attention to detail and performance optimization.</p>
+                    </div>
+                    {% endif %}
+                </div>
+                
+                <!-- Key Features -->
+                {% if project.key_features %}
+                <div class="key-features mt-5" data-aos="fade-up" data-aos-delay="100">
+                    <h3 class="h4 mb-4">Key Features</h3>
+                    <div class="row g-3">
+                        {% for feature in project.key_features_list %}
+                        <div class="col-md-6">
+                            <div class="feature-item d-flex align-items-start">
+                                <i class="bi bi-check-circle-fill text-success me-3 mt-1"></i>
+                                <span>{{ feature }}</span>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+                
+                <!-- Challenges & Solutions -->
+                {% if project.challenges %}
+                <div class="challenges-solutions mt-5" data-aos="fade-up" data-aos-delay="200">
+                    <h3 class="h4 mb-4">Challenges & Solutions</h3>
+                    <div class="content-text">
+                        {{ project.challenges|linebreaks }}
+                    </div>
+                </div>
+                {% endif %}
+                
+                <!-- Results & Impact -->
+                {% if project.results %}
+                <div class="results-impact mt-5" data-aos="fade-up" data-aos-delay="300">
+                    <h3 class="h4 mb-4">Results & Impact</h3>
+                    <div class="content-text">
+                        {{ project.results|linebreaks }}
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+            
+            <!-- Sidebar -->
+            <div class="col-lg-4">
+                <div class="project-sidebar" data-aos="fade-left">
+                    <!-- Project Info -->
+                    <div class="sidebar-section bg-light rounded p-4 mb-4">
+                        <h4 class="h5 mb-3">Project Information</h4>
+                        
+                        <div class="info-item mb-3">
+                            <strong class="d-block text-muted small">Client/Company</strong>
+                            <span>{{ project.client|default:"Personal Project" }}</span>
+                        </div>
+                        
+                        {% if project.duration_months %}
+                        <div class="info-item mb-3">
+                            <strong class="d-block text-muted small">Duration</strong>
+                            <span>{{ project.duration_months }} month{{ project.duration_months|pluralize }}</span>
+                        </div>
+                        {% endif %}
+                        
+                        <div class="info-item mb-3">
+                            <strong class="d-block text-muted small">Project Type</strong>
+                            <span>{{ project.get_project_type_display }}</span>
+                        </div>
+                        
+                        {% if project.team_size %}
+                        <div class="info-item mb-3">
+                            <strong class="d-block text-muted small">Team Size</strong>
+                            <span>{{ project.team_size }} member{{ project.team_size|pluralize }}</span>
+                        </div>
+                        {% endif %}
+                        
+                        {% if project.my_role %}
+                        <div class="info-item mb-3">
+                            <strong class="d-block text-muted small">My Role</strong>
+                            <span>{{ project.my_role }}</span>
+                        </div>
+                        {% endif %}
+                    </div>
+                    
+                    <!-- Technologies Used -->
+                    {% if project.technologies.count %}
+                    <div class="sidebar-section bg-light rounded p-4 mb-4">
+                        <h4 class="h5 mb-3">Technologies Used</h4>
+                        <div class="technologies-list">
+                            {% for tech in project.technologies.all %}
+                            <span class="badge bg-primary me-1 mb-2">{{ tech.name }}</span>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endif %}
+                    
+                    <!-- Project Links -->
+                    <div class="sidebar-section bg-light rounded p-4 mb-4">
+                        <h4 class="h5 mb-3">Project Links</h4>
+                        
+                        {% if project.live_url %}
+                        <a href="{{ project.live_url }}" 
+                           target="_blank" 
+                           rel="noopener noreferrer"
+                           class="btn btn-outline-primary w-100 mb-2">
+                            <i class="bi bi-box-arrow-up-right me-2"></i>Live Demo
+                        </a>
+                        {% endif %}
+                        
+                        {% if project.github_url %}
+                        <a href="{{ project.github_url }}" 
+                           target="_blank" 
+                           rel="noopener noreferrer"
+                           class="btn btn-outline-dark w-100 mb-2">
+                            <i class="bi bi-github me-2"></i>Source Code
+                        </a>
+                        {% endif %}
+                        
+                        {% if project.documentation_url %}
+                        <a href="{{ project.documentation_url }}" 
+                           target="_blank" 
+                           rel="noopener noreferrer"
+                           class="btn btn-outline-info w-100 mb-2">
+                            <i class="bi bi-file-text me-2"></i>Documentation
+                        </a>
+                        {% endif %}
+                        
+                        <a href="{% url 'portfolio:contact' %}?project={{ project.slug }}" 
+                           class="btn btn-primary w-100">
+                            <i class="bi bi-envelope me-2"></i>Discuss This Project
+                        </a>
+                    </div>
+                    
+                    <!-- Share Project -->
+                    <div class="sidebar-section bg-light rounded p-4">
+                        <h4 class="h5 mb-3">Share This Project</h4>
+                        <div class="share-buttons d-flex gap-2">
+                            <a href="https://twitter.com/intent/tweet?text=Check out {{ project.title }}&url={{ request.build_absolute_uri }}" 
+                               target="_blank" 
+                               class="btn btn-outline-primary btn-sm flex-fill">
+                                <i class="bi bi-twitter"></i>
+                            </a>
+                            <a href="https://www.linkedin.com/sharing/share-offsite/?url={{ request.build_absolute_uri }}" 
+                               target="_blank" 
+                               class="btn btn-outline-primary btn-sm flex-fill">
+                                <i class="bi bi-linkedin"></i>
+                            </a>
+                            <a href="mailto:?subject=Check out {{ project.title }}&body={{ request.build_absolute_uri }}" 
+                               class="btn btn-outline-primary btn-sm flex-fill">
+                                <i class="bi bi-envelope"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Related Projects -->
+{% if related_projects %}
+<section class="related-projects py-5 bg-light">
+    <div class="container">
+        <div class="text-center mb-5" data-aos="fade-up">
+            <h2 class="h3 mb-3">Related Projects</h2>
+            <p class="text-muted">Other projects you might find interesting</p>
+        </div>
+        
+        <div class="row g-4">
+            {% for related_project in related_projects %}
+            <div class="col-lg-4" data-aos="fade-up" data-aos-delay="{{ forloop.counter0|mul:100 }}">
+                <div class="card border-0 shadow-sm h-100 hover-lift">
+                    {% if related_project.featured_image_url %}
+                    <img src="{{ related_project.featured_image_url }}" 
+                         class="card-img-top" 
+                         alt="{{ related_project.title }}"
+                         style="height: 200px; object-fit: cover;">
+                    {% endif %}
+                    
+                    <div class="card-body">
+                        <h5 class="card-title">
+                            <a href="{% url 'portfolio:project_detail' related_project.slug %}" 
+                               class="text-decoration-none text-dark">
+                                {{ related_project.title }}
+                            </a>
+                        </h5>
+                        <p class="card-text text-muted">{{ related_project.description|truncatewords:15 }}</p>
+                        
+                        <div class="d-flex justify-content-between align-items-center">
+                            <small class="text-muted">{{ related_project.created_at|date:"M Y" }}</small>
+                            <a href="{% url 'portfolio:project_detail' related_project.slug %}" 
+                               class="btn btn-outline-primary btn-sm">
+                                View Details
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endif %}
+
+<!-- CTA Section -->
+<section class="py-5 bg-primary text-white">
+    <div class="container">
+        <div class="row align-items-center" data-aos="fade-up">
+            <div class="col-lg-8">
+                <h2 class="h3 mb-3">Like What You See?</h2>
+                <p class="mb-0">
+                    I'd love to work on your next project. Let's discuss how I can help bring your ideas to life.
+                </p>
+            </div>
+            <div class="col-lg-4 text-lg-end mt-3 mt-lg-0">
+                <a href="{% url 'portfolio:contact' %}" class="btn btn-light btn-lg">
+                    <i class="bi bi-rocket me-2"></i>Start Your Project
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Image Modal -->
+<div class="modal fade" id="imageModal" tabindex="-1" aria-labelledby="imageModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="imageModalLabel">Project Image</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body text-center">
+                <img id="modalImage" src="" class="img-fluid rounded" alt="Project Image">
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+/* Project Hero Styling */
+.project-hero {
+    background: linear-gradient(135deg, rgba(var(--theme-primary), 0.05), rgba(var(--theme-secondary), 0.05));
+}
+
+/* Gallery Styling */
+.gallery-image {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.gallery-image:hover {
+    transform: scale(1.05);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+}
+
+/* Content Styling */
+.content-text {
+    line-height: 1.7;
+    font-size: 1.1rem;
+}
+
+.content-text p {
+    margin-bottom: 1.5rem;
+}
+
+/* Feature Items */
+.feature-item {
+    padding: 0.5rem 0;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.feature-item:last-child {
+    border-bottom: none;
+}
+
+/* Sidebar Styling */
+.sidebar-section {
+    transition: transform 0.3s ease;
+}
+
+.sidebar-section:hover {
+    transform: translateY(-2px);
+}
+
+.info-item {
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+    padding-bottom: 0.75rem;
+}
+
+.info-item:last-child {
+    border-bottom: none;
+    margin-bottom: 0 !important;
+}
+
+/* Technologies List */
+.technologies-list .badge {
+    font-size: 0.875rem;
+    padding: 0.5rem 0.75rem;
+    transition: all 0.2s ease;
+}
+
+.technologies-list .badge:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+/* Share Buttons */
+.share-buttons .btn {
+    aspect-ratio: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Related Projects Cards */
+.related-projects .card {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.related-projects .card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1) !important;
+}
+
+/* Breadcrumb Styling */
+.breadcrumb {
+    background: none;
+    padding: 0;
+    margin: 0;
+}
+
+.breadcrumb-item + .breadcrumb-item::before {
+    content: '>';
+    color: var(--theme-primary);
+}
+
+.breadcrumb-item a {
+    color: var(--theme-primary);
+    text-decoration: none;
+}
+
+.breadcrumb-item a:hover {
+    text-decoration: underline;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+    .project-actions {
+        flex-direction: column;
+    }
+    
+    .project-actions .btn {
+        width: 100%;
+    }
+    
+    .content-text {
+        font-size: 1rem;
+    }
+    
+    .share-buttons {
+        justify-content: center;
+    }
+}
+
+/* Dark Mode Adjustments */
+[data-bs-theme="dark"] .sidebar-section {
+    background: rgba(255, 255, 255, 0.05) !important;
+}
+
+[data-bs-theme="dark"] .feature-item,
+[data-bs-theme="dark"] .info-item {
+    border-bottom-color: rgba(255, 255, 255, 0.1);
+}
+
+[data-bs-theme="dark"] .breadcrumb-item.active {
+    color: var(--bs-body-color);
+}
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Image modal functionality
+    const imageModal = document.getElementById('imageModal');
+    const modalImage = document.getElementById('modalImage');
+    
+    if (imageModal) {
+        imageModal.addEventListener('show.bs.modal', function(event) {
+            const trigger = event.relatedTarget;
+            const imageSrc = trigger.getAttribute('data-image-src');
+            modalImage.src = imageSrc;
+        });
+    }
+    
+    // Smooth scrolling for anchor links
+    const anchorLinks = document.querySelectorAll('a[href^="#"]');
+    anchorLinks.forEach(link => {
+        link.addEventListener('click', function(e) {
+            const targetId = this.getAttribute('href');
+            const targetElement = document.querySelector(targetId);
+            
+            if (targetElement) {
+                e.preventDefault();
+                targetElement.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'start'
+                });
+            }
+        });
+    });
+    
+    // Copy project URL functionality
+    function copyProjectURL() {
+        navigator.clipboard.writeText(window.location.href).then(() => {
+            // Show temporary success message
+            const copyBtn = document.querySelector('.copy-url-btn');
+            if (copyBtn) {
+                const originalText = copyBtn.innerHTML;
+                copyBtn.innerHTML = '<i class="bi bi-check"></i> Copied!';
+                setTimeout(() => {
+                    copyBtn.innerHTML = originalText;
+                }, 2000);
+            }
+        });
+    }
+    
+    // Add copy URL button if needed
+    const shareSection = document.querySelector('.share-buttons');
+    if (shareSection) {
+        const copyBtn = document.createElement('button');
+        copyBtn.className = 'btn btn-outline-secondary btn-sm flex-fill copy-url-btn';
+        copyBtn.innerHTML = '<i class="bi bi-link-45deg"></i>';
+        copyBtn.title = 'Copy URL';
+        copyBtn.addEventListener('click', copyProjectURL);
+        shareSection.appendChild(copyBtn);
+    }
+    
+    // Track project view (can be extended with analytics)
+    const projectSlug = '{{ project.slug }}';
+    console.log(`Viewing project: ${projectSlug}`);
+    
+    // Animate elements on scroll
+    const observerOptions = {
+        threshold: 0.1,
+        rootMargin: '0px 0px -50px 0px'
+    };
+    
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.style.opacity = '1';
+                entry.target.style.transform = 'translateY(0)';
+            }
+        });
+    }, observerOptions);
+    
+    // Observe sidebar sections for animation
+    const sidebarSections = document.querySelectorAll('.sidebar-section');
+    sidebarSections.forEach(section => {
+        section.style.opacity = '0';
+        section.style.transform = 'translateY(20px)';
+        section.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+        observer.observe(section);
+    });
+});
+</script>
+{% endblock %}

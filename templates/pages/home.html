@@ -1,0 +1,405 @@
+{% extends 'base.html' %}
+{% load static mathfilters %}
+
+{% block title %}{{ site_settings.site_name }} - {{ site_settings.site_tagline }}{% endblock %}
+
+{% block body_class %}home-page{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero-section bg-gradient-primary text-white min-vh-100 d-flex align-items-center position-relative overflow-hidden">
+    <!-- Animated Background Elements -->
+    <div class="hero-bg-elements">
+        <div class="floating-element" style="top: 20%; left: 10%;"></div>
+        <div class="floating-element" style="top: 60%; right: 15%;"></div>
+        <div class="floating-element" style="bottom: 30%; left: 20%;"></div>
+    </div>
+    
+    <div class="container position-relative">
+        <div class="row align-items-center min-vh-100">
+            <div class="col-lg-6" data-aos="fade-right">
+                <div class="hero-content">
+                    <span class="badge bg-light text-dark mb-3 animate__animated animate__fadeInDown">
+                        👋 Welcome to my portfolio
+                    </span>
+                    
+                    <h1 class="display-3 fw-bold mb-4 animate__animated animate__fadeInUp">
+                        Hi, I'm 
+                        <span class="text-gradient">
+                            {% if site_settings.site_name %}
+                                {{ site_settings.site_name }}
+                            {% else %}
+                                Your Name
+                            {% endif %}
+                        </span>
+                    </h1>
+                    
+                    <h2 class="display-6 mb-4 animate__animated animate__fadeInUp animate__delay-1s">
+                        {% if site_settings.site_tagline %}
+                            {{ site_settings.site_tagline }}
+                        {% else %}
+                            Full-Stack Developer & Creative Designer
+                        {% endif %}
+                    </h2>
+                    
+                    <p class="lead mb-4 animate__animated animate__fadeInUp animate__delay-2s">
+                        {% if site_settings.site_description %}
+                            {{ site_settings.site_description }}
+                        {% else %}
+                            I create amazing digital experiences that combine beautiful design with powerful functionality. 
+                            Let's build something incredible together.
+                        {% endif %}
+                    </p>
+                    
+                    <div class="hero-buttons animate__animated animate__fadeInUp animate__delay-3s">
+                        <a href="{% url 'portfolio:projects' %}" class="btn btn-light btn-lg me-3 shadow">
+                            <i class="bi bi-briefcase me-2"></i>View My Work
+                        </a>
+                        {% if site_settings.enable_contact_form %}
+                        <a href="{% url 'portfolio:contact' %}" class="btn btn-outline-light btn-lg">
+                            <i class="bi bi-envelope me-2"></i>Get In Touch
+                        </a>
+                        {% endif %}
+                    </div>
+                    
+                    <!-- Stats -->
+                    <div class="hero-stats mt-5 animate__animated animate__fadeInUp animate__delay-4s">
+                        <div class="row g-4">
+                            <div class="col-4">
+                                <div class="stat-item text-center">
+                                    <h3 class="fw-bold mb-1" data-count="{{ featured_projects.count }}">0</h3>
+                                    <small class="text-light">Projects</small>
+                                </div>
+                            </div>
+                            <div class="col-4">
+                                <div class="stat-item text-center">
+                                    <h3 class="fw-bold mb-1" data-count="3">0</h3>
+                                    <small class="text-light">Years Experience</small>
+                                </div>
+                            </div>
+                            <div class="col-4">
+                                <div class="stat-item text-center">
+                                    <h3 class="fw-bold mb-1" data-count="{{ featured_testimonials.count }}">0</h3>
+                                    <small class="text-light">Happy Clients</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-6" data-aos="fade-left">
+                <div class="hero-image text-center">
+                    <!-- Profile Image or Illustration -->
+                    <div class="profile-container position-relative">
+                        <div class="profile-image-wrapper animate__animated animate__zoomIn animate__delay-1s">
+                            <img src="{% static 'img/hero-illustration.svg' %}" 
+                                 alt="Hero Illustration" 
+                                 class="img-fluid hero-illustration">
+                        </div>
+                        
+                        <!-- Floating Skills -->
+                        <div class="floating-skills">
+                            <span class="skill-badge animate__animated animate__bounceIn animate__delay-2s" style="top: 10%; left: 20%;">
+                                Python
+                            </span>
+                            <span class="skill-badge animate__animated animate__bounceIn animate__delay-3s" style="top: 30%; right: 10%;">
+                                Django
+                            </span>
+                            <span class="skill-badge animate__animated animate__bounceIn animate__delay-4s" style="bottom: 40%; left: 10%;">
+                                React
+                            </span>
+                            <span class="skill-badge animate__animated animate__bounceIn animate__delay-5s" style="bottom: 20%; right: 20%;">
+                                UI/UX
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Scroll Indicator -->
+        <div class="scroll-indicator position-absolute bottom-0 start-50 translate-middle-x animate__animated animate__bounce animate__infinite">
+            <a href="#featured-projects" class="text-white text-decoration-none">
+                <i class="bi bi-chevron-down fs-2"></i>
+            </a>
+        </div>
+    </div>
+</section>
+
+<!-- Featured Projects Section -->
+{% if featured_projects %}
+<section id="featured-projects" class="py-5 bg-light">
+    <div class="container">
+        <div class="text-center mb-5" data-aos="fade-up">
+            <h2 class="display-5 fw-bold mb-3">Featured Projects</h2>
+            <p class="lead text-muted">A showcase of my latest and greatest work</p>
+        </div>
+        
+        <div class="row g-4">
+            {% for project in featured_projects %}
+            <div class="col-lg-6" data-aos="fade-up" data-aos-delay="{{ forloop.counter0|add:1|mul:100 }}">
+                <div class="project-card card h-100 shadow-sm border-0 hover-lift">
+                    {% if project.featured_image_url %}
+                    <div class="project-image-wrapper position-relative overflow-hidden">
+                        <img src="{{ project.featured_image_url }}" 
+                             class="card-img-top project-image" 
+                             alt="{{ project.title }}"
+                             style="height: 250px; object-fit: cover;">
+                        <div class="project-overlay d-flex align-items-center justify-content-center">
+                            <a href="{% url 'portfolio:project_detail' project.slug %}" 
+                               class="btn btn-light btn-sm me-2">
+                                <i class="bi bi-eye"></i> View
+                            </a>
+                            {% if project.live_url %}
+                            <a href="{{ project.live_url }}" 
+                               target="_blank" 
+                               class="btn btn-primary btn-sm">
+                                <i class="bi bi-box-arrow-up-right"></i> Live
+                            </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endif %}
+                    
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <span class="badge bg-primary">{{ project.get_project_type_display }}</span>
+                            {% if project.category %}
+                            <span class="badge" style="background-color: {{ project.category.color }}20; color: {{ project.category.color }};">
+                                {{ project.category.name }}
+                            </span>
+                            {% endif %}
+                        </div>
+                        
+                        <h5 class="card-title mb-2">{{ project.title }}</h5>
+                        <p class="card-text text-muted">{{ project.description|truncatewords:20 }}</p>
+                        
+                        <!-- Technologies -->
+                        <div class="technologies mb-3">
+                            {% for tech in project.technologies.all|slice:":4" %}
+                            <span class="badge bg-light text-dark me-1 mb-1">{{ tech.name }}</span>
+                            {% endfor %}
+                        </div>
+                        
+                        <div class="d-flex justify-content-between align-items-center">
+                            <a href="{% url 'portfolio:project_detail' project.slug %}" 
+                               class="btn btn-outline-primary btn-sm">
+                                Learn More <i class="bi bi-arrow-right ms-1"></i>
+                            </a>
+                            <small class="text-muted">{{ project.created_at|date:"M Y" }}</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        
+        <div class="text-center mt-5" data-aos="fade-up">
+            <a href="{% url 'portfolio:projects' %}" class="btn btn-primary btn-lg">
+                View All Projects <i class="bi bi-arrow-right ms-2"></i>
+            </a>
+        </div>
+    </div>
+</section>
+{% endif %}
+
+<!-- Services Section -->
+{% if featured_services %}
+<section class="py-5">
+    <div class="container">
+        <div class="text-center mb-5" data-aos="fade-up">
+            <h2 class="display-5 fw-bold mb-3">What I Do</h2>
+            <p class="lead text-muted">Services that bring your ideas to life</p>
+        </div>
+        
+        <div class="row g-4">
+            {% for service in featured_services %}
+            <div class="col-lg-4" data-aos="fade-up" data-aos-delay="{{ forloop.counter0|add:1|mul:100 }}">
+                <div class="service-card text-center p-4 h-100 border rounded-3 hover-lift">
+                    <div class="service-icon mb-3">
+                        {% if service.icon %}
+                        <i class="{{ service.icon }} fs-1 text-primary"></i>
+                        {% else %}
+                        <i class="bi bi-gear fs-1 text-primary"></i>
+                        {% endif %}
+                    </div>
+                    <h4 class="mb-3">{{ service.name }}</h4>
+                    <p class="text-muted mb-4">{{ service.short_description|default:service.description|truncatewords:15 }}</p>
+                    
+                    <!-- Technologies -->
+                    <div class="service-technologies mb-3">
+                        {% for tech in service.technologies.all|slice:":3" %}
+                        <span class="badge bg-light text-dark me-1">{{ tech.name }}</span>
+                        {% endfor %}
+                    </div>
+                    
+                    {% if service.starting_price %}
+                    <div class="service-price text-primary fw-bold mb-3">
+                        Starting at ${{ service.starting_price }}{{ service.price_unit }}
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        
+        <div class="text-center mt-5" data-aos="fade-up">
+            <a href="{% url 'portfolio:services' %}" class="btn btn-outline-primary btn-lg">
+                View All Services <i class="bi bi-arrow-right ms-2"></i>
+            </a>
+        </div>
+    </div>
+</section>
+{% endif %}
+
+<!-- Testimonials Section -->
+{% if featured_testimonials %}
+<section class="py-5 bg-light">
+    <div class="container">
+        <div class="text-center mb-5" data-aos="fade-up">
+            <h2 class="display-5 fw-bold mb-3">What Clients Say</h2>
+            <p class="lead text-muted">Trusted by amazing people and companies</p>
+        </div>
+        
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div id="testimonialCarousel" class="carousel slide" data-bs-ride="carousel" data-aos="fade-up">
+                    <div class="carousel-inner">
+                        {% for testimonial in featured_testimonials %}
+                        <div class="carousel-item {% if forloop.first %}active{% endif %}">
+                            <div class="testimonial-item text-center p-4">
+                                <div class="testimonial-rating mb-3">
+                                    {% for i in "12345"|make_list %}
+                                        <i class="bi bi-star{% if forloop.counter <= testimonial.rating %}-fill{% endif %} text-warning"></i>
+                                    {% endfor %}
+                                </div>
+                                
+                                <blockquote class="blockquote">
+                                    <p class="mb-4 fs-5 font-italic">"{{ testimonial.content }}"</p>
+                                </blockquote>
+                                
+                                <div class="testimonial-author">
+                                    {% if testimonial.client_photo_url %}
+                                    <img src="{{ testimonial.client_photo_url }}" 
+                                         alt="{{ testimonial.client_name }}" 
+                                         class="rounded-circle mb-3" 
+                                         width="80" height="80">
+                                    {% endif %}
+                                    
+                                    <div class="author-info">
+                                        <h5 class="mb-1">{{ testimonial.client_name }}</h5>
+                                        <p class="text-muted mb-0">
+                                            {% if testimonial.client_position %}{{ testimonial.client_position }}{% endif %}
+                                            {% if testimonial.client_company %} at {{ testimonial.client_company }}{% endif %}
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    
+                    <!-- Carousel Controls -->
+                    <button class="carousel-control-prev" type="button" data-bs-target="#testimonialCarousel" data-bs-slide="prev">
+                        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                        <span class="visually-hidden">Previous</span>
+                    </button>
+                    <button class="carousel-control-next" type="button" data-bs-target="#testimonialCarousel" data-bs-slide="next">
+                        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                        <span class="visually-hidden">Next</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endif %}
+
+<!-- Recent Blog Posts -->
+{% if recent_posts and site_settings.enable_blog %}
+<section class="py-5">
+    <div class="container">
+        <div class="text-center mb-5" data-aos="fade-up">
+            <h2 class="display-5 fw-bold mb-3">Latest Articles</h2>
+            <p class="lead text-muted">Insights, tutorials, and industry thoughts</p>
+        </div>
+        
+        <div class="row g-4">
+            {% for post in recent_posts %}
+            <div class="col-lg-4" data-aos="fade-up" data-aos-delay="{{ forloop.counter0|add:1|mul:100 }}">
+                <article class="blog-card card h-100 border-0 shadow-sm hover-lift">
+                    {% if post.featured_image_url %}
+                    <div class="blog-image-wrapper position-relative overflow-hidden">
+                        <img src="{{ post.featured_image_url }}" 
+                             class="card-img-top" 
+                             alt="{{ post.title }}"
+                             style="height: 200px; object-fit: cover;">
+                        <div class="blog-overlay d-flex align-items-center justify-content-center">
+                            <a href="{% url 'portfolio:blog_detail' post.slug %}" 
+                               class="btn btn-light">
+                                <i class="bi bi-book"></i> Read More
+                            </a>
+                        </div>
+                    </div>
+                    {% endif %}
+                    
+                    <div class="card-body">
+                        {% if post.category %}
+                        <span class="badge bg-primary mb-2">{{ post.category.name }}</span>
+                        {% endif %}
+                        
+                        <h5 class="card-title mb-2">
+                            <a href="{% url 'portfolio:blog_detail' post.slug %}" 
+                               class="text-decoration-none text-dark">
+                                {{ post.title }}
+                            </a>
+                        </h5>
+                        
+                        <p class="card-text text-muted">{{ post.excerpt|default:post.content|truncatewords:15 }}</p>
+                        
+                        <div class="d-flex justify-content-between align-items-center">
+                            <small class="text-muted">
+                                <i class="bi bi-calendar me-1"></i>{{ post.published_at|date:"M d, Y" }}
+                            </small>
+                            <small class="text-muted">
+                                <i class="bi bi-eye me-1"></i>{{ post.views_count }} views
+                            </small>
+                        </div>
+                    </div>
+                </article>
+            </div>
+            {% endfor %}
+        </div>
+        
+        <div class="text-center mt-5" data-aos="fade-up">
+            <a href="{% url 'portfolio:blog' %}" class="btn btn-outline-primary btn-lg">
+                View All Articles <i class="bi bi-arrow-right ms-2"></i>
+            </a>
+        </div>
+    </div>
+</section>
+{% endif %}
+
+<!-- CTA Section -->
+<section class="py-5 bg-primary text-white">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-8" data-aos="fade-right">
+                <h2 class="display-6 fw-bold mb-3">Ready to Start Your Project?</h2>
+                <p class="lead mb-0">
+                    Let's discuss your ideas and create something amazing together. 
+                    I'm always excited to work on new and challenging projects.
+                </p>
+            </div>
+            <div class="col-lg-4 text-lg-end" data-aos="fade-left">
+                {% if site_settings.enable_contact_form %}
+                <a href="{% url 'portfolio:contact' %}" class="btn btn-light btn-lg">
+                    <i class="bi bi-envelope me-2"></i>Get Started
+                </a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

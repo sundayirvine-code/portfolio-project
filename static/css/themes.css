@@ -1,0 +1,461 @@
+/* ==========================================================================
+   Portfolio - Dynamic Theme System
+   ========================================================================== */
+
+/* Theme Variables - Updated dynamically via JavaScript */
+:root {
+  /* Electric Neon Theme (Default) */
+  --theme-primary: #6366f1;
+  --theme-secondary: #8b5cf6;
+  --theme-accent: #06b6d4;
+  --theme-background: #f8fafc;
+  --theme-text: #1e293b;
+  
+  /* Additional theme colors */
+  --theme-success: #10b981;
+  --theme-warning: #f59e0b;
+  --theme-danger: #ef4444;
+  --theme-info: #3b82f6;
+  
+  /* Gradient combinations */
+  --theme-gradient-primary: linear-gradient(135deg, var(--theme-primary), var(--theme-secondary));
+  --theme-gradient-accent: linear-gradient(135deg, var(--theme-accent), var(--theme-primary));
+  --theme-gradient-hero: linear-gradient(135deg, var(--theme-primary) 0%, var(--theme-secondary) 50%, var(--theme-accent) 100%);
+}
+
+/* Dark Mode Variables */
+[data-bs-theme="dark"] {
+  --theme-primary: #818cf8;
+  --theme-secondary: #a78bfa;
+  --theme-accent: #67e8f9;
+  --theme-background: #0f172a;
+  --theme-text: #f1f5f9;
+}
+
+/* ==========================================================================
+   Electric Neon Theme
+   ========================================================================== */
+
+.theme-electric-neon {
+  --theme-primary: #6366f1;
+  --theme-secondary: #8b5cf6;
+  --theme-accent: #06b6d4;
+  --theme-background: #f8fafc;
+  --theme-text: #1e293b;
+}
+
+[data-bs-theme="dark"].theme-electric-neon {
+  --theme-primary: #818cf8;
+  --theme-secondary: #a78bfa;
+  --theme-accent: #67e8f9;
+  --theme-background: #0f172a;
+  --theme-text: #f1f5f9;
+}
+
+/* ==========================================================================
+   Sunset Gradient Theme
+   ========================================================================== */
+
+.theme-sunset-gradient {
+  --theme-primary: #f59e0b;
+  --theme-secondary: #ef4444;
+  --theme-accent: #ec4899;
+  --theme-background: #fefbf3;
+  --theme-text: #292524;
+}
+
+[data-bs-theme="dark"].theme-sunset-gradient {
+  --theme-primary: #fbbf24;
+  --theme-secondary: #f87171;
+  --theme-accent: #f472b6;
+  --theme-background: #1c1917;
+  --theme-text: #fafaf9;
+}
+
+/* ==========================================================================
+   Ocean Deep Theme
+   ========================================================================== */
+
+.theme-ocean-deep {
+  --theme-primary: #0ea5e9;
+  --theme-secondary: #06b6d4;
+  --theme-accent: #10b981;
+  --theme-background: #f0f9ff;
+  --theme-text: #0c4a6e;
+}
+
+[data-bs-theme="dark"].theme-ocean-deep {
+  --theme-primary: #38bdf8;
+  --theme-secondary: #22d3ee;
+  --theme-accent: #34d399;
+  --theme-background: #082f49;
+  --theme-text: #e0f2fe;
+}
+
+/* ==========================================================================
+   Forest Modern Theme
+   ========================================================================== */
+
+.theme-forest-modern {
+  --theme-primary: #059669;
+  --theme-secondary: #7c3aed;
+  --theme-accent: #f59e0b;
+  --theme-background: #f0fdf4;
+  --theme-text: #064e3b;
+}
+
+[data-bs-theme="dark"].theme-forest-modern {
+  --theme-primary: #10b981;
+  --theme-secondary: #a855f7;
+  --theme-accent: #fbbf24;
+  --theme-background: #022c22;
+  --theme-text: #ecfdf5;
+}
+
+/* ==========================================================================
+   Theme Application Classes
+   ========================================================================== */
+
+/* Background Gradients */
+.bg-gradient-primary {
+  background: var(--theme-gradient-primary) !important;
+}
+
+.bg-gradient-accent {
+  background: var(--theme-gradient-accent) !important;
+}
+
+.bg-gradient-hero {
+  background: var(--theme-gradient-hero) !important;
+}
+
+/* Text Colors */
+.text-theme-primary {
+  color: var(--theme-primary) !important;
+}
+
+.text-theme-secondary {
+  color: var(--theme-secondary) !important;
+}
+
+.text-theme-accent {
+  color: var(--theme-accent) !important;
+}
+
+/* Border Colors */
+.border-theme-primary {
+  border-color: var(--theme-primary) !important;
+}
+
+.border-theme-secondary {
+  border-color: var(--theme-secondary) !important;
+}
+
+.border-theme-accent {
+  border-color: var(--theme-accent) !important;
+}
+
+/* Button Variants */
+.btn-theme-primary {
+  background: var(--theme-primary);
+  border-color: var(--theme-primary);
+  color: white;
+}
+
+.btn-theme-primary:hover {
+  background: var(--theme-secondary);
+  border-color: var(--theme-secondary);
+}
+
+.btn-theme-gradient {
+  background: var(--theme-gradient-primary);
+  border: none;
+  color: white;
+}
+
+.btn-theme-gradient:hover {
+  background: var(--theme-gradient-accent);
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+}
+
+.btn-outline-theme-primary {
+  border-color: var(--theme-primary);
+  color: var(--theme-primary);
+  background: transparent;
+}
+
+.btn-outline-theme-primary:hover {
+  background: var(--theme-primary);
+  border-color: var(--theme-primary);
+  color: white;
+}
+
+/* ==========================================================================
+   Component-Specific Theme Styles
+   ========================================================================== */
+
+/* Navigation */
+.navbar-theme {
+  background: rgba(var(--theme-background), 0.95) !important;
+  backdrop-filter: blur(10px);
+}
+
+.navbar-theme .navbar-brand {
+  color: var(--theme-primary) !important;
+}
+
+.navbar-theme .nav-link {
+  color: var(--theme-text) !important;
+}
+
+.navbar-theme .nav-link:hover,
+.navbar-theme .nav-link.active {
+  color: var(--theme-primary) !important;
+}
+
+/* Cards */
+.card-theme {
+  border: 1px solid rgba(var(--theme-primary), 0.1);
+  background: var(--theme-background);
+  color: var(--theme-text);
+}
+
+.card-theme:hover {
+  border-color: var(--theme-primary);
+  box-shadow: 0 10px 30px rgba(var(--theme-primary), 0.1);
+}
+
+/* Badges */
+.badge-theme-primary {
+  background: var(--theme-primary);
+  color: white;
+}
+
+.badge-theme-secondary {
+  background: var(--theme-secondary);
+  color: white;
+}
+
+.badge-theme-accent {
+  background: var(--theme-accent);
+  color: white;
+}
+
+.badge-theme-light {
+  background: rgba(var(--theme-primary), 0.1);
+  color: var(--theme-primary);
+}
+
+/* Progress Bars */
+.progress-theme .progress-bar {
+  background: var(--theme-gradient-primary);
+}
+
+/* ==========================================================================
+   Theme Transition Effects
+   ========================================================================== */
+
+.theme-transition {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.theme-transition * {
+  transition: inherit;
+}
+
+/* Smooth color transitions for theme switching */
+body,
+.card,
+.btn,
+.navbar,
+.footer,
+.hero-section {
+  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}
+
+/* ==========================================================================
+   Theme Picker Component
+   ========================================================================== */
+
+.theme-picker {
+  position: fixed;
+  top: 50%;
+  right: -250px;
+  transform: translateY(-50%);
+  width: 250px;
+  background: white;
+  border-radius: 15px 0 0 15px;
+  box-shadow: -5px 0 25px rgba(0, 0, 0, 0.1);
+  transition: right 0.3s ease;
+  z-index: 1060;
+}
+
+.theme-picker.show {
+  right: 0;
+}
+
+.theme-picker-toggle {
+  position: absolute;
+  left: -40px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 40px;
+  height: 40px;
+  background: var(--theme-primary);
+  color: white;
+  border: none;
+  border-radius: 8px 0 0 8px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.theme-option {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 3px solid transparent;
+  cursor: pointer;
+  margin: 0.5rem;
+  position: relative;
+  transition: all 0.2s ease;
+}
+
+.theme-option:hover {
+  transform: scale(1.1);
+  border-color: #ddd;
+}
+
+.theme-option.active {
+  border-color: #333;
+  box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.1);
+}
+
+.theme-option::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.8);
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.theme-option.active::after {
+  opacity: 1;
+}
+
+/* Theme Option Colors */
+.theme-option.electric-neon {
+  background: linear-gradient(135deg, #6366f1, #8b5cf6);
+}
+
+.theme-option.sunset-gradient {
+  background: linear-gradient(135deg, #f59e0b, #ef4444);
+}
+
+.theme-option.ocean-deep {
+  background: linear-gradient(135deg, #0ea5e9, #06b6d4);
+}
+
+.theme-option.forest-modern {
+  background: linear-gradient(135deg, #059669, #7c3aed);
+}
+
+/* ==========================================================================
+   Dark Mode Specific Adjustments
+   ========================================================================== */
+
+[data-bs-theme="dark"] {
+  /* Dark mode specific overrides */
+  --bs-body-bg: var(--theme-background);
+  --bs-body-color: var(--theme-text);
+}
+
+[data-bs-theme="dark"] .card {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+[data-bs-theme="dark"] .navbar {
+  background-color: rgba(15, 23, 42, 0.95) !important;
+}
+
+[data-bs-theme="dark"] .theme-picker {
+  background: #1e293b;
+  color: white;
+}
+
+[data-bs-theme="dark"] .form-control {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.1);
+  color: var(--theme-text);
+}
+
+[data-bs-theme="dark"] .form-control:focus {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: var(--theme-primary);
+}
+
+/* ==========================================================================
+   Animation & Motion
+   ========================================================================== */
+
+@media (prefers-reduced-motion: no-preference) {
+  .theme-glow {
+    animation: themeGlow 2s ease-in-out infinite alternate;
+  }
+  
+  @keyframes themeGlow {
+    from {
+      box-shadow: 0 0 20px rgba(var(--theme-primary), 0.3);
+    }
+    to {
+      box-shadow: 0 0 30px rgba(var(--theme-primary), 0.5);
+    }
+  }
+  
+  .theme-pulse {
+    animation: themePulse 1.5s ease-in-out infinite;
+  }
+  
+  @keyframes themePulse {
+    0% {
+      transform: scale(1);
+    }
+    50% {
+      transform: scale(1.05);
+    }
+    100% {
+      transform: scale(1);
+    }
+  }
+}
+
+/* ==========================================================================
+   Responsive Theme Adjustments
+   ========================================================================== */
+
+@media (max-width: 768px) {
+  .theme-picker {
+    width: 200px;
+    right: -200px;
+  }
+  
+  .theme-option {
+    width: 30px;
+    height: 30px;
+  }
+}
+
+@media (max-width: 576px) {
+  .theme-picker {
+    display: none;
+  }
+}

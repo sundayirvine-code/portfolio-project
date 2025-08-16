@@ -1,0 +1,576 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}About - {{ site_settings.site_name }}{% endblock %}
+
+{% block body_class %}about-page{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="bg-gradient-primary text-white py-5 mt-5">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-6" data-aos="fade-right">
+                <h1 class="display-4 fw-bold mb-3">About Me</h1>
+                <p class="lead mb-4">
+                    Passionate developer, creative problem solver, and lifelong learner dedicated to 
+                    creating exceptional digital experiences through innovative technology solutions.
+                </p>
+                <div class="d-flex gap-3">
+                    <a href="#skills" class="btn btn-light btn-lg">
+                        <i class="bi bi-gear me-2"></i>My Skills
+                    </a>
+                    <a href="{% url 'portfolio:contact' %}" class="btn btn-outline-light btn-lg">
+                        <i class="bi bi-envelope me-2"></i>Get In Touch
+                    </a>
+                </div>
+            </div>
+            <div class="col-lg-6 text-center" data-aos="fade-left">
+                <div class="profile-image-wrapper">
+                    {% if site_settings.profile_image_base64 %}
+                    <img src="{{ site_settings.profile_image_base64 }}" 
+                         class="img-fluid rounded-circle shadow-lg profile-image" 
+                         alt="Profile Picture"
+                         style="max-width: 350px; width: 100%;">
+                    {% else %}
+                    <div class="profile-placeholder rounded-circle shadow-lg mx-auto d-flex align-items-center justify-content-center"
+                         style="width: 350px; height: 350px; background: rgba(255,255,255,0.1);">
+                        <i class="bi bi-person display-1"></i>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Bio Section -->
+<section class="py-5">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-8" data-aos="fade-up">
+                <div class="text-center mb-5">
+                    <h2 class="h3 mb-3">My Story</h2>
+                    <p class="text-muted">A journey through code, creativity, and continuous learning</p>
+                </div>
+                
+                <div class="bio-content">
+                    {% if site_settings.bio %}
+                    <div class="lead text-muted mb-4">{{ site_settings.bio|linebreaks }}</div>
+                    {% else %}
+                    <div class="lead text-muted mb-4">
+                        <p>Welcome to my digital portfolio! I'm a passionate full-stack developer with a love for creating 
+                        beautiful, functional, and user-friendly web applications. My journey in technology began with 
+                        curiosity and has evolved into a dedication to crafting exceptional digital experiences.</p>
+                        
+                        <p>With expertise spanning modern web technologies, I specialize in building scalable applications 
+                        that solve real-world problems. I believe in writing clean, maintainable code and staying current 
+                        with the latest industry trends and best practices.</p>
+                        
+                        <p>When I'm not coding, you'll find me exploring new technologies, contributing to open-source 
+                        projects, or sharing knowledge with the developer community. I'm always excited to take on new 
+                        challenges and collaborate on innovative projects.</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Skills Section -->
+<section id="skills" class="py-5 bg-light">
+    <div class="container">
+        <div class="text-center mb-5" data-aos="fade-up">
+            <h2 class="h3 mb-3">Skills & Expertise</h2>
+            <p class="text-muted">Technologies and tools I work with to bring ideas to life</p>
+        </div>
+        
+        <div class="row g-4">
+            <!-- Frontend Development -->
+            <div class="col-lg-4" data-aos="fade-up" data-aos-delay="100">
+                <div class="skill-category card h-100 border-0 shadow-sm p-4">
+                    <div class="text-center mb-3">
+                        <div class="skill-icon mb-3">
+                            <i class="bi bi-palette fs-1 text-primary"></i>
+                        </div>
+                        <h5>Frontend Development</h5>
+                    </div>
+                    <div class="skills-list">
+                        <div class="skill-item d-flex justify-content-between align-items-center mb-2">
+                            <span>HTML5 & CSS3</span>
+                            <div class="skill-bar">
+                                <div class="skill-progress" style="width: 95%"></div>
+                            </div>
+                        </div>
+                        <div class="skill-item d-flex justify-content-between align-items-center mb-2">
+                            <span>JavaScript (ES6+)</span>
+                            <div class="skill-bar">
+                                <div class="skill-progress" style="width: 90%"></div>
+                            </div>
+                        </div>
+                        <div class="skill-item d-flex justify-content-between align-items-center mb-2">
+                            <span>React & Vue.js</span>
+                            <div class="skill-bar">
+                                <div class="skill-progress" style="width: 85%"></div>
+                            </div>
+                        </div>
+                        <div class="skill-item d-flex justify-content-between align-items-center mb-2">
+                            <span>Bootstrap & Tailwind</span>
+                            <div class="skill-bar">
+                                <div class="skill-progress" style="width: 92%"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Backend Development -->
+            <div class="col-lg-4" data-aos="fade-up" data-aos-delay="200">
+                <div class="skill-category card h-100 border-0 shadow-sm p-4">
+                    <div class="text-center mb-3">
+                        <div class="skill-icon mb-3">
+                            <i class="bi bi-server fs-1 text-success"></i>
+                        </div>
+                        <h5>Backend Development</h5>
+                    </div>
+                    <div class="skills-list">
+                        <div class="skill-item d-flex justify-content-between align-items-center mb-2">
+                            <span>Python & Django</span>
+                            <div class="skill-bar">
+                                <div class="skill-progress" style="width: 93%"></div>
+                            </div>
+                        </div>
+                        <div class="skill-item d-flex justify-content-between align-items-center mb-2">
+                            <span>Node.js & Express</span>
+                            <div class="skill-bar">
+                                <div class="skill-progress" style="width: 80%"></div>
+                            </div>
+                        </div>
+                        <div class="skill-item d-flex justify-content-between align-items-center mb-2">
+                            <span>PostgreSQL & MongoDB</span>
+                            <div class="skill-bar">
+                                <div class="skill-progress" style="width: 88%"></div>
+                            </div>
+                        </div>
+                        <div class="skill-item d-flex justify-content-between align-items-center mb-2">
+                            <span>RESTful APIs</span>
+                            <div class="skill-bar">
+                                <div class="skill-progress" style="width: 90%"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- DevOps & Tools -->
+            <div class="col-lg-4" data-aos="fade-up" data-aos-delay="300">
+                <div class="skill-category card h-100 border-0 shadow-sm p-4">
+                    <div class="text-center mb-3">
+                        <div class="skill-icon mb-3">
+                            <i class="bi bi-tools fs-1 text-warning"></i>
+                        </div>
+                        <h5>DevOps & Tools</h5>
+                    </div>
+                    <div class="skills-list">
+                        <div class="skill-item d-flex justify-content-between align-items-center mb-2">
+                            <span>Docker & Kubernetes</span>
+                            <div class="skill-bar">
+                                <div class="skill-progress" style="width: 82%"></div>
+                            </div>
+                        </div>
+                        <div class="skill-item d-flex justify-content-between align-items-center mb-2">
+                            <span>Git & GitHub</span>
+                            <div class="skill-bar">
+                                <div class="skill-progress" style="width: 95%"></div>
+                            </div>
+                        </div>
+                        <div class="skill-item d-flex justify-content-between align-items-center mb-2">
+                            <span>AWS & Cloud Services</span>
+                            <div class="skill-bar">
+                                <div class="skill-progress" style="width: 75%"></div>
+                            </div>
+                        </div>
+                        <div class="skill-item d-flex justify-content-between align-items-center mb-2">
+                            <span>CI/CD Pipelines</span>
+                            <div class="skill-bar">
+                                <div class="skill-progress" style="width: 78%"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Experience Timeline -->
+<section class="py-5">
+    <div class="container">
+        <div class="text-center mb-5" data-aos="fade-up">
+            <h2 class="h3 mb-3">Professional Journey</h2>
+            <p class="text-muted">Key milestones and experiences that shaped my career</p>
+        </div>
+        
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="timeline">
+                    <!-- Timeline Item 1 -->
+                    <div class="timeline-item" data-aos="fade-up" data-aos-delay="100">
+                        <div class="timeline-marker"></div>
+                        <div class="timeline-content">
+                            <div class="timeline-header d-flex justify-content-between align-items-start mb-2">
+                                <div>
+                                    <h6 class="mb-1">Senior Full Stack Developer</h6>
+                                    <p class="text-muted mb-0">Tech Company Inc.</p>
+                                </div>
+                                <span class="badge bg-primary">2022 - Present</span>
+                            </div>
+                            <p class="text-muted mb-0">
+                                Leading development of scalable web applications using modern technologies. 
+                                Mentoring junior developers and implementing best practices for code quality and deployment.
+                            </p>
+                        </div>
+                    </div>
+                    
+                    <!-- Timeline Item 2 -->
+                    <div class="timeline-item" data-aos="fade-up" data-aos-delay="200">
+                        <div class="timeline-marker"></div>
+                        <div class="timeline-content">
+                            <div class="timeline-header d-flex justify-content-between align-items-start mb-2">
+                                <div>
+                                    <h6 class="mb-1">Frontend Developer</h6>
+                                    <p class="text-muted mb-0">Digital Agency Studio</p>
+                                </div>
+                                <span class="badge bg-secondary">2020 - 2022</span>
+                            </div>
+                            <p class="text-muted mb-0">
+                                Developed responsive web applications and interactive user interfaces. 
+                                Collaborated with designers to create pixel-perfect implementations of creative designs.
+                            </p>
+                        </div>
+                    </div>
+                    
+                    <!-- Timeline Item 3 -->
+                    <div class="timeline-item" data-aos="fade-up" data-aos-delay="300">
+                        <div class="timeline-marker"></div>
+                        <div class="timeline-content">
+                            <div class="timeline-header d-flex justify-content-between align-items-start mb-2">
+                                <div>
+                                    <h6 class="mb-1">Junior Web Developer</h6>
+                                    <p class="text-muted mb-0">Startup Ventures</p>
+                                </div>
+                                <span class="badge bg-success">2019 - 2020</span>
+                            </div>
+                            <p class="text-muted mb-0">
+                                Started my professional journey building websites and learning the fundamentals 
+                                of web development in a fast-paced startup environment.
+                            </p>
+                        </div>
+                    </div>
+                    
+                    <!-- Timeline Item 4 -->
+                    <div class="timeline-item" data-aos="fade-up" data-aos-delay="400">
+                        <div class="timeline-marker"></div>
+                        <div class="timeline-content">
+                            <div class="timeline-header d-flex justify-content-between align-items-start mb-2">
+                                <div>
+                                    <h6 class="mb-1">Computer Science Degree</h6>
+                                    <p class="text-muted mb-0">University of Technology</p>
+                                </div>
+                                <span class="badge bg-info">2015 - 2019</span>
+                            </div>
+                            <p class="text-muted mb-0">
+                                Graduated with honors, specializing in software engineering and web technologies. 
+                                Built strong foundations in algorithms, data structures, and software design principles.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Values & Interests -->
+<section class="py-5 bg-light">
+    <div class="container">
+        <div class="text-center mb-5" data-aos="fade-up">
+            <h2 class="h3 mb-3">Values & Interests</h2>
+            <p class="text-muted">What drives me and keeps me motivated</p>
+        </div>
+        
+        <div class="row g-4">
+            <div class="col-lg-3 col-md-6" data-aos="fade-up" data-aos-delay="100">
+                <div class="value-card card border-0 shadow-sm text-center p-4 h-100">
+                    <div class="value-icon mb-3">
+                        <i class="bi bi-lightbulb fs-1 text-warning"></i>
+                    </div>
+                    <h6 class="mb-2">Innovation</h6>
+                    <p class="text-muted small mb-0">
+                        Always exploring new technologies and creative solutions to complex problems.
+                    </p>
+                </div>
+            </div>
+            
+            <div class="col-lg-3 col-md-6" data-aos="fade-up" data-aos-delay="200">
+                <div class="value-card card border-0 shadow-sm text-center p-4 h-100">
+                    <div class="value-icon mb-3">
+                        <i class="bi bi-people fs-1 text-primary"></i>
+                    </div>
+                    <h6 class="mb-2">Collaboration</h6>
+                    <p class="text-muted small mb-0">
+                        Believing in the power of teamwork and knowledge sharing to achieve great results.
+                    </p>
+                </div>
+            </div>
+            
+            <div class="col-lg-3 col-md-6" data-aos="fade-up" data-aos-delay="300">
+                <div class="value-card card border-0 shadow-sm text-center p-4 h-100">
+                    <div class="value-icon mb-3">
+                        <i class="bi bi-book fs-1 text-success"></i>
+                    </div>
+                    <h6 class="mb-2">Learning</h6>
+                    <p class="text-muted small mb-0">
+                        Committed to continuous learning and staying current with industry trends.
+                    </p>
+                </div>
+            </div>
+            
+            <div class="col-lg-3 col-md-6" data-aos="fade-up" data-aos-delay="400">
+                <div class="value-card card border-0 shadow-sm text-center p-4 h-100">
+                    <div class="value-icon mb-3">
+                        <i class="bi bi-heart fs-1 text-danger"></i>
+                    </div>
+                    <h6 class="mb-2">Quality</h6>
+                    <p class="text-muted small mb-0">
+                        Dedicated to writing clean, maintainable code and delivering exceptional user experiences.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Fun Facts -->
+<section class="py-5">
+    <div class="container">
+        <div class="text-center mb-5" data-aos="fade-up">
+            <h2 class="h3 mb-3">Fun Facts</h2>
+            <p class="text-muted">A few interesting things about me</p>
+        </div>
+        
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="row g-4 text-center">
+                    <div class="col-md-3" data-aos="zoom-in" data-aos-delay="100">
+                        <div class="fun-fact">
+                            <h3 class="display-4 fw-bold text-primary mb-2" data-count="500">0</h3>
+                            <p class="text-muted mb-0">Cups of Coffee</p>
+                        </div>
+                    </div>
+                    <div class="col-md-3" data-aos="zoom-in" data-aos-delay="200">
+                        <div class="fun-fact">
+                            <h3 class="display-4 fw-bold text-success mb-2" data-count="50">0</h3>
+                            <p class="text-muted mb-0">Projects Completed</p>
+                        </div>
+                    </div>
+                    <div class="col-md-3" data-aos="zoom-in" data-aos-delay="300">
+                        <div class="fun-fact">
+                            <h3 class="display-4 fw-bold text-warning mb-2" data-count="1000">0</h3>
+                            <p class="text-muted mb-0">Hours of Coding</p>
+                        </div>
+                    </div>
+                    <div class="col-md-3" data-aos="zoom-in" data-aos-delay="400">
+                        <div class="fun-fact">
+                            <h3 class="display-4 fw-bold text-info mb-2" data-count="25">0</h3>
+                            <p class="text-muted mb-0">Technologies Learned</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- CTA Section -->
+<section class="py-5 bg-primary text-white">
+    <div class="container">
+        <div class="row align-items-center" data-aos="fade-up">
+            <div class="col-lg-8">
+                <h2 class="h3 mb-3">Let's Create Something Amazing Together</h2>
+                <p class="mb-0">
+                    I'm always excited to work on new projects and collaborate with like-minded individuals. 
+                    Whether you have a project idea or just want to connect, I'd love to hear from you!
+                </p>
+            </div>
+            <div class="col-lg-4 text-lg-end mt-3 mt-lg-0">
+                <a href="{% url 'portfolio:contact' %}" class="btn btn-light btn-lg">
+                    <i class="bi bi-envelope me-2"></i>Get In Touch
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+/* Profile Image Animation */
+.profile-image {
+    transition: transform 0.3s ease;
+}
+
+.profile-image:hover {
+    transform: scale(1.05);
+}
+
+/* Skill Bars */
+.skill-bar {
+    width: 100px;
+    height: 8px;
+    background: #e9ecef;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.skill-progress {
+    height: 100%;
+    background: var(--theme-gradient-primary);
+    border-radius: 4px;
+    transition: width 2s ease-in-out;
+}
+
+/* Timeline Styles */
+.timeline {
+    position: relative;
+    padding-left: 2rem;
+}
+
+.timeline::before {
+    content: '';
+    position: absolute;
+    left: 15px;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: var(--theme-primary);
+}
+
+.timeline-item {
+    position: relative;
+    margin-bottom: 2rem;
+}
+
+.timeline-marker {
+    position: absolute;
+    left: -1.75rem;
+    top: 0.5rem;
+    width: 12px;
+    height: 12px;
+    background: var(--theme-primary);
+    border-radius: 50%;
+    border: 3px solid white;
+    box-shadow: 0 0 0 3px var(--theme-primary);
+}
+
+.timeline-content {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 10px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    border-left: 4px solid var(--theme-primary);
+}
+
+/* Value Cards Hover Effect */
+.value-card {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.value-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15) !important;
+}
+
+/* Fun Facts Animation */
+.fun-fact h3 {
+    background: var(--theme-gradient-primary);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+/* Dark Mode Adjustments */
+[data-bs-theme="dark"] .timeline-content {
+    background: rgba(255, 255, 255, 0.05);
+    border-left-color: var(--theme-primary);
+}
+
+[data-bs-theme="dark"] .timeline-marker {
+    background: var(--theme-primary);
+    border-color: var(--bs-body-bg);
+    box-shadow: 0 0 0 3px var(--theme-primary);
+}
+
+[data-bs-theme="dark"] .skill-bar {
+    background: rgba(255, 255, 255, 0.1);
+}
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Animate skill bars on scroll
+    const skillBars = document.querySelectorAll('.skill-progress');
+    const skillObserver = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                const bar = entry.target;
+                const width = bar.style.width;
+                bar.style.width = '0%';
+                setTimeout(() => {
+                    bar.style.width = width;
+                }, 300);
+                skillObserver.unobserve(bar);
+            }
+        });
+    }, { threshold: 0.5 });
+    
+    skillBars.forEach(bar => {
+        skillObserver.observe(bar);
+    });
+    
+    // Enhanced counter animation
+    const counters = document.querySelectorAll('[data-count]');
+    const counterObserver = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                const counter = entry.target;
+                const target = parseInt(counter.getAttribute('data-count'));
+                const duration = 2000;
+                const increment = target / (duration / 16);
+                
+                let current = 0;
+                const timer = setInterval(() => {
+                    current += increment;
+                    
+                    if (current >= target) {
+                        current = target;
+                        clearInterval(timer);
+                    }
+                    
+                    counter.textContent = Math.floor(current);
+                }, 16);
+                
+                counterObserver.unobserve(counter);
+            }
+        });
+    }, { threshold: 0.5 });
+    
+    counters.forEach(counter => {
+        counterObserver.observe(counter);
+    });
+});
+</script>
+{% endblock %}

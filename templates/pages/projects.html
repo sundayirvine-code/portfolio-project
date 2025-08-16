@@ -1,0 +1,422 @@
+{% extends 'base.html' %}
+{% load static mathfilters %}
+
+{% block title %}Projects - {{ site_settings.site_name }}{% endblock %}
+
+{% block body_class %}projects-page{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="bg-gradient-primary text-white py-5 mt-5">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-8" data-aos="fade-right">
+                <h1 class="display-4 fw-bold mb-3">My Projects</h1>
+                <p class="lead mb-0">
+                    A collection of projects showcasing my skills in web development, 
+                    mobile applications, and creative problem-solving.
+                </p>
+            </div>
+            <div class="col-lg-4 text-lg-end" data-aos="fade-left">
+                <div class="project-stats">
+                    <div class="row g-3 text-center">
+                        <div class="col-6">
+                            <h3 class="fw-bold mb-1">{{ page_obj.paginator.count }}</h3>
+                            <small>Total Projects</small>
+                        </div>
+                        <div class="col-6">
+                            <h3 class="fw-bold mb-1">{{ categories.count }}</h3>
+                            <small>Categories</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Filters Section -->
+<section class="py-4 bg-light border-bottom">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-8">
+                <!-- Filter Buttons -->
+                <div class="filter-buttons d-flex flex-wrap gap-2" data-aos="fade-up">
+                    <button class="btn btn-outline-primary filter-btn {% if not current_category %}active{% endif %}" 
+                            data-filter="all">
+                        All Projects
+                    </button>
+                    
+                    {% for category in categories %}
+                    <button class="btn btn-outline-primary filter-btn {% if current_category == category.slug %}active{% endif %}" 
+                            data-filter="{{ category.slug }}">
+                        {{ category.name }}
+                        <span class="badge bg-primary ms-1">{{ category.project_set.count }}</span>
+                    </button>
+                    {% endfor %}
+                </div>
+            </div>
+            
+            <div class="col-lg-4 mt-3 mt-lg-0">
+                <!-- Search and Sort -->
+                <div class="d-flex gap-2">
+                    <div class="flex-grow-1">
+                        <input type="text" class="form-control" placeholder="Search projects..." 
+                               id="project-search" value="{{ search_query }}">
+                    </div>
+                    <div class="dropdown">
+                        <button class="btn btn-outline-secondary dropdown-toggle" type="button" 
+                                data-bs-toggle="dropdown">
+                            <i class="bi bi-sort-down"></i>
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="?sort=newest">Newest First</a></li>
+                            <li><a class="dropdown-item" href="?sort=oldest">Oldest First</a></li>
+                            <li><a class="dropdown-item" href="?sort=alphabetical">A-Z</a></li>
+                            <li><a class="dropdown-item" href="?sort=featured">Featured</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Technology Filters -->
+        <div class="row mt-3">
+            <div class="col-12">
+                <div class="tech-filters" data-aos="fade-up" data-aos-delay="100">
+                    <small class="text-muted me-3">Filter by technology:</small>
+                    <div class="d-inline-flex flex-wrap gap-1">
+                        {% for tech in technologies|slice:":8" %}
+                        <span class="badge bg-light text-dark tech-filter-badge {% if current_technology == tech.slug %}active{% endif %}" 
+                              data-tech="{{ tech.slug }}" style="cursor: pointer;">
+                            {{ tech.name }}
+                        </span>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Projects Grid -->
+<section class="py-5">
+    <div class="container">
+        <!-- Active Filters Display -->
+        {% if current_category or current_technology or search_query %}
+        <div class="active-filters mb-4" data-aos="fade-up">
+            <div class="d-flex align-items-center flex-wrap gap-2">
+                <span class="text-muted me-2">Active filters:</span>
+                
+                {% if current_category %}
+                <span class="badge bg-primary">
+                    Category: {{ current_category }}
+                    <a href="?" class="text-white ms-1"><i class="bi bi-x"></i></a>
+                </span>
+                {% endif %}
+                
+                {% if current_technology %}
+                <span class="badge bg-success">
+                    Technology: {{ current_technology }}
+                    <a href="?" class="text-white ms-1"><i class="bi bi-x"></i></a>
+                </span>
+                {% endif %}
+                
+                {% if search_query %}
+                <span class="badge bg-warning text-dark">
+                    Search: "{{ search_query }}"
+                    <a href="?" class="text-dark ms-1"><i class="bi bi-x"></i></a>
+                </span>
+                {% endif %}
+                
+                <a href="?" class="btn btn-sm btn-outline-secondary ms-2">
+                    <i class="bi bi-x-circle me-1"></i>Clear All
+                </a>
+            </div>
+        </div>
+        {% endif %}
+        
+        <!-- Projects Grid -->
+        <div class="row g-4" id="projects-container">
+            {% for project in page_obj %}
+            <div class="col-lg-4 col-md-6 project-item" 
+                 data-category="{{ project.category.slug|default:'uncategorized' }}"
+                 data-technologies="{% for tech in project.technologies.all %}{{ tech.slug }} {% endfor %}"
+                 data-aos="fade-up" 
+                 data-aos-delay="{{ forloop.counter0|mul:100 }}">
+                
+                <article class="project-card card h-100 border-0 shadow-sm hover-lift">
+                    <!-- Project Image -->
+                    {% if project.featured_image_url %}
+                    <div class="project-image-wrapper position-relative overflow-hidden">
+                        <img src="{{ project.featured_image_url }}" 
+                             class="card-img-top project-image" 
+                             alt="{{ project.title }}"
+                             style="height: 250px; object-fit: cover;"
+                             loading="lazy">
+                        
+                        <!-- Overlay with Actions -->
+                        <div class="project-overlay d-flex align-items-center justify-content-center">
+                            <div class="project-actions">
+                                <a href="{% url 'portfolio:project_detail' project.slug %}" 
+                                   class="btn btn-light btn-sm me-2">
+                                    <i class="bi bi-eye"></i> View Details
+                                </a>
+                                {% if project.live_url %}
+                                <a href="{{ project.live_url }}" 
+                                   target="_blank" 
+                                   rel="noopener noreferrer"
+                                   class="btn btn-primary btn-sm">
+                                    <i class="bi bi-box-arrow-up-right"></i> Live Demo
+                                </a>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <!-- Status Badge -->
+                        <div class="position-absolute top-0 start-0 p-3">
+                            <span class="badge bg-primary">{{ project.get_project_type_display }}</span>
+                            {% if project.status == 'featured' %}
+                            <span class="badge bg-warning text-dark ms-1">
+                                <i class="bi bi-star-fill"></i> Featured
+                            </span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endif %}
+                    
+                    <!-- Project Content -->
+                    <div class="card-body">
+                        <!-- Category & Date -->
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            {% if project.category %}
+                            <span class="badge rounded-pill" 
+                                  style="background-color: {{ project.category.color }}20; color: {{ project.category.color }};">
+                                {% if project.category.icon %}<i class="{{ project.category.icon }} me-1"></i>{% endif %}
+                                {{ project.category.name }}
+                            </span>
+                            {% endif %}
+                            
+                            <small class="text-muted">{{ project.created_at|date:"M Y" }}</small>
+                        </div>
+                        
+                        <!-- Title -->
+                        <h5 class="card-title mb-2">
+                            <a href="{% url 'portfolio:project_detail' project.slug %}" 
+                               class="text-decoration-none text-dark hover-primary">
+                                {{ project.title }}
+                            </a>
+                        </h5>
+                        
+                        <!-- Description -->
+                        <p class="card-text text-muted mb-3">{{ project.description|truncatewords:20 }}</p>
+                        
+                        <!-- Technologies -->
+                        <div class="project-technologies mb-3">
+                            {% for tech in project.technologies.all|slice:":4" %}
+                            <span class="badge bg-light text-dark me-1 mb-1">{{ tech.name }}</span>
+                            {% endfor %}
+                            {% if project.technologies.count > 4 %}
+                            <span class="badge bg-secondary">+{{ project.technologies.count|add:"-4" }} more</span>
+                            {% endif %}
+                        </div>
+                        
+                        <!-- Project Links -->
+                        <div class="project-links d-flex justify-content-between align-items-center">
+                            <div class="d-flex gap-2">
+                                {% if project.github_url %}
+                                <a href="{{ project.github_url }}" 
+                                   target="_blank" 
+                                   rel="noopener noreferrer"
+                                   class="text-muted"
+                                   data-bs-toggle="tooltip" 
+                                   title="View Source Code">
+                                    <i class="bi bi-github fs-5"></i>
+                                </a>
+                                {% endif %}
+                                
+                                {% if project.documentation_url %}
+                                <a href="{{ project.documentation_url }}" 
+                                   target="_blank" 
+                                   rel="noopener noreferrer"
+                                   class="text-muted"
+                                   data-bs-toggle="tooltip" 
+                                   title="Documentation">
+                                    <i class="bi bi-file-text fs-5"></i>
+                                </a>
+                                {% endif %}
+                            </div>
+                            
+                            <a href="{% url 'portfolio:project_detail' project.slug %}" 
+                               class="btn btn-outline-primary btn-sm">
+                                Learn More <i class="bi bi-arrow-right ms-1"></i>
+                            </a>
+                        </div>
+                    </div>
+                </article>
+            </div>
+            {% empty %}
+            <!-- No Projects Found -->
+            <div class="col-12 text-center py-5" data-aos="fade-up">
+                <div class="no-results">
+                    <i class="bi bi-search display-1 text-muted mb-3"></i>
+                    <h3 class="text-muted mb-3">No Projects Found</h3>
+                    <p class="text-muted mb-4">
+                        {% if search_query or current_category or current_technology %}
+                            No projects match your current filters. Try adjusting your search criteria.
+                        {% else %}
+                            Projects will be displayed here once they are added.
+                        {% endif %}
+                    </p>
+                    <a href="?" class="btn btn-primary">
+                        <i class="bi bi-arrow-left me-2"></i>View All Projects
+                    </a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        
+        <!-- Pagination -->
+        {% if page_obj.has_other_pages %}
+        <nav aria-label="Projects pagination" class="mt-5" data-aos="fade-up">
+            <ul class="pagination justify-content-center">
+                {% if page_obj.has_previous %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if current_category %}&category={{ current_category }}{% endif %}{% if current_technology %}&technology={{ current_technology }}{% endif %}{% if search_query %}&search={{ search_query }}{% endif %}">
+                        <i class="bi bi-chevron-left"></i> Previous
+                    </a>
+                </li>
+                {% endif %}
+                
+                {% for num in page_obj.paginator.page_range %}
+                    {% if page_obj.number == num %}
+                    <li class="page-item active">
+                        <span class="page-link">{{ num }}</span>
+                    </li>
+                    {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ num }}{% if current_category %}&category={{ current_category }}{% endif %}{% if current_technology %}&technology={{ current_technology }}{% endif %}{% if search_query %}&search={{ search_query }}{% endif %}">{{ num }}</a>
+                    </li>
+                    {% endif %}
+                {% endfor %}
+                
+                {% if page_obj.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if current_category %}&category={{ current_category }}{% endif %}{% if current_technology %}&technology={{ current_technology }}{% endif %}{% if search_query %}&search={{ search_query }}{% endif %}">
+                        Next <i class="bi bi-chevron-right"></i>
+                    </a>
+                </li>
+                {% endif %}
+            </ul>
+        </nav>
+        {% endif %}
+    </div>
+</section>
+
+<!-- CTA Section -->
+<section class="py-5 bg-primary text-white">
+    <div class="container">
+        <div class="row align-items-center" data-aos="fade-up">
+            <div class="col-lg-8">
+                <h2 class="h3 mb-3">Interested in Working Together?</h2>
+                <p class="mb-0">
+                    I'm always excited to take on new challenges and create amazing digital experiences. 
+                    Let's discuss your project ideas!
+                </p>
+            </div>
+            <div class="col-lg-4 text-lg-end mt-3 mt-lg-0">
+                {% if site_settings.enable_contact_form %}
+                <a href="{% url 'portfolio:contact' %}" class="btn btn-light btn-lg">
+                    <i class="bi bi-envelope me-2"></i>Start a Project
+                </a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Project filtering functionality
+    const filterButtons = document.querySelectorAll('.filter-btn');
+    const techFilters = document.querySelectorAll('.tech-filter-badge');
+    const projectItems = document.querySelectorAll('.project-item');
+    const searchInput = document.getElementById('project-search');
+    
+    // Filter by category
+    filterButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const filter = this.dataset.filter;
+            const url = new URL(window.location);
+            
+            if (filter === 'all') {
+                url.searchParams.delete('category');
+            } else {
+                url.searchParams.set('category', filter);
+            }
+            
+            window.location.href = url.toString();
+        });
+    });
+    
+    // Filter by technology
+    techFilters.forEach(badge => {
+        badge.addEventListener('click', function() {
+            const tech = this.dataset.tech;
+            const url = new URL(window.location);
+            
+            if (this.classList.contains('active')) {
+                url.searchParams.delete('technology');
+            } else {
+                url.searchParams.set('technology', tech);
+            }
+            
+            window.location.href = url.toString();
+        });
+    });
+    
+    // Search functionality
+    let searchTimeout;
+    searchInput.addEventListener('input', function() {
+        clearTimeout(searchTimeout);
+        
+        searchTimeout = setTimeout(() => {
+            const query = this.value.trim();
+            const url = new URL(window.location);
+            
+            if (query) {
+                url.searchParams.set('search', query);
+            } else {
+                url.searchParams.delete('search');
+            }
+            
+            window.location.href = url.toString();
+        }, 500);
+    });
+    
+    // Animate project cards on scroll
+    const observerOptions = {
+        threshold: 0.1,
+        rootMargin: '0px 0px -50px 0px'
+    };
+    
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.style.opacity = '1';
+                entry.target.style.transform = 'translateY(0)';
+            }
+        });
+    }, observerOptions);
+    
+    projectItems.forEach(item => {
+        item.style.opacity = '0';
+        item.style.transform = 'translateY(20px)';
+        item.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+        observer.observe(item);
+    });
+});
+</script>
+{% endblock %}

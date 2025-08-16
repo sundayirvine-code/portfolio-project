@@ -1,0 +1,557 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Contact - {{ site_settings.site_name }}{% endblock %}
+
+{% block body_class %}contact-page{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="bg-gradient-primary text-white py-5 mt-5">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-8" data-aos="fade-right">
+                <h1 class="display-4 fw-bold mb-3">Get In Touch</h1>
+                <p class="lead mb-0">
+                    Ready to start your next project? I'd love to hear from you. 
+                    Let's create something amazing together.
+                </p>
+            </div>
+            <div class="col-lg-4 text-lg-end" data-aos="fade-left">
+                <div class="contact-illustration">
+                    <i class="bi bi-envelope-heart display-1"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Contact Section -->
+<section class="py-5">
+    <div class="container">
+        <div class="row g-5">
+            <!-- Contact Form -->
+            <div class="col-lg-8" data-aos="fade-right">
+                <div class="contact-form-wrapper">
+                    <h2 class="h3 mb-4">Send Me a Message</h2>
+                    
+                    <!-- Success/Error Messages -->
+                    {% if messages %}
+                        {% for message in messages %}
+                        <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags }}{% endif %} alert-dismissible fade show" role="alert">
+                            {{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                        {% endfor %}
+                    {% endif %}
+                    
+                    <form method="post" class="contact-form" id="contact-form" novalidate>
+                        {% csrf_token %}
+                        
+                        <div class="row g-3">
+                            <!-- Name -->
+                            <div class="col-md-6">
+                                <label for="{{ form.name.id_for_label }}" class="form-label">
+                                    Full Name <span class="text-danger">*</span>
+                                </label>
+                                {{ form.name }}
+                                {% if form.name.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.name.errors.0 }}
+                                </div>
+                                {% endif %}
+                            </div>
+                            
+                            <!-- Email -->
+                            <div class="col-md-6">
+                                <label for="{{ form.email.id_for_label }}" class="form-label">
+                                    Email Address <span class="text-danger">*</span>
+                                </label>
+                                {{ form.email }}
+                                {% if form.email.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.email.errors.0 }}
+                                </div>
+                                {% endif %}
+                            </div>
+                            
+                            <!-- Phone -->
+                            <div class="col-md-6">
+                                <label for="{{ form.phone.id_for_label }}" class="form-label">
+                                    Phone Number
+                                </label>
+                                {{ form.phone }}
+                                {% if form.phone.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.phone.errors.0 }}
+                                </div>
+                                {% endif %}
+                            </div>
+                            
+                            <!-- Company -->
+                            <div class="col-md-6">
+                                <label for="{{ form.company.id_for_label }}" class="form-label">
+                                    Company/Organization
+                                </label>
+                                {{ form.company }}
+                                {% if form.company.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.company.errors.0 }}
+                                </div>
+                                {% endif %}
+                            </div>
+                            
+                            <!-- Service Interest -->
+                            <div class="col-md-6">
+                                <label for="{{ form.service_interest.id_for_label }}" class="form-label">
+                                    Service of Interest
+                                </label>
+                                {{ form.service_interest }}
+                                {% if form.service_interest.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.service_interest.errors.0 }}
+                                </div>
+                                {% endif %}
+                            </div>
+                            
+                            <!-- Subject -->
+                            <div class="col-md-6">
+                                <label for="{{ form.subject.id_for_label }}" class="form-label">
+                                    Subject <span class="text-danger">*</span>
+                                </label>
+                                {{ form.subject }}
+                                {% if form.subject.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.subject.errors.0 }}
+                                </div>
+                                {% endif %}
+                            </div>
+                            
+                            <!-- Message -->
+                            <div class="col-12">
+                                <label for="{{ form.message.id_for_label }}" class="form-label">
+                                    Your Message <span class="text-danger">*</span>
+                                </label>
+                                {{ form.message }}
+                                {% if form.message.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.message.errors.0 }}
+                                </div>
+                                {% endif %}
+                                <div class="form-text">
+                                    Tell me about your project, requirements, timeline, and budget (if applicable).
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Submit Button -->
+                        <div class="mt-4">
+                            <button type="submit" class="btn btn-primary btn-lg" id="submit-btn">
+                                <span class="btn-text">
+                                    <i class="bi bi-send me-2"></i>Send Message
+                                </span>
+                                <span class="btn-spinner d-none">
+                                    <span class="spinner-border spinner-border-sm me-2" role="status"></span>
+                                    Sending...
+                                </span>
+                            </button>
+                            
+                            <p class="small text-muted mt-2 mb-0">
+                                <i class="bi bi-shield-check me-1"></i>
+                                Your information is secure and will only be used to respond to your inquiry.
+                            </p>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+            <!-- Contact Information -->
+            <div class="col-lg-4" data-aos="fade-left">
+                <div class="contact-info-wrapper">
+                    <h3 class="h4 mb-4">Let's Connect</h3>
+                    
+                    <!-- Contact Details -->
+                    <div class="contact-details">
+                        {% if site_settings.email %}
+                        <div class="contact-item d-flex align-items-center mb-3">
+                            <div class="contact-icon me-3">
+                                <i class="bi bi-envelope fs-4 text-primary"></i>
+                            </div>
+                            <div class="contact-content">
+                                <h6 class="mb-1">Email</h6>
+                                <a href="mailto:{{ site_settings.email }}" class="text-decoration-none">
+                                    {{ site_settings.email }}
+                                </a>
+                            </div>
+                        </div>
+                        {% endif %}
+                        
+                        {% if site_settings.phone %}
+                        <div class="contact-item d-flex align-items-center mb-3">
+                            <div class="contact-icon me-3">
+                                <i class="bi bi-telephone fs-4 text-primary"></i>
+                            </div>
+                            <div class="contact-content">
+                                <h6 class="mb-1">Phone</h6>
+                                <a href="tel:{{ site_settings.phone }}" class="text-decoration-none">
+                                    {{ site_settings.phone }}
+                                </a>
+                            </div>
+                        </div>
+                        {% endif %}
+                        
+                        {% if site_settings.location %}
+                        <div class="contact-item d-flex align-items-center mb-3">
+                            <div class="contact-icon me-3">
+                                <i class="bi bi-geo-alt fs-4 text-primary"></i>
+                            </div>
+                            <div class="contact-content">
+                                <h6 class="mb-1">Location</h6>
+                                <span>{{ site_settings.location }}</span>
+                            </div>
+                        </div>
+                        {% endif %}
+                        
+                        <div class="contact-item d-flex align-items-center mb-3">
+                            <div class="contact-icon me-3">
+                                <i class="bi bi-clock fs-4 text-primary"></i>
+                            </div>
+                            <div class="contact-content">
+                                <h6 class="mb-1">Response Time</h6>
+                                <span>Usually within 24 hours</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Social Media -->
+                    {% if site_settings.github_url or site_settings.linkedin_url or site_settings.twitter_url %}
+                    <div class="social-connect mt-4">
+                        <h6 class="mb-3">Follow Me</h6>
+                        <div class="social-links d-flex gap-3">
+                            {% if site_settings.github_url %}
+                            <a href="{{ site_settings.github_url }}" 
+                               target="_blank" 
+                               rel="noopener noreferrer"
+                               class="social-link text-decoration-none">
+                                <i class="bi bi-github fs-4"></i>
+                            </a>
+                            {% endif %}
+                            
+                            {% if site_settings.linkedin_url %}
+                            <a href="{{ site_settings.linkedin_url }}" 
+                               target="_blank" 
+                               rel="noopener noreferrer"
+                               class="social-link text-decoration-none">
+                                <i class="bi bi-linkedin fs-4"></i>
+                            </a>
+                            {% endif %}
+                            
+                            {% if site_settings.twitter_url %}
+                            <a href="{{ site_settings.twitter_url }}" 
+                               target="_blank" 
+                               rel="noopener noreferrer"
+                               class="social-link text-decoration-none">
+                                <i class="bi bi-twitter fs-4"></i>
+                            </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endif %}
+                    
+                    <!-- Availability Status -->
+                    <div class="availability-status mt-4 p-3 rounded" style="background-color: var(--bs-success-bg-subtle);">
+                        <div class="d-flex align-items-center">
+                            <div class="status-indicator me-3">
+                                <span class="badge bg-success rounded-pill">
+                                    <i class="bi bi-circle-fill"></i> Available
+                                </span>
+                            </div>
+                            <div class="status-content">
+                                <h6 class="mb-1">Currently Available</h6>
+                                <small class="text-muted">
+                                    Open for new projects and collaborations
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- FAQ Section -->
+                    <div class="faq-section mt-4">
+                        <h6 class="mb-3">Quick Answers</h6>
+                        <div class="accordion accordion-flush" id="contactFAQ">
+                            <div class="accordion-item">
+                                <h2 class="accordion-header" id="faq1">
+                                    <button class="accordion-button collapsed" type="button" 
+                                            data-bs-toggle="collapse" data-bs-target="#collapse1">
+                                        What's your typical response time?
+                                    </button>
+                                </h2>
+                                <div id="collapse1" class="accordion-collapse collapse" 
+                                     data-bs-parent="#contactFAQ">
+                                    <div class="accordion-body small">
+                                        I typically respond to all inquiries within 24 hours during business days.
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="accordion-item">
+                                <h2 class="accordion-header" id="faq2">
+                                    <button class="accordion-button collapsed" type="button" 
+                                            data-bs-toggle="collapse" data-bs-target="#collapse2">
+                                        Do you work with international clients?
+                                    </button>
+                                </h2>
+                                <div id="collapse2" class="accordion-collapse collapse" 
+                                     data-bs-parent="#contactFAQ">
+                                    <div class="accordion-body small">
+                                        Yes! I work with clients worldwide and am comfortable with remote collaboration.
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="accordion-item">
+                                <h2 class="accordion-header" id="faq3">
+                                    <button class="accordion-button collapsed" type="button" 
+                                            data-bs-toggle="collapse" data-bs-target="#collapse3">
+                                        What information should I include?
+                                    </button>
+                                </h2>
+                                <div id="collapse3" class="accordion-collapse collapse" 
+                                     data-bs-parent="#contactFAQ">
+                                    <div class="accordion-body small">
+                                        Please include project details, timeline, budget range, and any specific requirements.
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Alternative Contact Methods -->
+<section class="py-5 bg-light">
+    <div class="container">
+        <div class="text-center mb-5" data-aos="fade-up">
+            <h2 class="h3 mb-3">Other Ways to Connect</h2>
+            <p class="text-muted">Choose the method that works best for you</p>
+        </div>
+        
+        <div class="row g-4">
+            <!-- Schedule a Call -->
+            <div class="col-lg-4" data-aos="fade-up" data-aos-delay="100">
+                <div class="contact-method card h-100 border-0 shadow-sm text-center p-4">
+                    <div class="contact-method-icon mb-3">
+                        <i class="bi bi-calendar-event fs-1 text-primary"></i>
+                    </div>
+                    <h5 class="mb-3">Schedule a Call</h5>
+                    <p class="text-muted mb-4">
+                        Book a free 30-minute consultation to discuss your project in detail.
+                    </p>
+                    <a href="#" class="btn btn-outline-primary">
+                        <i class="bi bi-calendar-plus me-2"></i>Book a Call
+                    </a>
+                </div>
+            </div>
+            
+            <!-- WhatsApp -->
+            <div class="col-lg-4" data-aos="fade-up" data-aos-delay="200">
+                <div class="contact-method card h-100 border-0 shadow-sm text-center p-4">
+                    <div class="contact-method-icon mb-3">
+                        <i class="bi bi-whatsapp fs-1 text-success"></i>
+                    </div>
+                    <h5 class="mb-3">WhatsApp</h5>
+                    <p class="text-muted mb-4">
+                        Send me a quick message on WhatsApp for urgent inquiries.
+                    </p>
+                    {% if site_settings.phone %}
+                    <a href="https://wa.me/{{ site_settings.phone|cut:'+' }}" 
+                       target="_blank" 
+                       class="btn btn-outline-success">
+                        <i class="bi bi-whatsapp me-2"></i>Chat Now
+                    </a>
+                    {% else %}
+                    <button class="btn btn-outline-success" disabled>
+                        <i class="bi bi-whatsapp me-2"></i>Coming Soon
+                    </button>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <!-- Video Call -->
+            <div class="col-lg-4" data-aos="fade-up" data-aos-delay="300">
+                <div class="contact-method card h-100 border-0 shadow-sm text-center p-4">
+                    <div class="contact-method-icon mb-3">
+                        <i class="bi bi-camera-video fs-1 text-info"></i>
+                    </div>
+                    <h5 class="mb-3">Video Call</h5>
+                    <p class="text-muted mb-4">
+                        Prefer face-to-face? Let's set up a video call to discuss your needs.
+                    </p>
+                    <a href="#" class="btn btn-outline-info">
+                        <i class="bi bi-camera-video me-2"></i>Schedule Meeting
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('contact-form');
+    const submitBtn = document.getElementById('submit-btn');
+    const btnText = submitBtn.querySelector('.btn-text');
+    const btnSpinner = submitBtn.querySelector('.btn-spinner');
+    
+    // Form submission with AJAX
+    form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        // Show loading state
+        submitBtn.disabled = true;
+        btnText.classList.add('d-none');
+        btnSpinner.classList.remove('d-none');
+        
+        // Get form data
+        const formData = new FormData(form);
+        
+        // Submit via AJAX
+        fetch('{% url "portfolio:ajax_contact" %}', {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-CSRFToken': formData.get('csrfmiddlewaretoken'),
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Show success message
+                showAlert('success', data.message);
+                form.reset();
+            } else {
+                // Show error messages
+                showAlert('danger', 'Please correct the errors below.');
+                displayFormErrors(data.errors);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showAlert('danger', 'An error occurred. Please try again.');
+        })
+        .finally(() => {
+            // Reset button state
+            submitBtn.disabled = false;
+            btnText.classList.remove('d-none');
+            btnSpinner.classList.add('d-none');
+        });
+    });
+    
+    // Show alert message
+    function showAlert(type, message) {
+        const alertContainer = document.createElement('div');
+        alertContainer.className = `alert alert-${type} alert-dismissible fade show`;
+        alertContainer.innerHTML = `
+            ${message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        `;
+        
+        form.insertBefore(alertContainer, form.firstChild);
+        
+        // Auto-dismiss after 5 seconds
+        setTimeout(() => {
+            if (alertContainer.parentNode) {
+                alertContainer.remove();
+            }
+        }, 5000);
+    }
+    
+    // Display form validation errors
+    function displayFormErrors(errors) {
+        // Clear previous errors
+        document.querySelectorAll('.invalid-feedback').forEach(el => {
+            el.classList.remove('d-block');
+        });
+        
+        // Show new errors
+        Object.keys(errors).forEach(field => {
+            const input = document.querySelector(`[name="${field}"]`);
+            if (input) {
+                input.classList.add('is-invalid');
+                const feedback = input.parentNode.querySelector('.invalid-feedback');
+                if (feedback) {
+                    feedback.textContent = errors[field][0];
+                    feedback.classList.add('d-block');
+                }
+            }
+        });
+    }
+    
+    // Remove error styling on input
+    form.addEventListener('input', function(e) {
+        if (e.target.classList.contains('is-invalid')) {
+            e.target.classList.remove('is-invalid');
+            const feedback = e.target.parentNode.querySelector('.invalid-feedback');
+            if (feedback) {
+                feedback.classList.remove('d-block');
+            }
+        }
+    });
+    
+    // Character count for message field
+    const messageField = document.querySelector('[name="message"]');
+    if (messageField) {
+        const charCount = document.createElement('div');
+        charCount.className = 'form-text text-end';
+        charCount.id = 'char-count';
+        messageField.parentNode.appendChild(charCount);
+        
+        function updateCharCount() {
+            const current = messageField.value.length;
+            const max = 1000; // Adjust based on your model
+            charCount.textContent = `${current}/${max} characters`;
+            
+            if (current > max * 0.9) {
+                charCount.classList.add('text-warning');
+            } else {
+                charCount.classList.remove('text-warning');
+            }
+        }
+        
+        messageField.addEventListener('input', updateCharCount);
+        updateCharCount();
+    }
+    
+    // Auto-resize textarea
+    function autoResize(textarea) {
+        textarea.style.height = 'auto';
+        textarea.style.height = textarea.scrollHeight + 'px';
+    }
+    
+    if (messageField) {
+        messageField.addEventListener('input', () => autoResize(messageField));
+        autoResize(messageField);
+    }
+    
+    // Social links hover effects
+    const socialLinks = document.querySelectorAll('.social-link');
+    socialLinks.forEach(link => {
+        link.addEventListener('mouseenter', function() {
+            this.style.transform = 'translateY(-3px)';
+            this.style.color = 'var(--portfolio-primary)';
+        });
+        
+        link.addEventListener('mouseleave', function() {
+            this.style.transform = 'translateY(0)';
+            this.style.color = '';
+        });
+    });
+});
+</script>
+{% endblock %}
