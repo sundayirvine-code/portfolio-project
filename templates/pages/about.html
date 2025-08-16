@@ -26,12 +26,15 @@
                         creating exceptional digital experiences through innovative technology solutions.
                     {% endif %}
                 </p>
-                <div class="d-flex gap-3">
+                <div class="d-flex flex-wrap gap-3">
                     <a href="#skills" class="btn btn-light btn-lg">
                         <i class="bi bi-gear me-2"></i>My Skills
                     </a>
                     <a href="{% url 'portfolio:contact' %}" class="btn btn-outline-light btn-lg">
                         <i class="bi bi-envelope me-2"></i>Get In Touch
+                    </a>
+                    <a href="{% url 'portfolio:download_cv' %}" class="btn btn-success btn-lg" target="_blank">
+                        <i class="bi bi-download me-2"></i>Download CV
                     </a>
                 </div>
             </div>

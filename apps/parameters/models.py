@@ -53,6 +53,24 @@ class SiteParameter(models.Model):
         default='modern_professional'
     )
     
+    # Font Size Settings
+    base_font_size = models.CharField(
+        _("Base Font Size"),
+        max_length=10,
+        default='16px',
+        help_text="Base font size for body text (e.g., 16px, 1rem)"
+    )
+    heading_font_scale = models.FloatField(
+        _("Heading Font Scale"),
+        default=1.25,
+        help_text="Scale factor for heading sizes (1.0 = no scaling, 1.25 = 25% larger)"
+    )
+    small_font_scale = models.FloatField(
+        _("Small Font Scale"),
+        default=0.875,
+        help_text="Scale factor for small text (0.875 = 12.5% smaller)"
+    )
+    
     # Contact Information
     email = models.EmailField(_("Contact Email"), blank=True)
     phone = models.CharField(_("Phone Number"), max_length=20, blank=True)

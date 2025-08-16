@@ -24,6 +24,9 @@ urlpatterns = [
     # Testimonials
     path('testimonials/', views.testimonials_view, name='testimonials'),
     
+    # CV Download
+    path('download-cv/', views.download_cv_view, name='download_cv'),
+    
     # AJAX endpoints
     path('ajax/contact/', views.ajax_contact_view, name='ajax_contact'),
     

@@ -1,13 +1,14 @@
 from django.shortcuts import render, get_object_or_404
 from django.core.paginator import Paginator
 from django.contrib import messages
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponse
 from django.views.decorators.http import require_POST
 from django.views.decorators.csrf import csrf_exempt
 from django.utils import timezone
 from django.db.models import Q
 from .models import Project, BlogPost, Testimonial, Service, ContactMessage, Category, Technology
 from .forms import ContactForm
+from .services import CVGenerationService
 
 
 def home_view(request):
@@ -439,3 +440,31 @@ def api_search_view(request):
         'total_results': total_results,
         'results': results
     })
+
+
+def download_cv_view(request):
+    """Generate and download CV as PDF"""
+    try:
+        # Generate CV PDF
+        cv_service = CVGenerationService()
+        pdf_content = cv_service.generate_cv_pdf()
+        
+        # Create HTTP response with PDF
+        response = HttpResponse(pdf_content, content_type='application/pdf')
+        response['Content-Disposition'] = 'attachment; filename="CV.pdf"'
+        response['Content-Length'] = len(pdf_content)
+        
+        return response
+        
+    except Exception as e:
+        # Log the error and return a user-friendly message
+        import logging
+        logger = logging.getLogger(__name__)
+        logger.error(f"CV generation failed: {e}")
+        
+        # Return a simple error response
+        return HttpResponse(
+            "Sorry, there was an error generating your CV. Please try again later.",
+            status=500,
+            content_type='text/plain'
+        )

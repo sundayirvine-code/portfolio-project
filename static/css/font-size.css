@@ -1,0 +1,202 @@
+/**
+ * Font Size Management System Styles
+ */
+
+/* Font Size Picker */
+.font-size-picker {
+    position: fixed;
+    top: 90px;
+    right: 20px;
+    transform: translateY(0);
+    z-index: 1025;
+    background: white;
+    border: 1px solid var(--bs-border-color);
+    border-radius: 0.5rem;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    max-width: 280px;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateX(100%);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.font-size-picker.show {
+    opacity: 1;
+    visibility: visible;
+    transform: translateX(0);
+}
+
+.font-size-picker-toggle {
+    display: none;
+    width: 40px;
+    height: 40px;
+    background: var(--theme-primary, #6366f1);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    font-size: 1.1rem;
+}
+
+.font-size-picker-toggle:hover {
+    background: var(--theme-secondary, #8b5cf6);
+    transform: translateY(-50%) scale(1.1);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.font-size-picker-toggle:active {
+    transform: translateY(-50%) scale(0.95);
+}
+
+/* Font Size Options */
+.font-size-options {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.font-size-option {
+    padding: 0.75rem;
+    border: 2px solid var(--bs-border-color);
+    border-radius: 0.375rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    background: white;
+}
+
+.font-size-option:hover {
+    border-color: var(--theme-primary, #6366f1);
+    background: var(--bs-light);
+    transform: translateY(-1px);
+}
+
+.font-size-option.active {
+    border-color: var(--theme-primary, #6366f1);
+    background: rgba(var(--theme-primary-rgb, 99, 102, 241), 0.1);
+    box-shadow: 0 0 0 2px rgba(var(--theme-primary-rgb, 99, 102, 241), 0.2);
+}
+
+.font-size-preview {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.font-size-demo {
+    font-weight: 600;
+    color: var(--theme-primary, #6366f1);
+    line-height: 1;
+    min-width: 30px;
+}
+
+.font-size-name {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--bs-body-color);
+}
+
+/* Font Size Controls */
+.font-size-controls {
+    display: flex;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+.font-size-controls .btn {
+    border-radius: 50%;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+}
+
+.font-size-controls .btn:hover {
+    background: var(--theme-primary, #6366f1);
+    border-color: var(--theme-primary, #6366f1);
+    color: white;
+}
+
+/* Font Size Info */
+.font-size-info {
+    border-top: 1px solid var(--bs-border-color);
+    padding-top: 0.75rem;
+    text-align: center;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+    .font-size-picker {
+        right: 10px;
+        max-width: 250px;
+    }
+    
+    .font-size-picker-toggle {
+        left: -40px;
+        width: 36px;
+        height: 36px;
+        font-size: 1rem;
+    }
+}
+
+/* Dark Mode Support */
+@media (prefers-color-scheme: dark) {
+    .font-size-picker {
+        background: var(--bs-dark);
+        border-color: var(--bs-border-color);
+        color: var(--bs-light);
+    }
+    
+    .font-size-option {
+        background: var(--bs-dark);
+        border-color: var(--bs-border-color);
+        color: var(--bs-light);
+    }
+    
+    .font-size-option:hover {
+        background: var(--bs-secondary);
+    }
+    
+    .font-size-option.active {
+        background: rgba(var(--theme-primary-rgb, 99, 102, 241), 0.2);
+    }
+    
+    .font-size-name {
+        color: var(--bs-light);
+    }
+    
+    .font-size-info {
+        border-color: var(--bs-border-color);
+    }
+}
+
+/* High Contrast Mode */
+@media (prefers-contrast: high) {
+    .font-size-picker {
+        border-width: 2px;
+    }
+    
+    .font-size-option {
+        border-width: 2px;
+    }
+    
+    .font-size-option:hover,
+    .font-size-option.active {
+        border-width: 3px;
+    }
+}
+
+/* Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+    .font-size-picker,
+    .font-size-picker-toggle,
+    .font-size-option {
+        transition: none;
+    }
+}
