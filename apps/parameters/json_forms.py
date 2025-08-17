@@ -91,151 +91,230 @@ class InterestForm(forms.Form):
 
 
 class FunFactsManagerForm(forms.Form):
-    """Form for managing multiple fun facts"""
+    """Form for managing fun facts with JSON field support"""
+    
+    facts_data = forms.CharField(
+        widget=forms.Textarea(attrs={
+            'class': 'form-control',
+            'style': 'display: none;',  # Hidden field for JSON data
+        }),
+        required=False,
+        initial='[]'
+    )
     
     def __init__(self, *args, **kwargs):
         initial_data = kwargs.pop('initial_data', [])
         super().__init__(*args, **kwargs)
         
-        # Add fields dynamically based on initial data
-        for i, fact in enumerate(initial_data):
-            self.fields[f'fact_{i}_label'] = forms.CharField(
-                initial=fact.get('label', ''),
-                widget=forms.TextInput(attrs={
-                    'class': 'form-control',
-                    'placeholder': 'e.g., Cups of Coffee'
-                })
-            )
-            self.fields[f'fact_{i}_value'] = forms.IntegerField(
-                initial=fact.get('value', 0),
-                widget=forms.NumberInput(attrs={
-                    'class': 'form-control',
-                    'placeholder': 'e.g., 500',
-                    'min': 0
-                })
-            )
-            self.fields[f'fact_{i}_color'] = forms.ChoiceField(
-                initial=fact.get('color', 'primary'),
-                choices=[
-                    ('primary', 'Blue'),
-                    ('success', 'Green'), 
-                    ('warning', 'Yellow'),
-                    ('danger', 'Red'),
-                    ('info', 'Cyan'),
-                    ('secondary', 'Gray')
-                ],
-                widget=forms.Select(attrs={'class': 'form-select'})
-            )
+        # Ensure we have a list format
+        if not isinstance(initial_data, list):
+            initial_data = []
+        
+        # Set initial JSON data
+        if initial_data:
+            import json
+            self.fields['facts_data'].initial = json.dumps(initial_data)
+    
+    def clean_facts_data(self):
+        """Validate and clean the JSON facts data"""
+        import json
+        data = self.cleaned_data.get('facts_data', '[]')
+        
+        try:
+            facts_list = json.loads(data) if data else []
+            
+            # Validate each fact entry
+            cleaned_facts = []
+            for fact in facts_list:
+                if not isinstance(fact, dict):
+                    continue
+                
+                label = fact.get('label', '').strip()
+                if not label:
+                    continue  # Skip entries without labels
+                
+                try:
+                    value = int(fact.get('value', 0))
+                except (ValueError, TypeError):
+                    value = 0
+                
+                cleaned_fact = {
+                    'label': label,
+                    'value': value,
+                    'color': fact.get('color', 'primary'),
+                    'icon': fact.get('icon', '').strip() or 'star'
+                }
+                cleaned_facts.append(cleaned_fact)
+            
+            return cleaned_facts
+            
+        except json.JSONDecodeError:
+            raise forms.ValidationError("Invalid JSON data for fun facts")
             
     def get_facts_data(self):
-        """Extract fun facts data from form"""
-        facts = []
-        i = 0
-        while f'fact_{i}_label' in self.cleaned_data:
-            if self.cleaned_data[f'fact_{i}_label']:  # Only include non-empty facts
-                facts.append({
-                    'label': self.cleaned_data[f'fact_{i}_label'],
-                    'value': self.cleaned_data[f'fact_{i}_value'],
-                    'color': self.cleaned_data[f'fact_{i}_color']
-                })
-            i += 1
-        return facts
+        """Get the cleaned fun facts data"""
+        return self.cleaned_data.get('facts_data', [])
 
 
 class ValuesManagerForm(forms.Form):
-    """Form for managing values and interests"""
+    """Form for managing values and interests with JSON field support"""
+    
+    values_data = forms.CharField(
+        widget=forms.Textarea(attrs={
+            'class': 'form-control',
+            'style': 'display: none;',  # Hidden field for JSON data
+        }),
+        required=False,
+        initial='[]'
+    )
     
     def __init__(self, *args, **kwargs):
-        initial_data = kwargs.pop('initial_data', {})
+        initial_data = kwargs.pop('initial_data', [])
         super().__init__(*args, **kwargs)
         
-        values = initial_data.get('values', [])
-        interests = initial_data.get('interests', [])
-        
-        # Add value fields dynamically
-        for i, value in enumerate(values):
-            self.fields[f'value_{i}_name'] = forms.CharField(
-                initial=value.get('name', ''),
-                widget=forms.TextInput(attrs={
-                    'class': 'form-control',
-                    'placeholder': 'e.g., Innovation'
-                })
-            )
-            self.fields[f'value_{i}_description'] = forms.CharField(
-                initial=value.get('description', ''),
-                widget=forms.Textarea(attrs={
-                    'class': 'form-control',
-                    'rows': 2,
-                    'placeholder': 'Brief description'
-                })
-            )
-            self.fields[f'value_{i}_icon'] = forms.CharField(
-                initial=value.get('icon', ''),
-                widget=forms.TextInput(attrs={
-                    'class': 'form-control',
-                    'placeholder': 'e.g., lightbulb'
-                })
-            )
-            self.fields[f'value_{i}_color'] = forms.ChoiceField(
-                initial=value.get('color', 'primary'),
-                choices=[
-                    ('primary', 'Blue'),
-                    ('success', 'Green'), 
-                    ('warning', 'Yellow'),
-                    ('danger', 'Red'),
-                    ('info', 'Cyan'),
-                    ('secondary', 'Gray')
-                ],
-                widget=forms.Select(attrs={'class': 'form-select'})
-            )
+        # Handle both legacy dict format and new list format
+        if isinstance(initial_data, dict):
+            # Legacy format: {'values': [...], 'interests': [...]}
+            legacy_values = initial_data.get('values', [])
+            legacy_interests = initial_data.get('interests', [])
             
-        # Add interest fields dynamically  
-        for i, interest in enumerate(interests):
-            self.fields[f'interest_{i}_name'] = forms.CharField(
-                initial=interest.get('name', ''),
-                widget=forms.TextInput(attrs={
-                    'class': 'form-control',
-                    'placeholder': 'e.g., Web Development'
-                })
-            )
-            self.fields[f'interest_{i}_description'] = forms.CharField(
-                initial=interest.get('description', ''),
-                widget=forms.Textarea(attrs={
-                    'class': 'form-control',
-                    'rows': 2,
-                    'placeholder': 'Brief description'
-                }),
-                required=False
-            )
+            # Convert to new format
+            converted_data = []
+            for value in legacy_values:
+                if isinstance(value, str):
+                    converted_data.append({
+                        'name': value,
+                        'description': '',
+                        'icon': 'heart',
+                        'color': 'primary'
+                    })
+                elif isinstance(value, dict):
+                    converted_data.append(value)
+                    
+            for interest in legacy_interests:
+                if isinstance(interest, str):
+                    converted_data.append({
+                        'name': interest,
+                        'description': '',
+                        'icon': 'star',
+                        'color': 'info'
+                    })
+                elif isinstance(interest, dict):
+                    converted_data.append(interest)
+            
+            initial_data = converted_data
+        elif not isinstance(initial_data, list):
+            initial_data = []
+        
+        # Set initial JSON data
+        if initial_data:
+            import json
+            self.fields['values_data'].initial = json.dumps(initial_data)
+    
+    def clean_values_data(self):
+        """Validate and clean the JSON values data"""
+        import json
+        data = self.cleaned_data.get('values_data', '[]')
+        
+        try:
+            values_list = json.loads(data) if data else []
+            
+            # Validate each value entry
+            cleaned_values = []
+            for value in values_list:
+                if not isinstance(value, dict):
+                    continue
+                
+                name = value.get('name', '').strip()
+                if not name:
+                    continue  # Skip entries without names
+                
+                cleaned_value = {
+                    'name': name,
+                    'description': value.get('description', '').strip(),
+                    'icon': value.get('icon', '').strip() or 'star',
+                    'color': value.get('color', 'primary')
+                }
+                cleaned_values.append(cleaned_value)
+            
+            return cleaned_values
+            
+        except json.JSONDecodeError:
+            raise forms.ValidationError("Invalid JSON data for values and interests")
             
     def get_values_interests_data(self):
-        """Extract values and interests data from form"""
-        values = []
-        interests = []
+        """Get the cleaned values and interests data"""
+        return self.cleaned_data.get('values_data', [])
+
+
+class SkillsManagerForm(forms.Form):
+    """Form for managing skills and expertise with JSON field support"""
+    
+    skills_data = forms.CharField(
+        widget=forms.Textarea(attrs={
+            'class': 'form-control',
+            'style': 'display: none;',  # Hidden field for JSON data
+        }),
+        required=False,
+        initial='[]'
+    )
+    
+    def __init__(self, *args, **kwargs):
+        initial_data = kwargs.pop('initial_data', [])
+        super().__init__(*args, **kwargs)
         
-        # Extract values
-        i = 0
-        while f'value_{i}_name' in self.cleaned_data:
-            if self.cleaned_data[f'value_{i}_name']:  # Only include non-empty values
-                values.append({
-                    'name': self.cleaned_data[f'value_{i}_name'],
-                    'description': self.cleaned_data[f'value_{i}_description'],
-                    'icon': self.cleaned_data[f'value_{i}_icon'],
-                    'color': self.cleaned_data[f'value_{i}_color']
-                })
-            i += 1
+        # Ensure we have a list format
+        if not isinstance(initial_data, list):
+            initial_data = []
+        
+        # Set initial JSON data
+        if initial_data:
+            import json
+            self.fields['skills_data'].initial = json.dumps(initial_data)
+    
+    def clean_skills_data(self):
+        """Validate and clean the JSON skills data"""
+        import json
+        data = self.cleaned_data.get('skills_data', '[]')
+        
+        try:
+            skills_list = json.loads(data) if data else []
             
-        # Extract interests
-        i = 0
-        while f'interest_{i}_name' in self.cleaned_data:
-            if self.cleaned_data[f'interest_{i}_name']:  # Only include non-empty interests
-                interests.append({
-                    'name': self.cleaned_data[f'interest_{i}_name'],
-                    'description': self.cleaned_data[f'interest_{i}_description']
-                })
-            i += 1
+            # Validate each skill entry
+            cleaned_skills = []
+            for skill in skills_list:
+                if not isinstance(skill, dict):
+                    continue
+                
+                name = skill.get('name', '').strip()
+                if not name:
+                    continue  # Skip entries without names
+                
+                # Validate level is between 0-100
+                try:
+                    level = int(skill.get('level', 0))
+                    if level < 0:
+                        level = 0
+                    elif level > 100:
+                        level = 100
+                except (ValueError, TypeError):
+                    level = 0
+                
+                cleaned_skill = {
+                    'name': name,
+                    'category': skill.get('category', '').strip() or 'other',
+                    'level': level,
+                    'icon': skill.get('icon', '').strip() or 'gear',
+                    'color': skill.get('color', 'primary'),
+                    'description': skill.get('description', '').strip()
+                }
+                cleaned_skills.append(cleaned_skill)
             
-        return {
-            'values': values,
-            'interests': interests
-        }
+            return cleaned_skills
+            
+        except json.JSONDecodeError:
+            raise forms.ValidationError("Invalid JSON data for skills and expertise")
+            
+    def get_skills_data(self):
+        """Get the cleaned skills data"""
+        return self.cleaned_data.get('skills_data', [])

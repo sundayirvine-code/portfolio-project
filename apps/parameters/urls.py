@@ -14,6 +14,7 @@ urlpatterns = [
     # JSON Field Management
     path('fun-facts/', views.fun_facts_management, name='fun_facts_management'),
     path('values-interests/', views.values_interests_management, name='values_interests_management'),
+    path('skills-expertise/', views.skills_expertise_management, name='skills_expertise_management'),
     
     # Navigation Management
     path('navigation/', views.navigation_list_view, name='navigation_list'),

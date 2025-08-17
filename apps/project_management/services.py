@@ -11,7 +11,14 @@ from django.template.loader import render_to_string
 from django.http import HttpResponse
 from django.conf import settings
 from django.utils import timezone
-from xhtml2pdf import pisa
+try:
+    import weasyprint
+    WEASYPRINT_AVAILABLE = True
+except (ImportError, OSError) as e:
+    WEASYPRINT_AVAILABLE = False
+    import logging
+    logger = logging.getLogger(__name__)
+    logger.warning(f"WeasyPrint not available: {e}. CV generation will use fallback method.")
 from apps.parameters.models import SiteParameter, ProfessionalJourney
 
 
@@ -146,13 +153,30 @@ class CVGenerationService:
     
     def _get_skills_data(self):
         """Get skills data with fallbacks"""
-        # Try to get from site settings fun_facts or other sources
         skills_data = {}
         
-        if hasattr(self.site_settings, 'fun_facts') and self.site_settings.fun_facts:
-            skills_data = self.site_settings.fun_facts.get('skills', {})
+        # Try to get from new skills_expertise field
+        try:
+            if hasattr(self.site_settings, 'skills_expertise') and self.site_settings.skills_expertise:
+                skills_list = self.site_settings.skills_expertise
+                if isinstance(skills_list, str):
+                    skills_list = json.loads(skills_list)
+                
+                # Group skills by category for CV format
+                skills_data = {}
+                for skill in skills_list:
+                    category = skill.get('category', 'other')
+                    if category not in skills_data:
+                        skills_data[category] = []
+                    skills_data[category].append({
+                        'name': skill.get('name'),
+                        'level': skill.get('level', 0),
+                        'description': skill.get('description', '')
+                    })
+        except (json.JSONDecodeError, TypeError, AttributeError):
+            pass
         
-        # Fallback to default skills
+        # Fallback to default skills if no data found
         if not skills_data:
             skills_data = self._get_default_skills()
         
@@ -183,29 +207,90 @@ class CVGenerationService:
         return achievements
     
     def _html_to_pdf(self, html_content, filename_prefix):
-        """Convert HTML to PDF"""
-        result = BytesIO()
+        """Convert HTML to PDF using WeasyPrint or fallback method"""
+        if WEASYPRINT_AVAILABLE:
+            try:
+                # Create PDF using WeasyPrint
+                pdf_file = weasyprint.HTML(string=html_content).write_pdf()
+                
+                # Create response
+                response = HttpResponse(
+                    pdf_file,
+                    content_type='application/pdf'
+                )
+                
+                # Set filename
+                filename = f"{filename_prefix.replace(' ', '_')}_CV_{date.today().strftime('%Y%m%d')}.pdf"
+                response['Content-Disposition'] = f'attachment; filename="{filename}"'
+                
+                return response
+            except Exception as e:
+                # Log the error for debugging
+                import logging
+                logger = logging.getLogger(__name__)
+                logger.error(f"WeasyPrint PDF generation failed: {e}")
+                raise Exception(f"Error generating PDF with WeasyPrint: {str(e)}")
+        else:
+            # Fallback: Return HTML response with print instructions
+            return self._html_fallback_response(html_content, filename_prefix)
+    
+    def _html_fallback_response(self, html_content, filename_prefix):
+        """Fallback method when WeasyPrint is not available - return HTML for printing"""
+        # Create a print-friendly HTML response
+        print_html = f"""
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <meta charset="UTF-8">
+            <title>{filename_prefix} - CV</title>
+            <style>
+                @media print {{
+                    body {{ margin: 0; }}
+                    .no-print {{ display: none !important; }}
+                }}
+                .print-instructions {{
+                    background: #fff3cd;
+                    border: 1px solid #ffecb5;
+                    border-radius: 5px;
+                    padding: 15px;
+                    margin: 20px;
+                    text-align: center;
+                }}
+                .cv-content {{
+                    margin: 20px;
+                }}
+            </style>
+        </head>
+        <body>
+            <div class="print-instructions no-print">
+                <h3>🖨️ PDF Generation Not Available</h3>
+                <p>WeasyPrint is not properly configured. To save as PDF:</p>
+                <ol>
+                    <li>Press <kbd>Ctrl+P</kbd> (or <kbd>Cmd+P</kbd> on Mac)</li>
+                    <li>Select "Save as PDF" as the destination</li>
+                    <li>Choose appropriate print settings</li>
+                    <li>Click "Save"</li>
+                </ol>
+                <button onclick="window.print()" class="btn btn-primary">🖨️ Print Now</button>
+            </div>
+            <div class="cv-content">
+                {html_content}
+            </div>
+            <script>
+                // Auto-trigger print dialog after page loads
+                window.addEventListener('load', function() {{
+                    setTimeout(function() {{
+                        if (confirm('PDF generation is not available. Would you like to print the CV instead?')) {{
+                            window.print();
+                        }}
+                    }}, 1000);
+                }});
+            </script>
+        </body>
+        </html>
+        """
         
-        # Create PDF
-        pisa_status = pisa.CreatePDF(
-            html_content.encode('utf-8'),
-            dest=result,
-            encoding='utf-8'
-        )
-        
-        if pisa_status.err:
-            raise Exception('Error generating PDF')
-        
-        # Create response
-        response = HttpResponse(
-            result.getvalue(),
-            content_type='application/pdf'
-        )
-        
-        # Set filename
-        filename = f"{filename_prefix.replace(' ', '_')}_CV_{date.today().strftime('%Y%m%d')}.pdf"
-        response['Content-Disposition'] = f'attachment; filename="{filename}"'
-        
+        response = HttpResponse(print_html, content_type='text/html')
         return response
     
     def _template_exists(self, template_name):

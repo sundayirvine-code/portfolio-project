@@ -7,7 +7,7 @@ from django.core.exceptions import ValidationError
 from django.core.paginator import Paginator
 from .models import SiteParameter, NavigationMenu, ColorPalette, FontPalette, ProfessionalJourney, FAQ, QuickAnswer
 from .forms import SiteParameterForm, NavigationMenuForm, ColorPaletteForm, ExtendedSiteParameterForm, FontPaletteForm, ProfessionalJourneyForm, FAQForm, QuickAnswerForm
-from .json_forms import FunFactsManagerForm, ValuesManagerForm
+from .json_forms import FunFactsManagerForm, ValuesManagerForm, SkillsManagerForm
 import json
 
 
@@ -349,17 +349,49 @@ def values_interests_management(request):
     """Manage values and interests with user-friendly interface"""
     site_settings = SiteParameter.get_settings()
     
-    # Parse existing values and interests
+    # Parse existing values and interests - expect a list format
     try:
         if site_settings.values_interests:
             if isinstance(site_settings.values_interests, str):
                 values_data = json.loads(site_settings.values_interests)
             else:
                 values_data = site_settings.values_interests
+                
+            # Handle legacy format (dict) or ensure we have a list
+            if isinstance(values_data, dict):
+                # Convert legacy dict format to list format
+                legacy_values = values_data.get('values', [])
+                legacy_interests = values_data.get('interests', [])
+                
+                # Merge them into a single list with proper structure
+                values_data = []
+                for value in legacy_values:
+                    if isinstance(value, str):
+                        values_data.append({
+                            'name': value,
+                            'description': '',
+                            'icon': 'heart',
+                            'color': 'primary'
+                        })
+                    elif isinstance(value, dict):
+                        values_data.append(value)
+                        
+                for interest in legacy_interests:
+                    if isinstance(interest, str):
+                        values_data.append({
+                            'name': interest,
+                            'description': '',
+                            'icon': 'star',
+                            'color': 'info'
+                        })
+                    elif isinstance(interest, dict):
+                        values_data.append(interest)
+            elif not isinstance(values_data, list):
+                values_data = []
         else:
-            values_data = {}
+            values_data = []
     except (json.JSONDecodeError, TypeError):
-        values_data = {}
+        values_data = []
     
     if request.method == 'POST':
         form = ValuesManagerForm(request.POST, initial_data=values_data)
@@ -381,6 +413,49 @@ def values_interests_management(request):
     }
     
     return render(request, 'parameters/admin/values_interests_management.html', context)
+
+
+@staff_member_required
+def skills_expertise_management(request):
+    """Manage skills and expertise with user-friendly interface"""
+    site_settings = SiteParameter.get_settings()
+    
+    # Parse existing skills and expertise - expect a list format
+    try:
+        if site_settings.skills_expertise:
+            if isinstance(site_settings.skills_expertise, str):
+                skills_data = json.loads(site_settings.skills_expertise)
+            else:
+                skills_data = site_settings.skills_expertise
+                
+            # Ensure we have a list
+            if not isinstance(skills_data, list):
+                skills_data = []
+        else:
+            skills_data = []
+    except (json.JSONDecodeError, TypeError):
+        skills_data = []
+    
+    if request.method == 'POST':
+        form = SkillsManagerForm(request.POST, initial_data=skills_data)
+        if form.is_valid():
+            new_skills_data = form.get_skills_data()
+            site_settings.skills_expertise = new_skills_data
+            site_settings.save()
+            messages.success(request, 'Skills and expertise updated successfully!')
+            return redirect('parameters:skills_expertise_management')
+        else:
+            messages.error(request, 'Please correct the errors below.')
+    else:
+        form = SkillsManagerForm(initial_data=skills_data)
+    
+    context = {
+        'form': form,
+        'skills_data': skills_data,
+        'title': 'Skills & Expertise Management',
+    }
+    
+    return render(request, 'parameters/admin/skills_expertise_management.html', context)
 
 
 # ===============================================================

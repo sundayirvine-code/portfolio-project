@@ -21,327 +21,810 @@
 {% endblock %}
 
 {% block admin_content %}
-<div class="row">
-    <div class="col-lg-8">
-        <div class="card">
-            <div class="card-header">
+<div class="row h-100">
+    <!-- Left Column: Form Management -->
+    <div class="col-lg-8 col-xl-9">
+        <div class="card h-100 d-flex flex-column">
+            <div class="card-header bg-gradient-success text-white">
                 <div class="d-flex justify-content-between align-items-center">
-                    <h6 class="mb-0"><i class="bi bi-bar-chart me-2"></i>Fun Facts</h6>
-                    <button type="button" class="btn btn-sm btn-outline-primary" onclick="addFunFact()">
-                        <i class="bi bi-plus me-1"></i>Add Fact
-                    </button>
+                    <h5 class="mb-0">
+                        <i class="bi bi-bar-chart me-2"></i>Fun Facts Management
+                    </h5>
+                    <div class="d-flex gap-2">
+                        <button type="button" class="btn btn-light btn-sm" id="add-fact">
+                            <i class="bi bi-plus me-1"></i>Add Fact
+                        </button>
+                        <button type="button" class="btn btn-outline-light btn-sm" id="clear-all-facts">
+                            <i class="bi bi-trash me-1"></i>Clear All
+                        </button>
+                    </div>
                 </div>
             </div>
             
-            <form method="post" class="needs-validation" novalidate>
-                {% csrf_token %}
-                <div class="card-body">
-                    <div id="fun-facts-container">
-                        {% for fact in fun_facts_data %}
-                        <div class="fun-fact-item border rounded p-3 mb-3" data-index="{{ forloop.counter0 }}">
-                            <div class="d-flex justify-content-between align-items-start mb-3">
-                                <h6 class="mb-0">Fact {{ forloop.counter }}</h6>
-                                <button type="button" class="btn btn-sm btn-outline-danger" onclick="removeFunFact(this)">
-                                    <i class="bi bi-trash"></i>
+            <div class="card-body flex-grow-1 d-flex flex-column">
+                <!-- Instructions Banner -->
+                <div class="alert alert-success border-0 mb-3">
+                    <div class="d-flex">
+                        <i class="bi bi-graph-up me-3 fs-5 text-warning"></i>
+                        <div>
+                            <h6 class="alert-heading mb-1">Quick Tips</h6>
+                            <small>Add impressive statistics about your career. Use numbers that showcase your experience and achievements with animated counters.</small>
+                        </div>
+                    </div>
+                </div>
+                
+                <form method="post" class="fun-facts-form flex-grow-1 d-flex flex-column" novalidate>
+                    {% csrf_token %}
+                    
+                    <!-- Scrollable Facts Container -->
+                    <div class="flex-grow-1 overflow-auto" style="max-height: 60vh;">
+                        <div id="facts-container" class="pe-2">
+                            <!-- Facts will be loaded here dynamically -->
+                        </div>
+                    </div>
+                    
+                    <!-- Hidden textarea for form submission -->
+                    {{ form.facts_data }}
+                    
+                    <!-- Fixed Footer Actions -->
+                    <div class="border-top pt-3 mt-3">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <a href="{% url 'parameters:dashboard' %}" class="btn btn-outline-secondary">
+                                    <i class="bi bi-arrow-left me-2"></i>Back to Dashboard
+                                </a>
+                            </div>
+                            <div class="d-flex gap-2">
+                                <button type="button" class="btn btn-outline-success" id="facts-preview-toggle">
+                                    <i class="bi bi-eye me-2"></i>Toggle Preview
+                                </button>
+                                <button type="submit" class="btn btn-success">
+                                    <i class="bi bi-check-circle me-2"></i>Save Changes
                                 </button>
                             </div>
-                            
-                            <div class="row g-3">
-                                <div class="col-md-5">
-                                    <div class="form-floating">
-                                        <input type="text" 
-                                               class="form-control" 
-                                               name="fact_{{ forloop.counter0 }}_label" 
-                                               id="fact_{{ forloop.counter0 }}_label"
-                                               value="{{ fact.label|default:'' }}"
-                                               placeholder="e.g., Cups of Coffee"
-                                               required>
-                                        <label for="fact_{{ forloop.counter0 }}_label">Label</label>
-                                    </div>
-                                </div>
-                                <div class="col-md-3">
-                                    <div class="form-floating">
-                                        <input type="number" 
-                                               class="form-control" 
-                                               name="fact_{{ forloop.counter0 }}_value" 
-                                               id="fact_{{ forloop.counter0 }}_value"
-                                               value="{{ fact.value|default:'0' }}"
-                                               min="0"
-                                               placeholder="500"
-                                               required>
-                                        <label for="fact_{{ forloop.counter0 }}_value">Value</label>
-                                    </div>
-                                </div>
-                                <div class="col-md-4">
-                                    <div class="form-floating">
-                                        <select class="form-select" 
-                                                name="fact_{{ forloop.counter0 }}_color" 
-                                                id="fact_{{ forloop.counter0 }}_color">
-                                            <option value="primary" {% if fact.color == 'primary' %}selected{% endif %}>Blue</option>
-                                            <option value="success" {% if fact.color == 'success' %}selected{% endif %}>Green</option>
-                                            <option value="warning" {% if fact.color == 'warning' %}selected{% endif %}>Yellow</option>
-                                            <option value="danger" {% if fact.color == 'danger' %}selected{% endif %}>Red</option>
-                                            <option value="info" {% if fact.color == 'info' %}selected{% endif %}>Cyan</option>
-                                            <option value="secondary" {% if fact.color == 'secondary' %}selected{% endif %}>Gray</option>
-                                        </select>
-                                        <label for="fact_{{ forloop.counter0 }}_color">Color</label>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <!-- Preview -->
-                            <div class="mt-3 p-3 bg-light rounded">
-                                <div class="text-center fun-fact-preview">
-                                    <h3 class="display-6 fw-bold text-{{ fact.color|default:'primary' }} mb-2">{{ fact.value|default:'0' }}</h3>
-                                    <p class="text-muted mb-0">{{ fact.label|default:'Label' }}</p>
-                                </div>
-                            </div>
-                        </div>
-                        {% empty %}
-                        <div class="text-center py-4">
-                            <i class="bi bi-bar-chart display-4 text-muted mb-3"></i>
-                            <h6 class="text-muted mb-2">No Fun Facts Yet</h6>
-                            <p class="text-muted small mb-3">Add some interesting statistics about yourself</p>
-                            <button type="button" class="btn btn-primary" onclick="addFunFact()">
-                                <i class="bi bi-plus me-2"></i>Add Your First Fact
-                            </button>
-                        </div>
-                        {% endfor %}
-                    </div>
-                </div>
-
-                <div class="card-footer">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <a href="{% url 'parameters:comprehensive_settings' %}" class="btn btn-outline-secondary">
-                            <i class="bi bi-arrow-left me-2"></i>Back to Settings
-                        </a>
-                        <div>
-                            <button type="submit" class="btn btn-success">
-                                <i class="bi bi-check-lg me-2"></i>Save Fun Facts
-                            </button>
                         </div>
                     </div>
-                </div>
-            </form>
+                </form>
+            </div>
         </div>
     </div>
     
-    <div class="col-lg-4">
-        <!-- Help Card -->
-        <div class="card">
-            <div class="card-header">
-                <h6 class="mb-0"><i class="bi bi-lightbulb me-2"></i>Tips</h6>
+    <!-- Right Column: Live Preview & Tips -->
+    <div class="col-lg-4 col-xl-3">
+        <div class="card h-100 sticky-top" style="top: 1rem;">
+            <div class="card-header bg-light">
+                <h6 class="mb-0 text-muted">
+                    <i class="bi bi-eye me-2"></i>Live Preview
+                </h6>
             </div>
-            <div class="card-body">
-                <div class="mb-3">
-                    <h6 class="small text-uppercase text-muted mb-2">Good Examples</h6>
-                    <ul class="list-unstyled small text-muted">
-                        <li class="mb-2">
-                            <strong>Cups of Coffee:</strong> 2,847
-                        </li>
-                        <li class="mb-2">
-                            <strong>Projects Completed:</strong> 87
-                        </li>
-                        <li class="mb-2">
-                            <strong>Hours of Coding:</strong> 10,000+
-                        </li>
-                        <li class="mb-2">
-                            <strong>Happy Clients:</strong> 156
-                        </li>
-                    </ul>
-                </div>
-                
-                <div class="mb-3">
-                    <h6 class="small text-uppercase text-muted mb-2">Color Guide</h6>
-                    <div class="d-flex flex-wrap gap-2">
-                        <span class="badge bg-primary">Blue - Professional</span>
-                        <span class="badge bg-success">Green - Growth</span>
-                        <span class="badge bg-warning text-dark">Yellow - Energy</span>
-                        <span class="badge bg-danger">Red - Passion</span>
-                        <span class="badge bg-info">Cyan - Tech</span>
-                        <span class="badge bg-secondary">Gray - Neutral</span>
+            <div class="card-body overflow-auto" style="max-height: 40vh;">
+                <div id="facts-preview">
+                    <div class="text-center text-muted py-5">
+                        <i class="bi bi-bar-chart fs-1 mb-3 opacity-50"></i>
+                        <p class="small">Add facts to see preview</p>
                     </div>
                 </div>
-                
-                <div class="alert alert-info">
-                    <i class="bi bi-info-circle me-2"></i>
-                    <small>Fun facts display with animated counters that count up when visitors scroll to them.</small>
-                </div>
             </div>
-        </div>
-        
-        <!-- Current Data Card -->
-        {% if fun_facts_data %}
-        <div class="card mt-4">
-            <div class="card-header">
-                <h6 class="mb-0"><i class="bi bi-eye me-2"></i>Current Preview</h6>
-            </div>
-            <div class="card-body">
-                <div class="row g-3 text-center">
-                    {% for fact in fun_facts_data %}
-                    <div class="col-6">
-                        <div class="p-2 border rounded">
-                            <h5 class="text-{{ fact.color|default:'primary' }} mb-1">{{ fact.value }}</h5>
-                            <small class="text-muted">{{ fact.label }}</small>
+            
+            <!-- Tips Section -->
+            <div class="card-footer bg-light">
+                <div class="mb-3">
+                    <h6 class="small text-uppercase text-muted mb-2">Examples</h6>
+                    <div class="small text-muted">
+                        <div class="d-flex justify-content-between mb-1">
+                            <span>Projects:</span> <strong class="text-success">87</strong>
+                        </div>
+                        <div class="d-flex justify-content-between mb-1">
+                            <span>Coffee Cups:</span> <strong class="text-warning">2,847</strong>
+                        </div>
+                        <div class="d-flex justify-content-between mb-1">
+                            <span>Happy Clients:</span> <strong class="text-primary">156</strong>
+                        </div>
+                        <div class="d-flex justify-content-between">
+                            <span>Code Hours:</span> <strong class="text-info">10,000+</strong>
                         </div>
                     </div>
-                    {% endfor %}
                 </div>
+                
+                <div class="mb-3">
+                    <h6 class="small text-uppercase text-muted mb-2">Colors</h6>
+                    <div class="d-flex flex-wrap gap-1">
+                        <span class="badge bg-primary" style="font-size: 0.65rem;">Blue</span>
+                        <span class="badge bg-success" style="font-size: 0.65rem;">Green</span>
+                        <span class="badge bg-warning text-dark" style="font-size: 0.65rem;">Yellow</span>
+                        <span class="badge bg-danger" style="font-size: 0.65rem;">Red</span>
+                        <span class="badge bg-info" style="font-size: 0.65rem;">Cyan</span>
+                        <span class="badge bg-secondary" style="font-size: 0.65rem;">Gray</span>
+                    </div>
+                </div>
+                
+                <small class="text-muted">
+                    <i class="bi bi-info-circle me-1"></i>
+                    Counters animate on scroll
+                </small>
             </div>
         </div>
-        {% endif %}
     </div>
 </div>
+
+<!-- Custom Styles for Enhanced Layout -->
+<style>
+/* Header gradients with proper contrast */
+.bg-gradient-success {
+    background: linear-gradient(135deg, var(--bs-success) 0%, var(--bs-info) 100%) !important;
+    color: #ffffff !important;
+}
+
+[data-bs-theme="dark"] .bg-gradient-success {
+    background: linear-gradient(135deg, #198754 0%, #0dcaf0 100%) !important;
+    color: #ffffff !important;
+}
+
+/* Card styling with proper contrast */
+.card {
+    border: none;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.04), 0 8px 16px rgba(0,0,0,0.04);
+    background: var(--bs-body-bg);
+    color: var(--bs-body-color);
+}
+
+[data-bs-theme="dark"] .card {
+    background: rgba(255, 255, 255, 0.05) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    color: #e9ecef !important;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2), 0 8px 16px rgba(0,0,0,0.2) !important;
+}
+
+/* Card headers */
+.card-header {
+    background: var(--bs-light) !important;
+    border-bottom: 1px solid var(--bs-border-color);
+    color: var(--bs-dark) !important;
+}
+
+[data-bs-theme="dark"] .card-header {
+    background: #ffffff !important;
+    border-bottom: 1px solid var(--bs-border-color) !important;
+    color: var(--bs-dark) !important;
+}
+
+/* Ensure card header text is always dark for white background */
+.card-header h6,
+.card-header .text-muted {
+    color: var(--bs-dark) !important;
+}
+
+[data-bs-theme="dark"] .card-header h6,
+[data-bs-theme="dark"] .card-header .text-muted {
+    color: var(--bs-dark) !important;
+}
+
+/* Card footers */
+.card-footer {
+    background: var(--bs-light) !important;
+    border-top: 1px solid var(--bs-border-color);
+    color: var(--bs-body-color) !important;
+}
+
+[data-bs-theme="dark"] .card-footer {
+    background: rgba(255, 255, 255, 0.05) !important;
+    border-top: 1px solid rgba(255, 255, 255, 0.15) !important;
+    color: #adb5bd !important;
+}
+
+/* Fact items with enhanced contrast */
+.fact-item {
+    transition: all 0.2s ease;
+    border: 1px solid var(--bs-border-color) !important;
+    background: #ffffff !important;
+    color: var(--bs-dark) !important;
+}
+
+.fact-item:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1) !important;
+    border-color: var(--bs-success) !important;
+}
+
+[data-bs-theme="dark"] .fact-item {
+    background: #ffffff !important;
+    border: 1px solid var(--bs-border-color) !important;
+    color: var(--bs-dark) !important;
+}
+
+[data-bs-theme="dark"] .fact-item:hover {
+    background: #ffffff !important;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2) !important;
+    border-color: var(--bs-success) !important;
+}
+
+/* Fact item titles and text */
+.fact-item h6,
+.fact-item .fw-semibold {
+    color: var(--bs-dark) !important;
+}
+
+[data-bs-theme="dark"] .fact-item h6,
+[data-bs-theme="dark"] .fact-item .fw-semibold {
+    color: var(--bs-dark) !important;
+}
+
+/* Form labels and text */
+.fact-item .form-label {
+    color: var(--bs-dark) !important;
+    font-weight: 500;
+}
+
+[data-bs-theme="dark"] .fact-item .form-label {
+    color: var(--bs-dark) !important;
+}
+
+/* Form controls */
+.fact-item .form-control,
+.fact-item .form-select {
+    background: #ffffff !important;
+    border: 1px solid var(--bs-border-color) !important;
+    color: var(--bs-dark) !important;
+}
+
+.fact-item .form-control:focus,
+.fact-item .form-select:focus {
+    border-color: var(--bs-success) !important;
+    box-shadow: 0 0 0 0.25rem rgba(var(--bs-success-rgb), 0.25) !important;
+    background: #ffffff !important;
+}
+
+[data-bs-theme="dark"] .fact-item .form-control,
+[data-bs-theme="dark"] .fact-item .form-select {
+    background: #ffffff !important;
+    border: 1px solid var(--bs-border-color) !important;
+    color: var(--bs-dark) !important;
+}
+
+[data-bs-theme="dark"] .fact-item .form-control:focus,
+[data-bs-theme="dark"] .fact-item .form-select:focus {
+    background: #ffffff !important;
+    border-color: var(--bs-success) !important;
+    box-shadow: 0 0 0 0.25rem rgba(var(--bs-success-rgb), 0.25) !important;
+}
+
+/* Form text helper */
+.fact-item .form-text {
+    color: #6c757d !important;
+}
+
+[data-bs-theme="dark"] .fact-item .form-text {
+    color: #6c757d !important;
+}
+
+/* Required asterisk */
+.fact-item .text-danger {
+    color: var(--bs-danger) !important;
+}
+
+[data-bs-theme="dark"] .fact-item .text-danger {
+    color: var(--bs-danger) !important;
+}
+
+/* Fact preview styling */
+.fact-preview {
+    background: linear-gradient(135deg, rgba(var(--bs-success-rgb), 0.1), rgba(var(--bs-info-rgb), 0.1)) !important;
+    border: 1px solid rgba(var(--bs-success-rgb), 0.2) !important;
+    color: var(--bs-body-color) !important;
+}
+
+[data-bs-theme="dark"] .fact-preview {
+    background: linear-gradient(135deg, rgba(25, 135, 84, 0.15), rgba(13, 202, 240, 0.15)) !important;
+    border: 1px solid rgba(25, 135, 84, 0.3) !important;
+    color: #e9ecef !important;
+}
+
+/* Alert styling */
+.alert-success {
+    background: rgba(var(--bs-success-rgb), 0.1) !important;
+    border: 1px solid rgba(var(--bs-success-rgb), 0.2) !important;
+    color: var(--bs-success) !important;
+}
+
+[data-bs-theme="dark"] .alert-success {
+    background: rgba(25, 135, 84, 0.15) !important;
+    border: 1px solid rgba(25, 135, 84, 0.3) !important;
+    color: #75b798 !important;
+}
+
+/* Button styling enhancements */
+.btn-light {
+    background: #ffffff !important;
+    border: 1px solid var(--bs-border-color) !important;
+    color: var(--bs-dark) !important;
+}
+
+.btn-light:hover {
+    background: #f8f9fa !important;
+    color: var(--bs-dark) !important;
+}
+
+[data-bs-theme="dark"] .btn-light {
+    background: rgba(255, 255, 255, 0.1) !important;
+    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+    color: #f8f9fa !important;
+}
+
+[data-bs-theme="dark"] .btn-light:hover {
+    background: rgba(255, 255, 255, 0.15) !important;
+    color: #ffffff !important;
+}
+
+.btn-outline-light {
+    border: 1px solid rgba(255, 255, 255, 0.5) !important;
+    color: rgba(255, 255, 255, 0.8) !important;
+}
+
+.btn-outline-light:hover {
+    background: rgba(255, 255, 255, 0.1) !important;
+    color: #ffffff !important;
+}
+
+/* Remove button enhancement */
+.btn-outline-danger {
+    border-color: var(--bs-danger) !important;
+    color: var(--bs-danger) !important;
+}
+
+.btn-outline-danger:hover {
+    background: var(--bs-danger) !important;
+    color: #ffffff !important;
+}
+
+[data-bs-theme="dark"] .btn-outline-danger {
+    border-color: #dc3545 !important;
+    color: #dc3545 !important;
+}
+
+[data-bs-theme="dark"] .btn-outline-danger:hover {
+    background: #dc3545 !important;
+    color: #ffffff !important;
+}
+
+/* Text color fixes */
+.text-muted {
+    color: var(--bs-secondary) !important;
+}
+
+[data-bs-theme="dark"] .text-muted {
+    color: #adb5bd !important;
+}
+
+.text-danger {
+    color: var(--bs-danger) !important;
+}
+
+[data-bs-theme="dark"] .text-danger {
+    color: #ea868f !important;
+}
+
+.text-warning {
+    color: var(--bs-warning) !important;
+}
+
+[data-bs-theme="dark"] .text-warning {
+    color: #ffda6a !important;
+}
+
+/* Border improvements */
+.border-top {
+    border-top-color: var(--bs-border-color) !important;
+}
+
+[data-bs-theme="dark"] .border-top {
+    border-top-color: rgba(255, 255, 255, 0.15) !important;
+}
+
+/* Sticky positioning */
+.sticky-top {
+    z-index: 1020;
+}
+
+/* Responsive adjustments */
+@media (max-width: 991.98px) {
+    .col-lg-4.col-xl-3 .sticky-top {
+        position: relative !important;
+        top: auto !important;
+    }
+    
+    .card-body {
+        max-height: 50vh !important;
+    }
+}
+
+/* Scrollbar styling with theme support */
+.overflow-auto::-webkit-scrollbar {
+    width: 4px;
+}
+
+.overflow-auto::-webkit-scrollbar-track {
+    background: var(--bs-border-color);
+    border-radius: 2px;
+}
+
+.overflow-auto::-webkit-scrollbar-thumb {
+    background: var(--bs-secondary);
+    border-radius: 2px;
+}
+
+.overflow-auto::-webkit-scrollbar-thumb:hover {
+    background: var(--bs-success);
+}
+
+[data-bs-theme="dark"] .overflow-auto::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+[data-bs-theme="dark"] .overflow-auto::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.3);
+}
+
+[data-bs-theme="dark"] .overflow-auto::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.5);
+}
+
+/* Counter preview enhancements */
+.fact-counter-preview {
+    transition: all 0.2s ease;
+    background: var(--bs-body-bg) !important;
+    border: 1px solid var(--bs-border-color) !important;
+    color: var(--bs-body-color) !important;
+}
+
+.fact-counter-preview:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15) !important;
+}
+
+[data-bs-theme="dark"] .fact-counter-preview {
+    background: rgba(255, 255, 255, 0.05) !important;
+    border: 1px solid rgba(255, 255, 255, 0.15) !important;
+    color: #e9ecef !important;
+}
+
+[data-bs-theme="dark"] .fact-counter-preview:hover {
+    background: rgba(255, 255, 255, 0.08) !important;
+    box-shadow: 0 4px 12px rgba(255,255,255,0.15) !important;
+}
+
+/* Icon color fixes */
+[data-bs-theme="dark"] .bi {
+    color: inherit;
+}
+
+/* Ensure proper text contrast in all elements */
+[data-bs-theme="dark"] h1, 
+[data-bs-theme="dark"] h2, 
+[data-bs-theme="dark"] h3, 
+[data-bs-theme="dark"] h4, 
+[data-bs-theme="dark"] h5, 
+[data-bs-theme="dark"] h6 {
+    color: #f8f9fa !important;
+}
+
+[data-bs-theme="dark"] p,
+[data-bs-theme="dark"] span,
+[data-bs-theme="dark"] div {
+    color: #e9ecef;
+}
+
+/* Small text improvements */
+[data-bs-theme="dark"] small {
+    color: #adb5bd !important;
+}
+
+/* Badge improvements for dark mode */
+[data-bs-theme="dark"] .badge {
+    color: #000000 !important;
+}
+
+[data-bs-theme="dark"] .badge.bg-warning {
+    color: #000000 !important;
+}
+
+[data-bs-theme="dark"] .badge.bg-light {
+    color: #000000 !important;
+}
+
+/* Examples section styling */
+.d-flex.justify-content-between .text-success,
+.d-flex.justify-content-between .text-warning,
+.d-flex.justify-content-between .text-primary,
+.d-flex.justify-content-between .text-info {
+    font-weight: 600;
+}
+
+[data-bs-theme="dark"] .d-flex.justify-content-between .text-success {
+    color: #75b798 !important;
+}
+
+[data-bs-theme="dark"] .d-flex.justify-content-between .text-warning {
+    color: #ffda6a !important;
+}
+
+[data-bs-theme="dark"] .d-flex.justify-content-between .text-primary {
+    color: #9ec5fe !important;
+}
+
+[data-bs-theme="dark"] .d-flex.justify-content-between .text-info {
+    color: #9eeaf9 !important;
+}
+</style>
 {% endblock %}
+
 
 {% block extra_js %}
 {{ block.super }}
 <script>
-let factIndex = {{ fun_facts_data|length|default:0 }};
-
-function addFunFact() {
-    const container = document.getElementById('fun-facts-container');
+document.addEventListener('DOMContentLoaded', function() {
+    const container = document.getElementById('facts-container');
+    const addButton = document.getElementById('add-fact');
+    const clearAllButton = document.getElementById('clear-all-facts');
+    const previewToggleButton = document.getElementById('facts-preview-toggle');
+    const hiddenField = document.getElementById('{{ form.facts_data.id_for_label }}');
+    const previewContainer = document.getElementById('facts-preview');
+    const previewColumn = document.querySelector('.col-lg-4.col-xl-3');
     
-    // Remove empty state if it exists
-    const emptyState = container.querySelector('.text-center.py-4');
-    if (emptyState) {
-        emptyState.remove();
-    }
+    // Load existing data
+    loadExistingFacts();
     
-    const factHTML = `
-        <div class="fun-fact-item border rounded p-3 mb-3" data-index="${factIndex}">
-            <div class="d-flex justify-content-between align-items-start mb-3">
-                <h6 class="mb-0">Fact ${factIndex + 1}</h6>
-                <button type="button" class="btn btn-sm btn-outline-danger" onclick="removeFunFact(this)">
-                    <i class="bi bi-trash"></i>
-                </button>
-            </div>
-            
-            <div class="row g-3">
-                <div class="col-md-5">
-                    <div class="form-floating">
-                        <input type="text" 
-                               class="form-control" 
-                               name="fact_${factIndex}_label" 
-                               id="fact_${factIndex}_label"
-                               placeholder="e.g., Cups of Coffee"
-                               required
-                               oninput="updatePreview(this)">
-                        <label for="fact_${factIndex}_label">Label</label>
-                    </div>
-                </div>
-                <div class="col-md-3">
-                    <div class="form-floating">
-                        <input type="number" 
-                               class="form-control" 
-                               name="fact_${factIndex}_value" 
-                               id="fact_${factIndex}_value"
-                               min="0"
-                               placeholder="500"
-                               required
-                               oninput="updatePreview(this)">
-                        <label for="fact_${factIndex}_value">Value</label>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="form-floating">
-                        <select class="form-select" 
-                                name="fact_${factIndex}_color" 
-                                id="fact_${factIndex}_color"
-                                onchange="updatePreview(this)">
-                            <option value="primary">Blue</option>
-                            <option value="success">Green</option>
-                            <option value="warning">Yellow</option>
-                            <option value="danger">Red</option>
-                            <option value="info">Cyan</option>
-                            <option value="secondary">Gray</option>
-                        </select>
-                        <label for="fact_${factIndex}_color">Color</label>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Preview -->
-            <div class="mt-3 p-3 bg-light rounded">
-                <div class="text-center fun-fact-preview">
-                    <h3 class="display-6 fw-bold text-primary mb-2">0</h3>
-                    <p class="text-muted mb-0">Label</p>
-                </div>
-            </div>
-        </div>
-    `;
+    // Add fact button
+    addButton.addEventListener('click', function() {
+        addFactItem();
+        // Scroll to the new item
+        setTimeout(() => {
+            const newItem = container.lastElementChild;
+            if (newItem) {
+                newItem.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                newItem.querySelector('input').focus();
+            }
+        }, 100);
+    });
     
-    container.insertAdjacentHTML('beforeend', factHTML);
-    factIndex++;
+    // Clear all button
+    clearAllButton.addEventListener('click', function() {
+        if (confirm('Are you sure you want to clear all fun facts? This action cannot be undone.')) {
+            container.innerHTML = '';
+            updatePreview();
+            updateHiddenField();
+            addFactItem(); // Add one empty item
+        }
+    });
     
-    // Focus on the new label input
-    document.getElementById(`fact_${factIndex - 1}_label`).focus();
-}
-
-function removeFunFact(button) {
-    if (confirm('Are you sure you want to remove this fun fact?')) {
-        const factItem = button.closest('.fun-fact-item');
-        factItem.remove();
-        
-        // Re-number remaining facts
-        renumberFacts();
-        
-        // Add empty state if no facts remain
-        const container = document.getElementById('fun-facts-container');
-        if (container.children.length === 0) {
-            addEmptyState();
+    // Preview toggle button (for mobile)
+    previewToggleButton.addEventListener('click', function() {
+        if (window.innerWidth <= 991.98) {
+            previewColumn.style.display = previewColumn.style.display === 'none' ? 'block' : 'none';
+            this.innerHTML = previewColumn.style.display === 'none' ? 
+                '<i class="bi bi-eye me-2"></i>Show Preview' : 
+                '<i class="bi bi-eye-slash me-2"></i>Hide Preview';
+        }
+    });
+    
+    // Form submission
+    document.querySelector('.fun-facts-form').addEventListener('submit', function() {
+        updateHiddenField();
+    });
+    
+    function loadExistingFacts() {
+        try {
+            const existingData = hiddenField.value ? JSON.parse(hiddenField.value) : [];
+            if (existingData.length > 0) {
+                existingData.forEach(fact => {
+                    addFactItem(fact);
+                });
+            } else {
+                // Add empty item if none exist
+                addFactItem();
+            }
+        } catch (e) {
+            console.error('Error parsing existing data:', e);
+            addFactItem();
         }
     }
-}
-
-function renumberFacts() {
-    const facts = document.querySelectorAll('.fun-fact-item');
-    facts.forEach((fact, index) => {
-        const title = fact.querySelector('h6');
-        title.textContent = `Fact ${index + 1}`;
-        fact.dataset.index = index;
-    });
-}
-
-function addEmptyState() {
-    const container = document.getElementById('fun-facts-container');
-    const emptyHTML = `
-        <div class="text-center py-4">
-            <i class="bi bi-bar-chart display-4 text-muted mb-3"></i>
-            <h6 class="text-muted mb-2">No Fun Facts Yet</h6>
-            <p class="text-muted small mb-3">Add some interesting statistics about yourself</p>
-            <button type="button" class="btn btn-primary" onclick="addFunFact()">
-                <i class="bi bi-plus me-2"></i>Add Your First Fact
-            </button>
-        </div>
-    `;
-    container.innerHTML = emptyHTML;
-}
-
-function updatePreview(input) {
-    const factItem = input.closest('.fun-fact-item');
-    const preview = factItem.querySelector('.fun-fact-preview');
-    const index = factItem.dataset.index;
     
-    const label = factItem.querySelector(`[name="fact_${index}_label"]`).value || 'Label';
-    const value = factItem.querySelector(`[name="fact_${index}_value"]`).value || '0';
-    const color = factItem.querySelector(`[name="fact_${index}_color"]`).value || 'primary';
+    function addFactItem(data = null) {
+        // Create fact item HTML directly
+        const factHtml = `
+            <div class="fact-item border rounded p-3 mb-3">
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                    <h6 class="mb-0 fw-semibold">Fun Fact</h6>
+                    <button type="button" class="btn btn-outline-danger btn-sm remove-fact">
+                        <i class="bi bi-trash"></i>
+                    </button>
+                </div>
+                
+                <div class="row g-3">
+                    <div class="col-md-5">
+                        <label class="form-label">Label <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control fact-label" placeholder="e.g., Projects Completed" value="${data ? data.label || '' : ''}" required>
+                    </div>
+                    
+                    <div class="col-md-3">
+                        <label class="form-label">Value <span class="text-danger">*</span></label>
+                        <input type="number" class="form-control fact-value" placeholder="87" min="0" value="${data ? data.value || '' : ''}" required>
+                    </div>
+                    
+                    <div class="col-md-4">
+                        <label class="form-label">Color</label>
+                        <select class="form-select fact-color">
+                            <option value="primary" ${data && data.color === 'primary' ? 'selected' : ''}>Primary (Blue)</option>
+                            <option value="secondary" ${data && data.color === 'secondary' ? 'selected' : ''}>Secondary (Gray)</option>
+                            <option value="success" ${data && data.color === 'success' ? 'selected' : ''}>Success (Green)</option>
+                            <option value="info" ${data && data.color === 'info' ? 'selected' : ''}>Info (Cyan)</option>
+                            <option value="warning" ${data && data.color === 'warning' ? 'selected' : ''}>Warning (Yellow)</option>
+                            <option value="danger" ${data && data.color === 'danger' ? 'selected' : ''}>Danger (Red)</option>
+                        </select>
+                    </div>
+                    
+                    <div class="col-12">
+                        <label class="form-label">Icon <small class="text-muted">(optional)</small></label>
+                        <input type="text" class="form-control fact-icon" placeholder="e.g., bar-chart, graph-up" value="${data ? data.icon || '' : ''}">
+                        <div class="form-text">Bootstrap icon name without 'bi-' prefix</div>
+                    </div>
+                </div>
+                
+                <!-- Inline Preview -->
+                <div class="mt-3 p-3 fact-preview rounded">
+                    <div class="text-center">
+                        <div class="mb-2">
+                            <i class="bi bi-star fs-4 text-primary fact-preview-icon"></i>
+                        </div>
+                        <h5 class="fw-bold text-primary mb-1 fact-preview-value">0</h5>
+                        <small class="text-muted fact-preview-label">Label</small>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        // Add the HTML to container
+        container.insertAdjacentHTML('beforeend', factHtml);
+        
+        // Get the newly added item
+        const item = container.lastElementChild;
+        
+        // Add event listeners
+        const removeBtn = item.querySelector('.remove-fact');
+        removeBtn.addEventListener('click', function() {
+            item.remove();
+            updatePreview();
+            updateHiddenField();
+        });
+        
+        // Add input listeners for live preview
+        const inputs = item.querySelectorAll('input, select');
+        inputs.forEach(input => {
+            input.addEventListener('input', function() {
+                updateItemPreview(item);
+                updatePreview();
+            });
+            input.addEventListener('change', function() {
+                updateItemPreview(item);
+                updatePreview();
+            });
+        });
+        
+        updateItemPreview(item);
+        updatePreview();
+    }
     
-    const valueElement = preview.querySelector('h3');
-    const labelElement = preview.querySelector('p');
+    function updateItemPreview(item) {
+        const label = item.querySelector('.fact-label').value.trim() || 'Label';
+        const value = item.querySelector('.fact-value').value.trim() || '0';
+        const color = item.querySelector('.fact-color').value;
+        const icon = item.querySelector('.fact-icon').value.trim() || 'star';
+        
+        const previewIcon = item.querySelector('.fact-preview-icon');
+        const previewValue = item.querySelector('.fact-preview-value');
+        const previewLabel = item.querySelector('.fact-preview-label');
+        
+        previewIcon.className = `bi bi-${icon} fs-4 text-${color} fact-preview-icon`;
+        previewValue.textContent = value;
+        previewValue.className = `fw-bold text-${color} mb-1 fact-preview-value`;
+        previewLabel.textContent = label;
+    }
     
-    valueElement.textContent = value;
-    valueElement.className = `display-6 fw-bold text-${color} mb-2`;
-    labelElement.textContent = label;
-}
-
-// Add input listeners to existing facts
-document.addEventListener('DOMContentLoaded', function() {
-    const inputs = document.querySelectorAll('.fun-fact-item input, .fun-fact-item select');
-    inputs.forEach(input => {
-        input.addEventListener('input', () => updatePreview(input));
-        input.addEventListener('change', () => updatePreview(input));
-    });
+    function updateHiddenField() {
+        const facts = [];
+        container.querySelectorAll('.fact-item').forEach(item => {
+            const label = item.querySelector('.fact-label').value.trim();
+            const value = item.querySelector('.fact-value').value.trim();
+            const color = item.querySelector('.fact-color').value;
+            const icon = item.querySelector('.fact-icon').value.trim();
+            
+            if (label && value) {
+                facts.push({
+                    label: label,
+                    value: parseInt(value) || 0,
+                    color: color,
+                    icon: icon || 'star'
+                });
+            }
+        });
+        
+        hiddenField.value = JSON.stringify(facts);
+    }
+    
+    function updatePreview() {
+        const facts = [];
+        container.querySelectorAll('.fact-item').forEach(item => {
+            const label = item.querySelector('.fact-label').value.trim();
+            const value = item.querySelector('.fact-value').value.trim();
+            const color = item.querySelector('.fact-color').value;
+            const icon = item.querySelector('.fact-icon').value.trim();
+            
+            if (label && value) {
+                facts.push({
+                    label: label,
+                    value: parseInt(value) || 0,
+                    color: color,
+                    icon: icon || 'star'
+                });
+            }
+        });
+        
+        if (facts.length === 0) {
+            previewContainer.innerHTML = `
+                <div class="text-center text-muted py-5">
+                    <i class="bi bi-bar-chart fs-1 mb-3 opacity-50"></i>
+                    <p class="small">Add facts to see preview</p>
+                </div>
+            `;
+            return;
+        }
+        
+        previewContainer.innerHTML = facts.map((fact, index) => `
+            <div class="mb-3">
+                <div class="text-center p-3 border rounded fact-counter-preview" style="animation: fadeInUp 0.3s ease ${index * 0.1}s both;">
+                    <div class="mb-2">
+                        <i class="bi bi-${fact.icon} fs-4 text-${fact.color}"></i>
+                    </div>
+                    <h4 class="fw-bold text-${fact.color} mb-1">${fact.value}</h4>
+                    <small class="text-muted">${fact.label}</small>
+                </div>
+            </div>
+        `).join('');
+        
+        // Add animation keyframes if not already added
+        if (!document.getElementById('facts-preview-animations')) {
+            const style = document.createElement('style');
+            style.id = 'facts-preview-animations';
+            style.textContent = `
+                @keyframes fadeInUp {
+                    from {
+                        opacity: 0;
+                        transform: translateY(20px);
+                    }
+                    to {
+                        opacity: 1;
+                        transform: translateY(0);
+                    }
+                }
+                
+                .fact-counter-preview {
+                    transition: all 0.2s ease;
+                    background: var(--bs-body-bg);
+                    border: 1px solid var(--bs-border-color) !important;
+                }
+                
+                .fact-counter-preview:hover {
+                    transform: translateY(-2px);
+                    box-shadow: 0 4px 12px rgba(0,0,0,0.15) !important;
+                }
+                
+                [data-bs-theme="dark"] .fact-counter-preview {
+                    background: rgba(255, 255, 255, 0.05) !important;
+                    border-color: rgba(255, 255, 255, 0.1) !important;
+                }
+            `;
+            document.head.appendChild(style);
+        }
+    }
 });
 </script>
 {% endblock %}

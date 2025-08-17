@@ -25,28 +25,28 @@
                     <h6 class="fw-semibold mb-2">Follow Me</h6>
                     <div class="d-flex gap-3">
                         {% if site_settings.github_url %}
-                        <a href="{{ site_settings.github_url }}" class="text-light fs-4" target="_blank" rel="noopener noreferrer"
+                        <a href="{{ site_settings.github_url }}" class="text-light fs-4 social-link" target="_blank" rel="noopener noreferrer"
                            data-bs-toggle="tooltip" title="GitHub">
                             <i class="bi bi-github"></i>
                         </a>
                         {% endif %}
                         
                         {% if site_settings.linkedin_url %}
-                        <a href="{{ site_settings.linkedin_url }}" class="text-light fs-4" target="_blank" rel="noopener noreferrer"
+                        <a href="{{ site_settings.linkedin_url }}" class="text-light fs-4 social-link" target="_blank" rel="noopener noreferrer"
                            data-bs-toggle="tooltip" title="LinkedIn">
                             <i class="bi bi-linkedin"></i>
                         </a>
                         {% endif %}
                         
                         {% if site_settings.twitter_url %}
-                        <a href="{{ site_settings.twitter_url }}" class="text-light fs-4" target="_blank" rel="noopener noreferrer"
+                        <a href="{{ site_settings.twitter_url }}" class="text-light fs-4 social-link" target="_blank" rel="noopener noreferrer"
                            data-bs-toggle="tooltip" title="Twitter">
                             <i class="bi bi-twitter"></i>
                         </a>
                         {% endif %}
                         
                         {% if site_settings.instagram_url %}
-                        <a href="{{ site_settings.instagram_url }}" class="text-light fs-4" target="_blank" rel="noopener noreferrer"
+                        <a href="{{ site_settings.instagram_url }}" class="text-light fs-4 social-link" target="_blank" rel="noopener noreferrer"
                            data-bs-toggle="tooltip" title="Instagram">
                             <i class="bi bi-instagram"></i>
                         </a>
@@ -61,22 +61,22 @@
                 <h6 class="fw-semibold mb-3">Quick Links</h6>
                 <ul class="list-unstyled">
                     <li class="mb-2">
-                        <a href="{% url 'portfolio:home' %}" class="text-muted text-decoration-none hover-primary">
+                        <a href="{% url 'portfolio:home' %}" class="footer-link text-decoration-none">
                             <i class="bi bi-chevron-right me-1 small"></i>Home
                         </a>
                     </li>
                     <li class="mb-2">
-                        <a href="{% url 'portfolio:about' %}" class="text-muted text-decoration-none hover-primary">
+                        <a href="{% url 'portfolio:about' %}" class="footer-link text-decoration-none">
                             <i class="bi bi-chevron-right me-1 small"></i>About
                         </a>
                     </li>
                     <li class="mb-2">
-                        <a href="{% url 'portfolio:projects' %}" class="text-muted text-decoration-none hover-primary">
+                        <a href="{% url 'portfolio:projects' %}" class="footer-link text-decoration-none">
                             <i class="bi bi-chevron-right me-1 small"></i>Projects
                         </a>
                     </li>
                     <li class="mb-2">
-                        <a href="{% url 'portfolio:services' %}" class="text-muted text-decoration-none hover-primary">
+                        <a href="{% url 'portfolio:services' %}" class="footer-link text-decoration-none">
                             <i class="bi bi-chevron-right me-1 small"></i>Services
                         </a>
                     </li>
@@ -117,7 +117,7 @@
                 {% if site_settings.email %}
                 <div class="mb-2">
                     <i class="bi bi-envelope me-2 text-primary"></i>
-                    <a href="mailto:{{ site_settings.email }}" class="text-muted text-decoration-none hover-primary">
+                    <a href="mailto:{{ site_settings.email }}" class="footer-link text-decoration-none">
                         {{ site_settings.email }}
                     </a>
                 </div>
@@ -126,7 +126,7 @@
                 {% if site_settings.phone %}
                 <div class="mb-2">
                     <i class="bi bi-telephone me-2 text-primary"></i>
-                    <a href="tel:{{ site_settings.phone }}" class="text-muted text-decoration-none hover-primary">
+                    <a href="tel:{{ site_settings.phone }}" class="footer-link text-decoration-none">
                         {{ site_settings.phone }}
                     </a>
                 </div>
@@ -175,8 +175,8 @@
             </div>
             <div class="col-md-6 text-md-end">
                 <div class="d-flex justify-content-md-end gap-3 mt-2 mt-md-0">
-                    <a href="#" class="text-muted text-decoration-none hover-primary small">Privacy Policy</a>
-                    <a href="#" class="text-muted text-decoration-none hover-primary small">Terms of Service</a>
+                    <a href="#" class="footer-link text-decoration-none small">Privacy Policy</a>
+                    <a href="#" class="footer-link text-decoration-none small">Terms of Service</a>
                     <span class="text-muted small">
                         Built with 
                         <i class="bi bi-heart-fill text-danger"></i> 
@@ -223,3 +223,58 @@
         </div>
     </div>
 </div>
+
+<style>
+/* Footer Contrast Fixes for Dark/Light Mode */
+.footer-link {
+    color: #adb5bd;
+    transition: color 0.2s ease;
+}
+
+.footer-link:hover {
+    color: var(--bs-primary, #0d6efd);
+}
+
+.social-link {
+    transition: all 0.2s ease;
+}
+
+.social-link:hover {
+    color: var(--bs-primary, #0d6efd) !important;
+    transform: translateY(-2px);
+}
+
+/* Dark mode improvements */
+[data-bs-theme="dark"] .footer-link {
+    color: #adb5bd;
+}
+
+[data-bs-theme="dark"] .footer-link:hover {
+    color: #ffffff;
+}
+
+[data-bs-theme="dark"] .social-link {
+    color: #adb5bd !important;
+}
+
+[data-bs-theme="dark"] .social-link:hover {
+    color: #ffffff !important;
+}
+
+/* Light mode improvements */
+[data-bs-theme="light"] .footer-link {
+    color: #6c757d;
+}
+
+[data-bs-theme="light"] .footer-link:hover {
+    color: var(--bs-primary, #0d6efd);
+}
+
+[data-bs-theme="light"] .social-link {
+    color: #f8f9fa !important;
+}
+
+[data-bs-theme="light"] .social-link:hover {
+    color: var(--bs-primary, #0d6efd) !important;
+}
+</style>

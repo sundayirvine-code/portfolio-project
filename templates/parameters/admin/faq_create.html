@@ -1,0 +1,181 @@
+{% extends 'parameters/admin/base_admin.html' %}
+{% load static %}
+
+{% block breadcrumb %}
+<li class="breadcrumb-item">
+    <a href="{% url 'parameters:faq_list' %}">FAQ Management</a>
+</li>
+<li class="breadcrumb-item active" aria-current="page">Add FAQ</li>
+{% endblock %}
+
+{% block page_description %}
+<p class="text-muted mb-0">Add a new frequently asked question to your portfolio</p>
+{% endblock %}
+
+{% block page_actions %}
+<div>
+    <a href="{% url 'parameters:faq_list' %}" class="btn btn-secondary">
+        <i class="bi bi-arrow-left me-2"></i>Back to List
+    </a>
+</div>
+{% endblock %}
+
+{% block admin_content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="bi bi-plus-circle me-2"></i>Add FAQ Item
+                </h5>
+            </div>
+            <div class="card-body">
+                <form method="post" novalidate>
+                    {% csrf_token %}
+                    
+                    <div class="row g-3">
+                        <!-- Question -->
+                        <div class="col-12">
+                            <label for="{{ form.question.id_for_label }}" class="form-label">
+                                Question <span class="text-danger">*</span>
+                            </label>
+                            {{ form.question }}
+                            {% if form.question.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.question.errors.0 }}
+                                </div>
+                            {% endif %}
+                            <div class="form-text">Clear and concise question that visitors might ask</div>
+                        </div>
+                        
+                        <!-- Answer -->
+                        <div class="col-12">
+                            <label for="{{ form.answer.id_for_label }}" class="form-label">
+                                Answer <span class="text-danger">*</span>
+                            </label>
+                            {{ form.answer }}
+                            {% if form.answer.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.answer.errors.0 }}
+                                </div>
+                            {% endif %}
+                            <div class="form-text">Detailed answer that addresses the question completely</div>
+                        </div>
+                        
+                        <!-- Category -->
+                        <div class="col-md-6">
+                            <label for="{{ form.category.id_for_label }}" class="form-label">Category</label>
+                            {{ form.category }}
+                            {% if form.category.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.category.errors.0 }}
+                                </div>
+                            {% endif %}
+                            <div class="form-text">Group similar questions together</div>
+                        </div>
+                        
+                        <!-- Display Order -->
+                        <div class="col-md-6">
+                            <label for="{{ form.order.id_for_label }}" class="form-label">Display Order</label>
+                            {{ form.order }}
+                            {% if form.order.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.order.errors.0 }}
+                                </div>
+                            {% endif %}
+                            <div class="form-text">Lower numbers appear first</div>
+                        </div>
+                        
+                        <!-- Options -->
+                        <div class="col-md-6">
+                            <div class="form-check">
+                                {{ form.is_featured }}
+                                <label class="form-check-label" for="{{ form.is_featured.id_for_label }}">
+                                    Featured FAQ
+                                </label>
+                            </div>
+                            <div class="form-text">Show prominently on FAQ section</div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <div class="form-check">
+                                {{ form.is_active }}
+                                <label class="form-check-label" for="{{ form.is_active.id_for_label }}">
+                                    Active
+                                </label>
+                            </div>
+                            <div class="form-text">Display on public portfolio</div>
+                        </div>
+                    </div>
+                    
+                    <div class="d-flex justify-content-between mt-4 pt-3 border-top">
+                        <a href="{% url 'parameters:faq_list' %}" class="btn btn-outline-secondary">
+                            <i class="bi bi-x-circle me-2"></i>Cancel
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-check-circle me-2"></i>Add FAQ
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        <!-- Preview Card -->
+        <div class="card mt-4" id="preview-card" style="display: none;">
+            <div class="card-header">
+                <h6 class="mb-0">
+                    <i class="bi bi-eye me-2"></i>Preview
+                </h6>
+            </div>
+            <div class="card-body">
+                <div class="accordion" id="faqPreview">
+                    <div class="accordion-item">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#previewAnswer">
+                                <span id="preview-question">Your question will appear here</span>
+                            </button>
+                        </h2>
+                        <div id="previewAnswer" class="accordion-collapse collapse show">
+                            <div class="accordion-body">
+                                <p id="preview-answer">Your answer will appear here</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+{{ block.super }}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const questionField = document.getElementById('{{ form.question.id_for_label }}');
+    const answerField = document.getElementById('{{ form.answer.id_for_label }}');
+    const previewCard = document.getElementById('preview-card');
+    const previewQuestion = document.getElementById('preview-question');
+    const previewAnswer = document.getElementById('preview-answer');
+    
+    function updatePreview() {
+        const question = questionField.value.trim();
+        const answer = answerField.value.trim();
+        
+        if (question || answer) {
+            previewCard.style.display = 'block';
+            previewQuestion.textContent = question || 'Your question will appear here';
+            previewAnswer.textContent = answer || 'Your answer will appear here';
+        } else {
+            previewCard.style.display = 'none';
+        }
+    }
+    
+    questionField.addEventListener('input', updatePreview);
+    answerField.addEventListener('input', updatePreview);
+    
+    // Initialize preview
+    updatePreview();
+});
+</script>
+{% endblock %}

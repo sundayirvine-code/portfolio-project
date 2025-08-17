@@ -1,0 +1,233 @@
+{% extends 'parameters/admin/base_admin.html' %}
+{% load static %}
+
+{% block breadcrumb %}
+<li class="breadcrumb-item">
+    <a href="{% url 'parameters:quick_answer_list' %}">Quick Answers</a>
+</li>
+<li class="breadcrumb-item active" aria-current="page">
+    {% if object %}Edit Quick Answer{% else %}Add Quick Answer{% endif %}
+</li>
+{% endblock %}
+
+{% block page_description %}
+<p class="text-muted mb-0">
+    {% if object %}
+        Edit quick answer: {{ object.question|truncatechars:60 }}
+    {% else %}
+        Add a new quick answer for common inquiries
+    {% endif %}
+</p>
+{% endblock %}
+
+{% block page_actions %}
+<div>
+    <a href="{% url 'parameters:quick_answer_list' %}" class="btn btn-secondary">
+        <i class="bi bi-arrow-left me-2"></i>Back to List
+    </a>
+</div>
+{% endblock %}
+
+{% block admin_content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">
+                    <i class="bi bi-{% if object %}pencil{% else %}plus-circle{% endif %} me-2"></i>
+                    {% if object %}Edit{% else %}Add{% endif %} Quick Answer
+                </h5>
+                {% if object %}
+                <div>
+                    <span class="badge bg-{% if object.is_active %}success{% else %}secondary{% endif %}">
+                        {{ object.is_active|yesno:"Active,Inactive" }}
+                    </span>
+                    {% if object.usage_count %}
+                    <span class="badge bg-info">{{ object.usage_count }} uses</span>
+                    {% endif %}
+                </div>
+                {% endif %}
+            </div>
+            <div class="card-body">
+                <form method="post" novalidate>
+                    {% csrf_token %}
+                    
+                    <div class="row g-3">
+                        <!-- Question -->
+                        <div class="col-12">
+                            <label for="{{ form.question.id_for_label }}" class="form-label">
+                                Question <span class="text-danger">*</span>
+                            </label>
+                            {{ form.question }}
+                            {% if form.question.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.question.errors.0 }}
+                                </div>
+                            {% endif %}
+                            <div class="form-text">Short, common question that needs a quick response</div>
+                        </div>
+                        
+                        <!-- Answer -->
+                        <div class="col-12">
+                            <label for="{{ form.answer.id_for_label }}" class="form-label">
+                                Answer <span class="text-danger">*</span>
+                            </label>
+                            {{ form.answer }}
+                            {% if form.answer.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.answer.errors.0 }}
+                                </div>
+                            {% endif %}
+                            <div class="form-text">Brief, helpful answer that addresses the question</div>
+                        </div>
+                        
+                        <!-- Icon -->
+                        <div class="col-md-6">
+                            <label for="{{ form.icon.id_for_label }}" class="form-label">Icon</label>
+                            {{ form.icon }}
+                            {% if form.icon.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.icon.errors.0 }}
+                                </div>
+                            {% endif %}
+                            <div class="form-text">Bootstrap icon class (e.g., bi-clock, bi-question-circle)</div>
+                        </div>
+                        
+                        <!-- Display Order -->
+                        <div class="col-md-6">
+                            <label for="{{ form.order.id_for_label }}" class="form-label">Display Order</label>
+                            {{ form.order }}
+                            {% if form.order.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.order.errors.0 }}
+                                </div>
+                            {% endif %}
+                            <div class="form-text">Lower numbers appear first</div>
+                        </div>
+                        
+                        <!-- Active Status -->
+                        <div class="col-12">
+                            <div class="form-check">
+                                {{ form.is_active }}
+                                <label class="form-check-label" for="{{ form.is_active.id_for_label }}">
+                                    Active
+                                </label>
+                            </div>
+                            <div class="form-text">Show this quick answer to visitors</div>
+                        </div>
+                        
+                        <!-- Usage Statistics -->
+                        {% if object.usage_count %}
+                        <div class="col-12">
+                            <div class="alert alert-info">
+                                <i class="bi bi-graph-up me-2"></i>
+                                This quick answer has been used <strong>{{ object.usage_count }}</strong> time{{ object.usage_count|pluralize }}.
+                                {% if object.last_used %}
+                                Last used: {{ object.last_used|date:"M d, Y H:i" }}
+                                {% endif %}
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="d-flex justify-content-between mt-4 pt-3 border-top">
+                        <div>
+                            <a href="{% url 'parameters:quick_answer_list' %}" class="btn btn-outline-secondary">
+                                <i class="bi bi-x-circle me-2"></i>Cancel
+                            </a>
+                            {% if object %}
+                            <form method="post" action="{% url 'parameters:quick_answer_delete' object.pk %}" class="d-inline ms-2">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-outline-danger" onclick="return confirm('Are you sure you want to delete this quick answer?')">
+                                    <i class="bi bi-trash me-2"></i>Delete
+                                </button>
+                            </form>
+                            {% endif %}
+                        </div>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-check-circle me-2"></i>
+                            {% if object %}Update{% else %}Add{% endif %} Quick Answer
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        <!-- Preview Card -->
+        <div class="card mt-4" id="preview-card" {% if not object %}style="display: none;"{% endif %}>
+            <div class="card-header">
+                <h6 class="mb-0">
+                    <i class="bi bi-eye me-2"></i>Live Preview
+                </h6>
+            </div>
+            <div class="card-body">
+                <div class="d-flex align-items-start">
+                    <div class="flex-shrink-0 me-3">
+                        <i id="preview-icon" class="bi {% if object.icon %}bi-{{ object.icon }}{% else %}bi-question-circle{% endif %} fs-4 text-primary"></i>
+                    </div>
+                    <div class="flex-grow-1">
+                        <h6 id="preview-question" class="mb-2">
+                            {% if object %}{{ object.question }}{% else %}Your question will appear here{% endif %}
+                        </h6>
+                        <p id="preview-answer" class="mb-0 text-muted">
+                            {% if object %}{{ object.answer }}{% else %}Your answer will appear here{% endif %}
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+{{ block.super }}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const questionField = document.getElementById('{{ form.question.id_for_label }}');
+    const answerField = document.getElementById('{{ form.answer.id_for_label }}');
+    const iconField = document.getElementById('{{ form.icon.id_for_label }}');
+    const previewCard = document.getElementById('preview-card');
+    const previewQuestion = document.getElementById('preview-question');
+    const previewAnswer = document.getElementById('preview-answer');
+    const previewIcon = document.getElementById('preview-icon');
+    
+    function updatePreview() {
+        const question = questionField.value.trim();
+        const answer = answerField.value.trim();
+        const icon = iconField.value.trim();
+        
+        if (question || answer) {
+            previewCard.style.display = 'block';
+            previewQuestion.textContent = question || 'Your question will appear here';
+            previewAnswer.textContent = answer || 'Your answer will appear here';
+            
+            // Update icon
+            previewIcon.className = 'fs-4 text-primary';
+            if (icon) {
+                if (icon.startsWith('bi-')) {
+                    previewIcon.classList.add('bi', icon);
+                } else {
+                    previewIcon.classList.add('bi', 'bi-' + icon);
+                }
+            } else {
+                previewIcon.classList.add('bi', 'bi-question-circle');
+            }
+        } else {
+            {% if not object %}
+            previewCard.style.display = 'none';
+            {% endif %}
+        }
+    }
+    
+    questionField.addEventListener('input', updatePreview);
+    answerField.addEventListener('input', updatePreview);
+    iconField.addEventListener('input', updatePreview);
+    
+    // Initialize preview for new items
+    {% if not object %}
+    updatePreview();
+    {% endif %}
+});
+</script>
+{% endblock %}

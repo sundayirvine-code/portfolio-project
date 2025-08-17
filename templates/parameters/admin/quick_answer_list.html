@@ -31,21 +31,16 @@
                 </div>
             </div>
             <div class="col-md-3">
-                <select class="form-select" id="categoryFilter">
-                    <option value="">All Categories</option>
-                    <option value="general">General</option>
-                    <option value="services">Services</option>
-                    <option value="pricing">Pricing</option>
-                    <option value="technical">Technical</option>
-                    <option value="contact">Contact</option>
-                </select>
-            </div>
-            <div class="col-md-3">
                 <select class="form-select" id="statusFilter">
                     <option value="">All Status</option>
                     <option value="active">Active</option>
                     <option value="inactive">Inactive</option>
                 </select>
+            </div>
+            <div class="col-md-3">
+                <div class="text-end">
+                    <small class="text-muted">{{ quick_answers.count }} quick answer{{ quick_answers.count|pluralize }}</small>
+                </div>
             </div>
         </div>
     </div>
@@ -77,8 +72,7 @@
             <thead>
                 <tr>
                     <th>Question</th>
-                    <th>Category</th>
-                    <th>Keywords</th>
+                    <th>Icon</th>
                     <th>Usage</th>
                     <th>Status</th>
                     <th class="text-end">Actions</th>
@@ -94,21 +88,11 @@
                         </div>
                     </td>
                     <td>
-                        <span class="badge bg-{% if answer.category == 'general' %}secondary{% elif answer.category == 'services' %}primary{% elif answer.category == 'pricing' %}success{% elif answer.category == 'technical' %}info{% else %}warning{% endif %}">
-                            {{ answer.get_category_display|default:answer.category|capfirst }}
-                        </span>
-                    </td>
-                    <td>
-                        <div class="keywords-container">
-                            {% if answer.keywords %}
-                                {% for keyword in answer.keywords|slice:":3" %}
-                                <span class="badge bg-light text-dark me-1">{{ keyword }}</span>
-                                {% endfor %}
-                                {% if answer.keywords|length > 3 %}
-                                <span class="badge bg-light text-dark">+{{ answer.keywords|length|add:"-3" }} more</span>
-                                {% endif %}
+                        <div class="text-center">
+                            {% if answer.icon %}
+                            <i class="bi bi-{{ answer.icon }} fs-4 text-primary"></i>
                             {% else %}
-                                <span class="text-muted small">No keywords</span>
+                            <i class="bi bi-question-circle fs-4 text-muted"></i>
                             {% endif %}
                         </div>
                     </td>
@@ -239,9 +223,9 @@
     <div class="col-md-3">
         <div class="card text-center">
             <div class="card-body">
-                <i class="bi bi-tags text-info fs-3"></i>
-                <h4 class="mt-2 mb-0">{{ category_count|default:0 }}</h4>
-                <small class="text-muted">Categories</small>
+                <i class="bi bi-clock text-secondary fs-3"></i>
+                <h4 class="mt-2 mb-0">{{ recent_count|default:0 }}</h4>
+                <small class="text-muted">Recent</small>
             </div>
         </div>
     </div>
@@ -277,12 +261,10 @@
 document.addEventListener('DOMContentLoaded', function() {
     // Search functionality
     const searchInput = document.getElementById('searchInput');
-    const categoryFilter = document.getElementById('categoryFilter');
     const statusFilter = document.getElementById('statusFilter');
     
     function filterTable() {
         const searchTerm = searchInput.value.toLowerCase();
-        const categoryValue = categoryFilter.value.toLowerCase();
         const statusValue = statusFilter.value.toLowerCase();
         
         const rows = document.querySelectorAll('tbody tr');
@@ -290,14 +272,12 @@ document.addEventListener('DOMContentLoaded', function() {
         rows.forEach(row => {
             const question = row.querySelector('td:first-child strong').textContent.toLowerCase();
             const answer = row.querySelector('td:first-child small').textContent.toLowerCase();
-            const category = row.querySelector('td:nth-child(2) .badge').textContent.toLowerCase();
-            const status = row.querySelector('td:nth-child(5) .badge').textContent.toLowerCase();
+            const status = row.querySelector('td:nth-child(4) .badge').textContent.toLowerCase();
             
             const matchesSearch = question.includes(searchTerm) || answer.includes(searchTerm);
-            const matchesCategory = !categoryValue || category.includes(categoryValue);
             const matchesStatus = !statusValue || status.includes(statusValue);
             
-            if (matchesSearch && matchesCategory && matchesStatus) {
+            if (matchesSearch && matchesStatus) {
                 row.style.display = '';
             } else {
                 row.style.display = 'none';
@@ -306,7 +286,6 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     searchInput.addEventListener('input', filterTable);
-    categoryFilter.addEventListener('change', filterTable);
     statusFilter.addEventListener('change', filterTable);
     
     // Row hover effects

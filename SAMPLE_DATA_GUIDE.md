@@ -139,6 +139,156 @@ When I'm not coding, you'll find me exploring new technologies, contributing to 
 ]
 ```
 
+#### Skills & Expertise (JSON Format)
+```json
+[
+  {
+    "name": "Python",
+    "category": "programming",
+    "level": 95,
+    "icon": "code-slash",
+    "color": "primary",
+    "description": "Expert-level proficiency in Python for web development, automation, and data processing"
+  },
+  {
+    "name": "JavaScript",
+    "category": "programming",
+    "level": 90,
+    "icon": "braces",
+    "color": "warning",
+    "description": "Advanced JavaScript including ES6+, async programming, and modern frameworks"
+  },
+  {
+    "name": "TypeScript",
+    "category": "programming",
+    "level": 85,
+    "icon": "code-square",
+    "color": "info",
+    "description": "Strong typing expertise for large-scale application development"
+  },
+  {
+    "name": "React",
+    "category": "frameworks",
+    "level": 92,
+    "icon": "circle",
+    "color": "primary",
+    "description": "Advanced React development including hooks, context, and state management"
+  },
+  {
+    "name": "Django",
+    "category": "frameworks",
+    "level": 88,
+    "icon": "server",
+    "color": "success",
+    "description": "Full-stack Django development with REST APIs, authentication, and deployment"
+  },
+  {
+    "name": "Vue.js",
+    "category": "frameworks",
+    "level": 80,
+    "icon": "triangle",
+    "color": "success",
+    "description": "Component-based development with Vue 3, Composition API, and Vuex"
+  },
+  {
+    "name": "Docker",
+    "category": "tools",
+    "level": 85,
+    "icon": "box",
+    "color": "info",
+    "description": "Containerization, multi-stage builds, and orchestration with Docker Compose"
+  },
+  {
+    "name": "Git",
+    "category": "tools",
+    "level": 90,
+    "icon": "git",
+    "color": "danger",
+    "description": "Version control, branching strategies, and collaborative development workflows"
+  },
+  {
+    "name": "VS Code",
+    "category": "tools",
+    "level": 95,
+    "icon": "code",
+    "color": "primary",
+    "description": "Expert use of extensions, debugging, and productivity optimization"
+  },
+  {
+    "name": "PostgreSQL",
+    "category": "databases",
+    "level": 82,
+    "icon": "database",
+    "color": "primary",
+    "description": "Database design, optimization, and advanced querying with PostgreSQL"
+  },
+  {
+    "name": "MongoDB",
+    "category": "databases",
+    "level": 75,
+    "icon": "hdd",
+    "color": "success",
+    "description": "NoSQL database design, aggregation pipelines, and performance tuning"
+  },
+  {
+    "name": "Redis",
+    "category": "databases",
+    "level": 70,
+    "icon": "memory",
+    "color": "danger",
+    "description": "Caching strategies, session management, and pub/sub messaging"
+  },
+  {
+    "name": "UI/UX Design",
+    "category": "design",
+    "level": 78,
+    "icon": "palette",
+    "color": "warning",
+    "description": "User interface design, prototyping, and user experience optimization"
+  },
+  {
+    "name": "Figma",
+    "category": "design",
+    "level": 80,
+    "icon": "pencil-square",
+    "color": "info",
+    "description": "Design system creation, prototyping, and collaborative design workflows"
+  },
+  {
+    "name": "Adobe Creative Suite",
+    "category": "design",
+    "level": 72,
+    "icon": "image",
+    "color": "danger",
+    "description": "Photoshop, Illustrator, and XD for comprehensive design solutions"
+  },
+  {
+    "name": "AWS",
+    "category": "devops",
+    "level": 83,
+    "icon": "cloud",
+    "color": "warning",
+    "description": "Cloud architecture, EC2, S3, RDS, Lambda, and deployment automation"
+  },
+  {
+    "name": "CI/CD",
+    "category": "devops",
+    "level": 85,
+    "icon": "arrow-repeat",
+    "color": "success",
+    "description": "GitHub Actions, automated testing, and deployment pipelines"
+  },
+  {
+    "name": "Linux",
+    "category": "devops",
+    "level": 80,
+    "icon": "terminal",
+    "color": "secondary",
+    "description": "System administration, shell scripting, and server management"
+  }
+]
+```
+
 ---
 
 ## 🎨 Font Palettes

@@ -1,0 +1,259 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}CV Generation Error{% endblock %}
+
+{% block extra_css %}
+<style>
+    .error-container {
+        background: #f8f9fa;
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        padding: 2rem 0;
+    }
+    
+    .error-card {
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        border-left: 4px solid #dc3545;
+        padding: 3rem;
+        text-align: center;
+        max-width: 600px;
+        margin: 0 auto;
+    }
+    
+    .error-icon {
+        font-size: 4rem;
+        color: #dc3545;
+        margin-bottom: 1.5rem;
+    }
+    
+    .error-title {
+        color: #dc3545;
+        font-size: 1.75rem;
+        font-weight: 600;
+        margin-bottom: 1rem;
+    }
+    
+    .error-message {
+        color: #6c757d;
+        margin-bottom: 2rem;
+        line-height: 1.6;
+    }
+    
+    .error-details {
+        background: #f8f9fa;
+        border: 1px solid #e9ecef;
+        border-radius: 8px;
+        padding: 1.5rem;
+        margin: 2rem 0;
+        text-align: left;
+    }
+    
+    .error-details h5 {
+        color: #495057;
+        margin-bottom: 1rem;
+    }
+    
+    .error-details code {
+        background: #fff;
+        border: 1px solid #dee2e6;
+        border-radius: 4px;
+        padding: 0.5rem;
+        font-size: 0.875rem;
+        word-break: break-all;
+    }
+    
+    .action-buttons {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+        flex-wrap: wrap;
+        margin-top: 2rem;
+    }
+    
+    .troubleshooting {
+        background: #e7f3ff;
+        border: 1px solid #2196f3;
+        border-radius: 8px;
+        padding: 1.5rem;
+        margin-top: 2rem;
+        text-align: left;
+    }
+    
+    .troubleshooting h5 {
+        color: #1976d2;
+        margin-bottom: 1rem;
+    }
+    
+    .troubleshooting ul {
+        margin: 0;
+        padding-left: 1.2rem;
+    }
+    
+    .troubleshooting li {
+        margin-bottom: 0.5rem;
+        color: #495057;
+    }
+    
+    @media (max-width: 768px) {
+        .error-card {
+            margin: 1rem;
+            padding: 2rem 1.5rem;
+        }
+        
+        .action-buttons {
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .action-buttons .btn {
+            width: 100%;
+            max-width: 280px;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="error-container">
+    <div class="container">
+        <div class="error-card">
+            <!-- Error Icon -->
+            <div class="error-icon">
+                <i class="bi bi-exclamation-triangle-fill"></i>
+            </div>
+            
+            <!-- Error Title -->
+            <h1 class="error-title">CV Generation Failed</h1>
+            
+            <!-- Error Message -->
+            <div class="error-message">
+                <p>
+                    We encountered an issue while generating your CV. This is usually a temporary problem 
+                    that can be resolved quickly.
+                </p>
+            </div>
+            
+            {% if error %}
+            <!-- Error Details -->
+            <div class="error-details">
+                <h5><i class="bi bi-info-circle"></i> Technical Details</h5>
+                <p class="mb-2"><strong>Error Type:</strong> CV Generation Error</p>
+                <p class="mb-2"><strong>Details:</strong></p>
+                <code>{{ error }}</code>
+            </div>
+            {% endif %}
+            
+            <!-- Troubleshooting Steps -->
+            <div class="troubleshooting">
+                <h5><i class="bi bi-tools"></i> Troubleshooting Steps</h5>
+                <ul>
+                    <li><strong>Try again:</strong> Sometimes this is a temporary issue that resolves itself</li>
+                    <li><strong>Check your data:</strong> Ensure your profile information is complete in the admin panel</li>
+                    <li><strong>Clear browser cache:</strong> Refresh the page and try again</li>
+                    <li><strong>Contact support:</strong> If the problem persists, please get in touch</li>
+                </ul>
+            </div>
+            
+            <!-- Action Buttons -->
+            <div class="action-buttons">
+                <a href="{% url 'portfolio:cv_preview' %}" class="btn btn-primary">
+                    <i class="bi bi-arrow-repeat"></i> Try Again
+                </a>
+                <a href="{% url 'portfolio:about' %}" class="btn btn-outline-secondary">
+                    <i class="bi bi-person"></i> View About Page
+                </a>
+                <a href="{% url 'portfolio:contact' %}" class="btn btn-outline-info">
+                    <i class="bi bi-envelope"></i> Contact Support
+                </a>
+            </div>
+            
+            <!-- Additional Information -->
+            <div class="mt-4">
+                <p class="text-muted small">
+                    <i class="bi bi-clock"></i> 
+                    Error occurred at {{ request.timestamp|default:"just now" }}
+                </p>
+                <p class="text-muted small">
+                    If this problem continues, please contact support with the error details above.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Additional Error Information Modal -->
+<div class="modal fade" id="errorDetailsModal" tabindex="-1" aria-labelledby="errorDetailsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="errorDetailsModalLabel">
+                    <i class="bi bi-bug"></i> Detailed Error Information
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6>System Information:</h6>
+                        <ul class="list-unstyled small">
+                            <li><strong>Timestamp:</strong> {{ request.timestamp|default:"Unknown" }}</li>
+                            <li><strong>User Agent:</strong> {{ request.META.HTTP_USER_AGENT|default:"Unknown"|truncatechars:50 }}</li>
+                            <li><strong>IP Address:</strong> {{ request.META.REMOTE_ADDR|default:"Unknown" }}</li>
+                        </ul>
+                    </div>
+                    <div class="col-md-6">
+                        <h6>Request Details:</h6>
+                        <ul class="list-unstyled small">
+                            <li><strong>Method:</strong> {{ request.method|default:"GET" }}</li>
+                            <li><strong>Path:</strong> {{ request.path|default:"/cv-preview/" }}</li>
+                            <li><strong>Secure:</strong> {{ request.is_secure|yesno:"Yes,No" }}</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                {% if error %}
+                <hr>
+                <h6>Error Details:</h6>
+                <div class="alert alert-danger">
+                    <pre class="mb-0">{{ error }}</pre>
+                </div>
+                {% endif %}
+                
+                <div class="mt-3">
+                    <h6>Common Solutions:</h6>
+                    <ol class="small">
+                        <li>Ensure WeasyPrint is properly installed and configured</li>
+                        <li>Check that all required site parameters are filled in the admin</li>
+                        <li>Verify that the skills_expertise field contains valid JSON data</li>
+                        <li>Make sure professional journey entries are properly configured</li>
+                        <li>Check server logs for additional error details</li>
+                    </ol>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <a href="{% url 'portfolio:contact' %}" class="btn btn-primary">
+                    <i class="bi bi-envelope"></i> Report This Issue
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% if error %}
+<!-- Show modal automatically if there's an error -->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Auto-show detailed error after 3 seconds if user hasn't acted
+        setTimeout(function() {
+            const modal = new bootstrap.Modal(document.getElementById('errorDetailsModal'));
+            modal.show();
+        }, 3000);
+    });
+</script>
+{% endif %}
+{% endblock %}

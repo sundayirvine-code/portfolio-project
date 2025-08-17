@@ -403,3 +403,120 @@
     </div>
 </section>
 {% endblock %}
+
+{% block extra_css %}
+<style>
+/* Dark Mode Contrast Fixes for Homepage */
+
+/* Featured Projects Section Dark Mode */
+[data-bs-theme="dark"] .project-card {
+    background: rgba(255, 255, 255, 0.03) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    color: #e9ecef;
+}
+
+[data-bs-theme="dark"] .project-card .card-title {
+    color: #ffffff;
+}
+
+[data-bs-theme="dark"] .project-card .card-text {
+    color: #adb5bd !important;
+}
+
+[data-bs-theme="dark"] .project-card .badge.bg-light {
+    background: rgba(255, 255, 255, 0.1) !important;
+    color: #e9ecef !important;
+}
+
+/* Services Section Dark Mode */
+[data-bs-theme="dark"] .service-card {
+    background: rgba(255, 255, 255, 0.03) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    color: #e9ecef;
+}
+
+[data-bs-theme="dark"] .service-card h4 {
+    color: #ffffff;
+}
+
+[data-bs-theme="dark"] .service-card .text-muted {
+    color: #adb5bd !important;
+}
+
+[data-bs-theme="dark"] .service-card .service-price {
+    color: var(--bs-primary) !important;
+}
+
+/* Blog Posts Section Dark Mode */
+[data-bs-theme="dark"] .blog-card {
+    background: rgba(255, 255, 255, 0.03) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    color: #e9ecef;
+}
+
+[data-bs-theme="dark"] .blog-card .card-title a {
+    color: #ffffff !important;
+}
+
+[data-bs-theme="dark"] .blog-card .card-text {
+    color: #adb5bd !important;
+}
+
+[data-bs-theme="dark"] .blog-card .text-muted {
+    color: #adb5bd !important;
+}
+
+/* Testimonials Section Dark Mode */
+[data-bs-theme="dark"] .testimonial-item {
+    color: #e9ecef;
+}
+
+[data-bs-theme="dark"] .testimonial-item blockquote p {
+    color: #ffffff;
+}
+
+[data-bs-theme="dark"] .testimonial-item .author-info h5 {
+    color: #ffffff;
+}
+
+[data-bs-theme="dark"] .testimonial-item .text-muted {
+    color: #adb5bd !important;
+}
+
+/* Light Mode Section Improvements */
+[data-bs-theme="light"] .bg-light {
+    background: #f8f9fa !important;
+}
+
+[data-bs-theme="light"] .project-card,
+[data-bs-theme="light"] .service-card,
+[data-bs-theme="light"] .blog-card {
+    background: #ffffff;
+    border: 1px solid #dee2e6;
+}
+
+[data-bs-theme="light"] .text-muted {
+    color: #6c757d !important;
+}
+
+/* Hover effects for all cards */
+.project-card:hover,
+.service-card:hover,
+.blog-card:hover {
+    transform: translateY(-5px);
+    transition: all 0.3s ease;
+}
+
+[data-bs-theme="dark"] .project-card:hover,
+[data-bs-theme="dark"] .service-card:hover,
+[data-bs-theme="dark"] .blog-card:hover {
+    box-shadow: 0 8px 25px rgba(255, 255, 255, 0.1);
+}
+
+[data-bs-theme="light"] .project-card:hover,
+[data-bs-theme="light"] .service-card:hover,
+[data-bs-theme="light"] .blog-card:hover {
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+</style>
+{% endblock %}

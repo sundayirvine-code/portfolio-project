@@ -1,3 +1,4 @@
+from textwrap import indent
 from django.shortcuts import render, get_object_or_404
 from django.core.paginator import Paginator
 from django.contrib import messages
@@ -7,46 +8,75 @@ from django.views.decorators.csrf import csrf_exempt
 from django.utils import timezone
 from django.db.models import Q
 from .models import Project, BlogPost, Testimonial, Service, ContactMessage, Category, Technology
+from apps.parameters.models import SiteParameter, ProfessionalJourney, FAQ
 from .forms import ContactForm
 from .services import CVGenerationService
 
 
 def home_view(request):
-    """Home page view with featured content"""
-    # Featured projects
+    """Home page view with featured content and dynamic fallbacks"""
+    # Featured projects - try featured first, fallback to published if none
     featured_projects = Project.objects.filter(
         status='featured'
     ).select_related('category').prefetch_related('technologies')[:4]
     
-    # Recent blog posts
+    if not featured_projects.exists():
+        # Fallback to latest published projects
+        featured_projects = Project.objects.filter(
+            status='published'
+        ).select_related('category').prefetch_related('technologies').order_by('-created_at')[:4]
+    
+    # Featured Blog Posts - try featured first, fallback to recent published
     recent_posts = BlogPost.objects.filter(
-        status__in=['published', 'featured']
+        status='featured'
     ).select_related('author', 'category')[:3]
     
-    # Featured testimonials
+    if not recent_posts.exists():
+        # Fallback to latest published posts
+        recent_posts = BlogPost.objects.filter(
+            status='published'
+        ).select_related('author', 'category').order_by('-published_at')[:3]
+    
+    # Featured testimonials with fallback
     featured_testimonials = Testimonial.objects.filter(
         is_featured=True, 
         is_approved=True
     ).select_related('project')[:3]
     
-    # Featured services
+    if not featured_testimonials.exists():
+        # Fallback to latest approved testimonials
+        featured_testimonials = Testimonial.objects.filter(
+            is_approved=True
+        ).select_related('project').order_by('-created_at')[:3]
+    
+    # Featured services with fallback
     featured_services = Service.objects.filter(
         is_active=True, 
         is_featured=True
     ).prefetch_related('technologies')[:3]
+    
+    if not featured_services.exists():
+        # Fallback to latest active services
+        featured_services = Service.objects.filter(
+            is_active=True
+        ).prefetch_related('technologies').order_by('-created_at')[:3]
+    
+    # Get site settings for dynamic homepage content
+    site_settings = SiteParameter.get_settings()
     
     context = {
         'featured_projects': featured_projects,
         'recent_posts': recent_posts,
         'featured_testimonials': featured_testimonials,
         'featured_services': featured_services,
+        'site_settings': site_settings,
     }
     
     return render(request, 'pages/home.html', context)
 
 
 def about_view(request):
-    """About page view"""
+    """About page view with dynamic content"""
     # Top technologies by proficiency
     top_technologies = Technology.objects.filter(
         proficiency__gte=70
@@ -55,9 +85,129 @@ def about_view(request):
     # All technologies grouped by proficiency
     technologies = Technology.objects.all().order_by('-proficiency', 'name')
     
+    # Professional journey (work experience, education, etc.)
+    professional_journey = ProfessionalJourney.objects.filter(
+        is_active=True
+    ).order_by('-start_date')
+    
+    # Separate by type for different sections
+    work_experience = professional_journey.filter(entry_type='work').order_by('-start_date', 'order')
+    education_history = professional_journey.filter(entry_type='education').order_by('-start_date', 'order')
+    certifications = professional_journey.filter(entry_type='certification').order_by('-start_date', 'order')
+    achievements = professional_journey.filter(entry_type='achievement').order_by('-start_date', 'order')
+    major_projects = professional_journey.filter(entry_type='project').order_by('-start_date', 'order')
+    
+    # Create a dictionary for easy template access with counts
+    journey_data = {
+        'work': {
+            'entries': work_experience,
+            'count': work_experience.count(),
+            'label': 'Work Experience',
+            'icon': 'briefcase'
+        },
+        'education': {
+            'entries': education_history,
+            'count': education_history.count(),
+            'label': 'Education',
+            'icon': 'mortarboard'
+        },
+        'certification': {
+            'entries': certifications,
+            'count': certifications.count(),
+            'label': 'Certifications',
+            'icon': 'award'
+        },
+        'achievement': {
+            'entries': achievements,
+            'count': achievements.count(),
+            'label': 'Achievements',
+            'icon': 'trophy'
+        },
+        'project': {
+            'entries': major_projects,
+            'count': major_projects.count(),
+            'label': 'Major Projects',
+            'icon': 'lightbulb'
+        }
+    }
+    
+    # Get site settings for dynamic content
+    site_settings = SiteParameter.get_settings()
+    import json
+    # print(json.loads(site_settings, indent=2))
+    
+    # Parse JSON fields for dynamic content with fallbacks
+    fun_facts_list = []
+    values_list = []
+    skills_list = []
+    
+    try:
+        import json
+        if hasattr(site_settings, 'fun_facts') and site_settings.fun_facts:
+            fun_facts_list = json.loads(site_settings.fun_facts) if isinstance(site_settings.fun_facts, str) else site_settings.fun_facts
+        
+        if hasattr(site_settings, 'values_interests') and site_settings.values_interests:
+            values_data = json.loads(site_settings.values_interests) if isinstance(site_settings.values_interests, str) else site_settings.values_interests
+            
+            # Handle both legacy dict format and new list format
+            if isinstance(values_data, dict):
+                # Legacy format: {'values': [...], 'interests': [...]}
+                legacy_values = values_data.get('values', [])
+                legacy_interests = values_data.get('interests', [])
+                
+                # Convert to new format
+                values_list = []
+                for value in legacy_values:
+                    if isinstance(value, str):
+                        values_list.append({
+                            'name': value,
+                            'description': '',
+                            'icon': 'heart',
+                            'color': 'primary'
+                        })
+                    elif isinstance(value, dict):
+                        values_list.append(value)
+                        
+                for interest in legacy_interests:
+                    if isinstance(interest, str):
+                        values_list.append({
+                            'name': interest,
+                            'description': '',
+                            'icon': 'star',
+                            'color': 'info'
+                        })
+                    elif isinstance(interest, dict):
+                        values_list.append(interest)
+            elif isinstance(values_data, list):
+                # New format: list of value objects
+                values_list = values_data
+            else:
+                values_list = []
+        
+        if hasattr(site_settings, 'skills_expertise') and site_settings.skills_expertise:
+            skills_data = json.loads(site_settings.skills_expertise) if isinstance(site_settings.skills_expertise, str) else site_settings.skills_expertise
+            if isinstance(skills_data, list):
+                skills_list = skills_data
+            else:
+                skills_list = []
+    except (json.JSONDecodeError, AttributeError, TypeError):
+        pass  # Use default fallbacks in template
+    
     context = {
         'top_technologies': top_technologies,
         'technologies': technologies,
+        'professional_journey': professional_journey,
+        'journey_data': journey_data,
+        # Keep old structure for backwards compatibility
+        'work_experience': work_experience,
+        'education_history': education_history,
+        'certifications': certifications,
+        'achievements': achievements,
+        'major_projects': major_projects,
+        'fun_facts_list': fun_facts_list,
+        'values_list': values_list,
+        'skills_list': skills_list,
+        'site_settings': site_settings,
     }
     
     return render(request, 'pages/about.html', context)
@@ -442,19 +592,40 @@ def api_search_view(request):
     })
 
 
+def cv_preview_view(request):
+    """Preview CV before downloading"""
+    try:
+        # Generate CV data for preview
+        cv_service = CVGenerationService()
+        cv_data = cv_service._get_cv_data()
+        
+        # Render the CV HTML template for preview
+        context = {
+            'cv_data': cv_data,
+            'include_sections': ['header', 'summary', 'experience', 'education', 'skills', 'contact'],
+            'generated_date': timezone.now().date(),
+            'format_type': 'modern',
+            'is_preview': True,
+        }
+        
+        return render(request, 'cv/cv_preview.html', context)
+        
+    except Exception as e:
+        # Log the error and return error page
+        import logging
+        logger = logging.getLogger(__name__)
+        logger.error(f"CV preview failed: {e}")
+        
+        messages.error(request, f'Error generating CV preview: {str(e)}')
+        return render(request, 'cv/cv_error.html', {'error': str(e)})
+
+
 def download_cv_view(request):
     """Generate and download CV as PDF"""
     try:
-        # Generate CV PDF
+        # Generate CV PDF - the service returns HttpResponse directly
         cv_service = CVGenerationService()
-        pdf_content = cv_service.generate_cv_pdf()
-        
-        # Create HTTP response with PDF
-        response = HttpResponse(pdf_content, content_type='application/pdf')
-        response['Content-Disposition'] = 'attachment; filename="CV.pdf"'
-        response['Content-Length'] = len(pdf_content)
-        
-        return response
+        return cv_service.generate_cv_pdf()
         
     except Exception as e:
         # Log the error and return a user-friendly message
@@ -462,9 +633,5 @@ def download_cv_view(request):
         logger = logging.getLogger(__name__)
         logger.error(f"CV generation failed: {e}")
         
-        # Return a simple error response
-        return HttpResponse(
-            "Sorry, there was an error generating your CV. Please try again later.",
-            status=500,
-            content_type='text/plain'
-        )
+        messages.error(request, f'Error generating CV: {str(e)}')
+        return render(request, 'cv/cv_error.html', {'error': str(e)})

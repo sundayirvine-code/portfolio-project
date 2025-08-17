@@ -1,0 +1,801 @@
+{% extends 'parameters/admin/base_admin.html' %}
+{% load static %}
+
+{% block title %}Skills & Expertise Management{% endblock %}
+
+{% block breadcrumb %}
+<li class="breadcrumb-item">
+    <a href="{% url 'parameters:comprehensive_settings' %}" class="text-decoration-none">Site Settings</a>
+</li>
+<li class="breadcrumb-item active" aria-current="page">Skills & Expertise</li>
+{% endblock %}
+
+{% block page_description %}
+<p class="text-muted mb-0">Manage your technical skills, expertise levels, and professional competencies</p>
+{% endblock %}
+
+{% block page_actions %}
+<div>
+    <a href="{% url 'portfolio:about' %}#skills" class="btn btn-outline-info" target="_blank">
+        <i class="bi bi-eye me-2"></i>Preview
+    </a>
+</div>
+{% endblock %}
+
+{% block admin_content %}
+<div class="row h-100">
+    <!-- Left Column: Form Management -->
+    <div class="col-lg-8 col-xl-9">
+        <div class="card h-100 d-flex flex-column">
+            <div class="card-header bg-gradient-info text-white">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">
+                        <i class="bi bi-gear me-2"></i>Skills & Expertise Management
+                    </h5>
+                    <div class="d-flex gap-2">
+                        <button type="button" class="btn btn-light btn-sm" id="add-skill">
+                            <i class="bi bi-plus me-1"></i>Add Skill
+                        </button>
+                        <button type="button" class="btn btn-outline-light btn-sm" id="clear-all-skills">
+                            <i class="bi bi-trash me-1"></i>Clear All
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card-body flex-grow-1 d-flex flex-column">
+                <!-- Instructions Banner -->
+                <div class="alert alert-info border-0 mb-3">
+                    <div class="d-flex">
+                        <i class="bi bi-info-circle me-3 fs-5 text-warning"></i>
+                        <div>
+                            <h6 class="alert-heading mb-1">Quick Tips</h6>
+                            <small>Add your technical skills with proficiency levels (0-100%). Organize them by categories for better presentation.</small>
+                        </div>
+                    </div>
+                </div>
+                
+                <form method="post" class="skills-form flex-grow-1 d-flex flex-column" novalidate>
+                    {% csrf_token %}
+                    
+                    <!-- Scrollable Skills Container -->
+                    <div class="flex-grow-1 overflow-auto" style="max-height: 60vh;">
+                        <div id="skills-container" class="pe-2">
+                            <!-- Skills will be loaded here dynamically -->
+                        </div>
+                    </div>
+                    
+                    <!-- Hidden textarea for form submission -->
+                    {{ form.skills_data }}
+                    
+                    <!-- Fixed Footer Actions -->
+                    <div class="border-top pt-3 mt-3">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <a href="{% url 'parameters:dashboard' %}" class="btn btn-outline-secondary">
+                                    <i class="bi bi-arrow-left me-2"></i>Back to Dashboard
+                                </a>
+                            </div>
+                            <div class="d-flex gap-2">
+                                <button type="button" class="btn btn-outline-info" id="skills-preview-toggle">
+                                    <i class="bi bi-eye me-2"></i>Toggle Preview
+                                </button>
+                                <button type="submit" class="btn btn-info">
+                                    <i class="bi bi-check-circle me-2"></i>Save Changes
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Right Column: Live Preview & Tips -->
+    <div class="col-lg-4 col-xl-3">
+        <div class="card h-100 sticky-top" style="top: 1rem;">
+            <div class="card-header bg-light">
+                <h6 class="mb-0 text-muted">
+                    <i class="bi bi-eye me-2"></i>Live Preview
+                </h6>
+            </div>
+            <div class="card-body overflow-auto" style="max-height: 50vh;">
+                <div id="skills-preview">
+                    <div class="text-center text-muted py-5">
+                        <i class="bi bi-gear fs-1 mb-3 opacity-50"></i>
+                        <p class="small">Add skills to see preview</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Tips Section -->
+            <div class="card-footer bg-light">
+                <div class="mb-3">
+                    <h6 class="small text-uppercase text-muted mb-2">Categories</h6>
+                    <div class="small text-muted">
+                        <div class="d-flex flex-wrap gap-1 mb-2">
+                            <span class="badge bg-primary" style="font-size: 0.65rem;">Programming</span>
+                            <span class="badge bg-success" style="font-size: 0.65rem;">Frameworks</span>
+                            <span class="badge bg-warning text-dark" style="font-size: 0.65rem;">Tools</span>
+                            <span class="badge bg-danger" style="font-size: 0.65rem;">Databases</span>
+                        </div>
+                        <div class="d-flex flex-wrap gap-1">
+                            <span class="badge bg-info" style="font-size: 0.65rem;">Design</span>
+                            <span class="badge bg-secondary" style="font-size: 0.65rem;">DevOps</span>
+                            <span class="badge bg-dark" style="font-size: 0.65rem;">Other</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mb-3">
+                    <h6 class="small text-uppercase text-muted mb-2">Proficiency Levels</h6>
+                    <div class="small text-muted">
+                        <div class="mb-1">0-25%: <strong class="text-danger">Beginner</strong></div>
+                        <div class="mb-1">26-50%: <strong class="text-warning">Intermediate</strong></div>
+                        <div class="mb-1">51-75%: <strong class="text-info">Advanced</strong></div>
+                        <div class="mb-1">76-100%: <strong class="text-success">Expert</strong></div>
+                    </div>
+                </div>
+                
+                <small class="text-muted">
+                    <i class="bi bi-info-circle me-1"></i>
+                    Skills display with animated progress bars
+                </small>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Custom Styles for Enhanced Layout -->
+<style>
+/* Header gradients with proper contrast */
+.bg-gradient-info {
+    background: linear-gradient(135deg, var(--bs-info) 0%, var(--bs-primary) 100%) !important;
+    color: #ffffff !important;
+}
+
+[data-bs-theme="dark"] .bg-gradient-info {
+    background: linear-gradient(135deg, #0dcaf0 0%, #0d6efd 100%) !important;
+    color: #ffffff !important;
+}
+
+/* Card styling with proper contrast */
+.card {
+    border: none;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.04), 0 8px 16px rgba(0,0,0,0.04);
+    background: var(--bs-body-bg);
+    color: var(--bs-body-color);
+}
+
+[data-bs-theme="dark"] .card {
+    background: rgba(255, 255, 255, 0.05) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+    color: #e9ecef !important;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2), 0 8px 16px rgba(0,0,0,0.2) !important;
+}
+
+/* Card headers */
+.card-header {
+    background: var(--bs-light) !important;
+    border-bottom: 1px solid var(--bs-border-color);
+    color: var(--bs-dark) !important;
+}
+
+[data-bs-theme="dark"] .card-header {
+    background: #ffffff !important;
+    border-bottom: 1px solid var(--bs-border-color) !important;
+    color: var(--bs-dark) !important;
+}
+
+/* Ensure card header text is always dark for white background */
+.card-header h6,
+.card-header .text-muted {
+    color: var(--bs-dark) !important;
+}
+
+[data-bs-theme="dark"] .card-header h6,
+[data-bs-theme="dark"] .card-header .text-muted {
+    color: var(--bs-dark) !important;
+}
+
+/* Card footers */
+.card-footer {
+    background: var(--bs-light) !important;
+    border-top: 1px solid var(--bs-border-color);
+    color: var(--bs-body-color) !important;
+}
+
+[data-bs-theme="dark"] .card-footer {
+    background: rgba(255, 255, 255, 0.05) !important;
+    border-top: 1px solid rgba(255, 255, 255, 0.15) !important;
+    color: #adb5bd !important;
+}
+
+/* Container */
+#skills-container {
+    min-height: 200px;
+}
+
+/* Skill items with enhanced contrast - maintain light mode colors */
+.skill-item {
+    transition: all 0.2s ease;
+    border: 1px solid #dee2e6 !important;
+    background: #ffffff !important;
+    color: #212529 !important;
+}
+
+.skill-item:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1) !important;
+    border-color: #0dcaf0 !important;
+}
+
+[data-bs-theme="dark"] .skill-item {
+    background: #ffffff !important;
+    border: 1px solid #dee2e6 !important;
+    color: #212529 !important;
+}
+
+[data-bs-theme="dark"] .skill-item:hover {
+    background: #ffffff !important;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2) !important;
+    border-color: #0dcaf0 !important;
+}
+
+/* Skill item titles and text - use light mode colors */
+.skill-item h6,
+.skill-item .fw-semibold {
+    color: #212529 !important;
+}
+
+[data-bs-theme="dark"] .skill-item h6,
+[data-bs-theme="dark"] .skill-item .fw-semibold {
+    color: #212529 !important;
+}
+
+/* Form labels and text - use light mode colors */
+.skill-item .form-label {
+    color: #212529 !important;
+    font-weight: 500;
+}
+
+[data-bs-theme="dark"] .skill-item .form-label {
+    color: #212529 !important;
+}
+
+/* Form controls - maintain light mode styling */
+.skill-item .form-control,
+.skill-item .form-select {
+    background: #ffffff !important;
+    border: 1px solid #dee2e6 !important;
+    color: #212529 !important;
+}
+
+.skill-item .form-control:focus,
+.skill-item .form-select:focus {
+    border-color: #0dcaf0 !important;
+    box-shadow: 0 0 0 0.25rem rgba(13, 202, 240, 0.25) !important;
+    background: #ffffff !important;
+    color: #212529 !important;
+}
+
+[data-bs-theme="dark"] .skill-item .form-control,
+[data-bs-theme="dark"] .skill-item .form-select {
+    background: #ffffff !important;
+    border: 1px solid #dee2e6 !important;
+    color: #212529 !important;
+}
+
+[data-bs-theme="dark"] .skill-item .form-control:focus,
+[data-bs-theme="dark"] .skill-item .form-select:focus {
+    background: #ffffff !important;
+    border-color: #0dcaf0 !important;
+    box-shadow: 0 0 0 0.25rem rgba(13, 202, 240, 0.25) !important;
+    color: #212529 !important;
+}
+
+/* Form text helper - use light mode color */
+.skill-item .form-text {
+    color: #6c757d !important;
+}
+
+[data-bs-theme="dark"] .skill-item .form-text {
+    color: #6c757d !important;
+}
+
+/* Required asterisk - use light mode danger color */
+.skill-item .text-danger {
+    color: #dc3545 !important;
+}
+
+[data-bs-theme="dark"] .skill-item .text-danger {
+    color: #dc3545 !important;
+}
+
+/* Progress bar styling */
+.skill-progress {
+    height: 8px;
+    background: rgba(var(--bs-info-rgb), 0.1);
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.skill-progress-bar {
+    height: 100%;
+    background: linear-gradient(90deg, var(--bs-info), var(--bs-primary));
+    border-radius: 4px;
+    transition: width 0.6s ease;
+}
+
+/* Alert styling */
+.alert-info {
+    background: rgba(var(--bs-info-rgb), 0.1) !important;
+    border: 1px solid rgba(var(--bs-info-rgb), 0.2) !important;
+    color: var(--bs-info) !important;
+}
+
+[data-bs-theme="dark"] .alert-info {
+    background: rgba(13, 202, 240, 0.15) !important;
+    border: 1px solid rgba(13, 202, 240, 0.3) !important;
+    color: #9eeaf9 !important;
+}
+
+/* Button styling enhancements */
+.btn-light {
+    background: #ffffff !important;
+    border: 1px solid var(--bs-border-color) !important;
+    color: var(--bs-dark) !important;
+}
+
+.btn-light:hover {
+    background: #f8f9fa !important;
+    color: var(--bs-dark) !important;
+}
+
+[data-bs-theme="dark"] .btn-light {
+    background: rgba(255, 255, 255, 0.1) !important;
+    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+    color: #f8f9fa !important;
+}
+
+[data-bs-theme="dark"] .btn-light:hover {
+    background: rgba(255, 255, 255, 0.15) !important;
+    color: #ffffff !important;
+}
+
+.btn-outline-light {
+    border: 1px solid rgba(255, 255, 255, 0.5) !important;
+    color: rgba(255, 255, 255, 0.8) !important;
+}
+
+.btn-outline-light:hover {
+    background: rgba(255, 255, 255, 0.1) !important;
+    color: #ffffff !important;
+}
+
+/* Remove button enhancement */
+.btn-outline-danger {
+    border-color: var(--bs-danger) !important;
+    color: var(--bs-danger) !important;
+}
+
+.btn-outline-danger:hover {
+    background: var(--bs-danger) !important;
+    color: #ffffff !important;
+}
+
+[data-bs-theme="dark"] .btn-outline-danger {
+    border-color: #dc3545 !important;
+    color: #dc3545 !important;
+}
+
+[data-bs-theme="dark"] .btn-outline-danger:hover {
+    background: #dc3545 !important;
+    color: #ffffff !important;
+}
+
+/* Preview enhancements */
+.skill-preview-card {
+    transition: all 0.2s ease;
+    background: var(--bs-body-bg) !important;
+    border: 1px solid var(--bs-border-color) !important;
+    color: var(--bs-body-color) !important;
+}
+
+.skill-preview-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15) !important;
+}
+
+[data-bs-theme="dark"] .skill-preview-card {
+    background: rgba(255, 255, 255, 0.05) !important;
+    border: 1px solid rgba(255, 255, 255, 0.15) !important;
+    color: #e9ecef !important;
+}
+
+[data-bs-theme="dark"] .skill-preview-card:hover {
+    background: rgba(255, 255, 255, 0.08) !important;
+    box-shadow: 0 4px 12px rgba(255,255,255,0.15) !important;
+}
+
+/* Responsive adjustments */
+@media (max-width: 991.98px) {
+    .col-lg-4.col-xl-3 .sticky-top {
+        position: relative !important;
+        top: auto !important;
+    }
+    
+    .card-body {
+        max-height: 50vh !important;
+    }
+}
+
+/* Scrollbar styling with theme support */
+.overflow-auto::-webkit-scrollbar {
+    width: 4px;
+}
+
+.overflow-auto::-webkit-scrollbar-track {
+    background: var(--bs-border-color);
+    border-radius: 2px;
+}
+
+.overflow-auto::-webkit-scrollbar-thumb {
+    background: var(--bs-secondary);
+    border-radius: 2px;
+}
+
+.overflow-auto::-webkit-scrollbar-thumb:hover {
+    background: var(--bs-info);
+}
+
+[data-bs-theme="dark"] .overflow-auto::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+[data-bs-theme="dark"] .overflow-auto::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.3);
+}
+
+[data-bs-theme="dark"] .overflow-auto::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.5);
+}
+
+/* Sticky positioning */
+.sticky-top {
+    z-index: 1020;
+}
+</style>
+
+<!-- Skill Item Template -->
+<template id="skill-item-template">
+    <div class="skill-item border rounded p-3 mb-3">
+        <div class="d-flex justify-content-between align-items-start mb-3">
+            <h6 class="mb-0">Skill/Expertise Item</h6>
+            <button type="button" class="btn btn-outline-danger btn-sm remove-skill">
+                <i class="bi bi-trash"></i>
+            </button>
+        </div>
+        
+        <div class="row g-3">
+            <div class="col-md-6">
+                <label class="form-label">Skill Name <span class="text-danger">*</span></label>
+                <input type="text" class="form-control skill-name" placeholder="e.g., Python, React, Design" required>
+            </div>
+            
+            <div class="col-md-6">
+                <label class="form-label">Category</label>
+                <select class="form-select skill-category">
+                    <option value="programming">Programming</option>
+                    <option value="frameworks">Frameworks</option>
+                    <option value="tools">Tools</option>
+                    <option value="databases">Databases</option>
+                    <option value="design">Design</option>
+                    <option value="devops">DevOps</option>
+                    <option value="other">Other</option>
+                </select>
+            </div>
+            
+            <div class="col-md-4">
+                <label class="form-label">Proficiency Level (%)</label>
+                <input type="number" class="form-control skill-level" placeholder="85" min="0" max="100" required>
+            </div>
+            
+            <div class="col-md-4">
+                <label class="form-label">Color</label>
+                <select class="form-select skill-color">
+                    <option value="primary">Primary (Blue)</option>
+                    <option value="secondary">Secondary (Gray)</option>
+                    <option value="success">Success (Green)</option>
+                    <option value="info">Info (Cyan)</option>
+                    <option value="warning">Warning (Yellow)</option>
+                    <option value="danger">Danger (Red)</option>
+                </select>
+            </div>
+            
+            <div class="col-md-4">
+                <label class="form-label">Icon</label>
+                <input type="text" class="form-control skill-icon" placeholder="e.g., code, palette, gear">
+                <div class="form-text">Bootstrap icon name without 'bi-' prefix</div>
+            </div>
+            
+            <div class="col-12">
+                <label class="form-label">Description <small class="text-muted">(optional)</small></label>
+                <textarea class="form-control skill-description" rows="2" placeholder="Brief description of your experience with this skill"></textarea>
+            </div>
+        </div>
+        
+        <!-- Inline Preview -->
+        <div class="mt-3 p-3 bg-light rounded">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <div class="d-flex align-items-center">
+                    <i class="bi bi-gear me-2 text-primary skill-preview-icon"></i>
+                    <span class="fw-semibold skill-preview-name">Skill Name</span>
+                    <span class="badge bg-secondary ms-2 skill-preview-category">Category</span>
+                </div>
+                <span class="text-muted small skill-preview-level">0%</span>
+            </div>
+            <div class="skill-progress">
+                <div class="skill-progress-bar" style="width: 0%"></div>
+            </div>
+        </div>
+    </div>
+</template>
+{% endblock %}
+
+{% block extra_js %}
+{{ block.super }}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const container = document.getElementById('skills-container');
+    const addButton = document.getElementById('add-skill');
+    const clearAllButton = document.getElementById('clear-all-skills');
+    const previewToggleButton = document.getElementById('skills-preview-toggle');
+    const hiddenField = document.getElementById('{{ form.skills_data.id_for_label }}');
+    const template = document.getElementById('skill-item-template');
+    const previewContainer = document.getElementById('skills-preview');
+    const previewColumn = document.querySelector('.col-lg-4.col-xl-3');
+    
+    // Load existing data
+    loadExistingSkills();
+    
+    // Add skill button
+    addButton.addEventListener('click', function() {
+        addSkillItem();
+        // Scroll to the new item
+        setTimeout(() => {
+            const newItem = container.lastElementChild;
+            if (newItem) {
+                newItem.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                newItem.querySelector('input').focus();
+            }
+        }, 100);
+    });
+    
+    // Clear all button
+    clearAllButton.addEventListener('click', function() {
+        if (confirm('Are you sure you want to clear all skills? This action cannot be undone.')) {
+            container.innerHTML = '';
+            updatePreview();
+            updateHiddenField();
+            addSkillItem(); // Add one empty item
+        }
+    });
+    
+    // Preview toggle button (for mobile)
+    previewToggleButton.addEventListener('click', function() {
+        if (window.innerWidth <= 991.98) {
+            previewColumn.style.display = previewColumn.style.display === 'none' ? 'block' : 'none';
+            this.innerHTML = previewColumn.style.display === 'none' ? 
+                '<i class="bi bi-eye me-2"></i>Show Preview' : 
+                '<i class="bi bi-eye-slash me-2"></i>Hide Preview';
+        }
+    });
+    
+    // Form submission
+    document.querySelector('.skills-form').addEventListener('submit', function() {
+        updateHiddenField();
+    });
+    
+    function loadExistingSkills() {
+        try {
+            const existingData = hiddenField.value ? JSON.parse(hiddenField.value) : [];
+            if (existingData.length > 0) {
+                existingData.forEach(skill => {
+                    addSkillItem(skill);
+                });
+            } else {
+                // Add empty item if none exist
+                addSkillItem();
+            }
+        } catch (e) {
+            console.error('Error parsing existing data:', e);
+            addSkillItem();
+        }
+    }
+    
+    function addSkillItem(data = null) {
+        const clone = template.content.cloneNode(true);
+        const item = clone.querySelector('.skill-item');
+        
+        // Fill in data if provided
+        if (data) {
+            clone.querySelector('.skill-name').value = data.name || '';
+            clone.querySelector('.skill-category').value = data.category || 'other';
+            clone.querySelector('.skill-level').value = data.level || '';
+            clone.querySelector('.skill-color').value = data.color || 'primary';
+            clone.querySelector('.skill-icon').value = data.icon || '';
+            clone.querySelector('.skill-description').value = data.description || '';
+        }
+        
+        // Add event listeners
+        clone.querySelector('.remove-skill').addEventListener('click', function() {
+            item.remove();
+            updatePreview();
+            updateHiddenField();
+        });
+        
+        // Add input listeners for live preview
+        clone.querySelectorAll('input, textarea, select').forEach(input => {
+            input.addEventListener('input', function() {
+                updateItemPreview(item);
+                updatePreview();
+            });
+            input.addEventListener('change', function() {
+                updateItemPreview(item);
+                updatePreview();
+            });
+        });
+        
+        container.appendChild(clone);
+        updateItemPreview(item);
+        updatePreview();
+    }
+    
+    function updateItemPreview(item) {
+        const name = item.querySelector('.skill-name').value.trim() || 'Skill Name';
+        const category = item.querySelector('.skill-category').value;
+        const level = parseInt(item.querySelector('.skill-level').value) || 0;
+        const color = item.querySelector('.skill-color').value;
+        const icon = item.querySelector('.skill-icon').value.trim() || 'gear';
+        
+        const previewIcon = item.querySelector('.skill-preview-icon');
+        const previewName = item.querySelector('.skill-preview-name');
+        const previewCategory = item.querySelector('.skill-preview-category');
+        const previewLevel = item.querySelector('.skill-preview-level');
+        const progressBar = item.querySelector('.skill-progress-bar');
+        
+        previewIcon.className = `bi bi-${icon} me-2 text-${color} skill-preview-icon`;
+        previewName.textContent = name;
+        previewCategory.textContent = category.charAt(0).toUpperCase() + category.slice(1);
+        previewCategory.className = `badge bg-${color} ms-2 skill-preview-category`;
+        previewLevel.textContent = `${level}%`;
+        progressBar.style.width = `${level}%`;
+        progressBar.style.background = `var(--bs-${color})`;
+    }
+    
+    function updateHiddenField() {
+        const skills = [];
+        container.querySelectorAll('.skill-item').forEach(item => {
+            const name = item.querySelector('.skill-name').value.trim();
+            const category = item.querySelector('.skill-category').value;
+            const level = parseInt(item.querySelector('.skill-level').value) || 0;
+            const color = item.querySelector('.skill-color').value;
+            const icon = item.querySelector('.skill-icon').value.trim();
+            const description = item.querySelector('.skill-description').value.trim();
+            
+            if (name) {
+                skills.push({
+                    name: name,
+                    category: category,
+                    level: level,
+                    color: color,
+                    icon: icon || 'gear',
+                    description: description
+                });
+            }
+        });
+        
+        hiddenField.value = JSON.stringify(skills);
+    }
+    
+    function updatePreview() {
+        const skills = [];
+        container.querySelectorAll('.skill-item').forEach(item => {
+            const name = item.querySelector('.skill-name').value.trim();
+            const category = item.querySelector('.skill-category').value;
+            const level = parseInt(item.querySelector('.skill-level').value) || 0;
+            const color = item.querySelector('.skill-color').value;
+            const icon = item.querySelector('.skill-icon').value.trim();
+            const description = item.querySelector('.skill-description').value.trim();
+            
+            if (name) {
+                skills.push({
+                    name: name,
+                    category: category,
+                    level: level,
+                    color: color,
+                    icon: icon || 'gear',
+                    description: description
+                });
+            }
+        });
+        
+        if (skills.length === 0) {
+            previewContainer.innerHTML = `
+                <div class="text-center text-muted py-5">
+                    <i class="bi bi-gear fs-1 mb-3 opacity-50"></i>
+                    <p class="small">Add skills to see preview</p>
+                </div>
+            `;
+            return;
+        }
+        
+        // Group skills by category for better display
+        const skillsByCategory = {};
+        skills.forEach(skill => {
+            if (!skillsByCategory[skill.category]) {
+                skillsByCategory[skill.category] = [];
+            }
+            skillsByCategory[skill.category].push(skill);
+        });
+        
+        let previewHtml = '';
+        Object.keys(skillsByCategory).forEach((category, categoryIndex) => {
+            const categorySkills = skillsByCategory[category];
+            
+            previewHtml += `
+                <div class="mb-4" style="animation: fadeInUp 0.3s ease ${categoryIndex * 0.1}s both;">
+                    <h6 class="text-uppercase text-muted mb-2 fw-bold">${category.charAt(0).toUpperCase() + category.slice(1)}</h6>
+                    <div class="row g-2">
+            `;
+            
+            categorySkills.forEach((skill, skillIndex) => {
+                previewHtml += `
+                    <div class="col-12">
+                        <div class="skill-preview-card border rounded p-2" style="animation: fadeInUp 0.3s ease ${(categoryIndex * 0.1) + (skillIndex * 0.05)}s both;">
+                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                <div class="d-flex align-items-center">
+                                    <i class="bi bi-${skill.icon} me-2 text-${skill.color} fs-6"></i>
+                                    <span class="fw-semibold small">${skill.name}</span>
+                                </div>
+                                <span class="text-muted small">${skill.level}%</span>
+                            </div>
+                            <div class="skill-progress">
+                                <div class="skill-progress-bar" style="width: ${skill.level}%; background: var(--bs-${skill.color});"></div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            previewHtml += `
+                    </div>
+                </div>
+            `;
+        });
+        
+        previewContainer.innerHTML = previewHtml;
+        
+        // Add animation keyframes if not already added
+        if (!document.getElementById('skills-preview-animations')) {
+            const style = document.createElement('style');
+            style.id = 'skills-preview-animations';
+            style.textContent = `
+                @keyframes fadeInUp {
+                    from {
+                        opacity: 0;
+                        transform: translateY(20px);
+                    }
+                    to {
+                        opacity: 1;
+                        transform: translateY(0);
+                    }
+                }
+            `;
+            document.head.appendChild(style);
+        }
+    }
+});
+</script>
+{% endblock %}

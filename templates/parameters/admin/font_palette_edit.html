@@ -1,0 +1,305 @@
+{% extends 'parameters/admin/base_admin.html' %}
+{% load static %}
+
+{% block breadcrumb %}
+<li class="breadcrumb-item">
+    <a href="{% url 'parameters:font_palette_list' %}">Font Palettes</a>
+</li>
+<li class="breadcrumb-item active" aria-current="page">Edit Font Palette</li>
+{% endblock %}
+
+{% block page_description %}
+<p class="text-muted mb-0">Edit font palette: {{ object.name }}</p>
+{% endblock %}
+
+{% block page_actions %}
+<div>
+    <a href="{% url 'parameters:font_palette_list' %}" class="btn btn-secondary">
+        <i class="bi bi-arrow-left me-2"></i>Back to List
+    </a>
+</div>
+{% endblock %}
+
+{% block admin_content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">
+                    <i class="bi bi-pencil me-2"></i>Edit Font Palette
+                </h5>
+                <div>
+                    <span class="badge bg-{% if object.is_active %}success{% else %}secondary{% endif %}">
+                        {{ object.is_active|yesno:"Active,Inactive" }}
+                    </span>
+                    {% if object.is_default %}
+                    <span class="badge bg-warning text-dark">Default</span>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="card-body">
+                <form method="post" novalidate>
+                    {% csrf_token %}
+                    
+                    <div class="row g-3">
+                        <!-- Name and Slug -->
+                        <div class="col-md-6">
+                            <label for="{{ form.name.id_for_label }}" class="form-label">
+                                Palette Name <span class="text-danger">*</span>
+                            </label>
+                            {{ form.name }}
+                            {% if form.name.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.name.errors.0 }}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <label for="{{ form.slug.id_for_label }}" class="form-label">Slug</label>
+                            {{ form.slug }}
+                            {% if form.slug.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.slug.errors.0 }}
+                                </div>
+                            {% endif %}
+                            <div class="form-text">URL-friendly version</div>
+                        </div>
+                        
+                        <!-- Description -->
+                        <div class="col-12">
+                            <label for="{{ form.description.id_for_label }}" class="form-label">Description</label>
+                            {{ form.description }}
+                            {% if form.description.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.description.errors.0 }}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <!-- Font Settings -->
+                        <div class="col-md-6">
+                            <label for="{{ form.heading_font.id_for_label }}" class="form-label">
+                                Heading Font <span class="text-danger">*</span>
+                            </label>
+                            {{ form.heading_font }}
+                            {% if form.heading_font.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.heading_font.errors.0 }}
+                                </div>
+                            {% endif %}
+                            <div class="form-text">e.g., 'Inter', 'Roboto', 'Playfair Display'</div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <label for="{{ form.body_font.id_for_label }}" class="form-label">
+                                Body Font <span class="text-danger">*</span>
+                            </label>
+                            {{ form.body_font }}
+                            {% if form.body_font.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.body_font.errors.0 }}
+                                </div>
+                            {% endif %}
+                            <div class="form-text">Font for paragraphs and content</div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <label for="{{ form.accent_font.id_for_label }}" class="form-label">Accent Font</label>
+                            {{ form.accent_font }}
+                            {% if form.accent_font.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.accent_font.errors.0 }}
+                                </div>
+                            {% endif %}
+                            <div class="form-text">Optional decorative font</div>
+                        </div>
+                        
+                        <!-- Font Weights -->
+                        <div class="col-md-6">
+                            <label for="{{ form.heading_weight.id_for_label }}" class="form-label">Heading Weight</label>
+                            {{ form.heading_weight }}
+                            {% if form.heading_weight.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.heading_weight.errors.0 }}
+                                </div>
+                            {% endif %}
+                            <div class="form-text">100-900, typically 600-700</div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <label for="{{ form.body_weight.id_for_label }}" class="form-label">Body Weight</label>
+                            {{ form.body_weight }}
+                            {% if form.body_weight.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.body_weight.errors.0 }}
+                                </div>
+                            {% endif %}
+                            <div class="form-text">100-900, typically 400</div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <label for="{{ form.base_font_size.id_for_label }}" class="form-label">Base Font Size</label>
+                            {{ form.base_font_size }}
+                            {% if form.base_font_size.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.base_font_size.errors.0 }}
+                                </div>
+                            {% endif %}
+                            <div class="form-text">e.g., 16px, 1rem</div>
+                        </div>
+                        
+                        <!-- Google Fonts URL -->
+                        <div class="col-12">
+                            <label for="{{ form.google_fonts_url.id_for_label }}" class="form-label">Google Fonts URL</label>
+                            {{ form.google_fonts_url }}
+                            {% if form.google_fonts_url.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.google_fonts_url.errors.0 }}
+                                </div>
+                            {% endif %}
+                            <div class="form-text">Optional: Link to load fonts from Google Fonts</div>
+                        </div>
+                        
+                        <!-- Options -->
+                        <div class="col-md-6">
+                            <div class="form-check">
+                                {{ form.is_active }}
+                                <label class="form-check-label" for="{{ form.is_active.id_for_label }}">
+                                    Active
+                                </label>
+                            </div>
+                            <div class="form-text">Available for use</div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <div class="form-check">
+                                {{ form.is_default }}
+                                <label class="form-check-label" for="{{ form.is_default.id_for_label }}">
+                                    Default Palette
+                                </label>
+                            </div>
+                            <div class="form-text">Use as the default font palette</div>
+                        </div>
+                    </div>
+                    
+                    <div class="d-flex justify-content-between mt-4 pt-3 border-top">
+                        <div>
+                            <a href="{% url 'parameters:font_palette_list' %}" class="btn btn-outline-secondary">
+                                <i class="bi bi-x-circle me-2"></i>Cancel
+                            </a>
+                            {% if not object.is_default %}
+                            <form method="post" action="{% url 'parameters:font_palette_delete' object.pk %}" class="d-inline ms-2">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-outline-danger" onclick="return confirm('Are you sure you want to delete this font palette?')">
+                                    <i class="bi bi-trash me-2"></i>Delete
+                                </button>
+                            </form>
+                            {% endif %}
+                        </div>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-check-circle me-2"></i>Update Font Palette
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        <!-- Preview Card -->
+        <div class="card mt-4" id="preview-card">
+            <div class="card-header">
+                <h6 class="mb-0">
+                    <i class="bi bi-eye me-2"></i>Live Typography Preview
+                </h6>
+            </div>
+            <div class="card-body">
+                <div class="text-center p-4 bg-light rounded">
+                    <h1 id="preview-heading" style="font-family: '{{ object.heading_font|default:'Inter' }}', sans-serif; font-weight: {{ object.heading_weight|default:'700' }}; margin-bottom: 1rem;">
+                        Sample Heading
+                    </h1>
+                    <p id="preview-body" style="font-family: '{{ object.body_font|default:'Inter' }}', sans-serif; font-weight: {{ object.body_weight|default:'400' }}; margin-bottom: 1rem;">
+                        This is how your body text will look with this font combination. 
+                        It should be easy to read and complement the heading font nicely.
+                    </p>
+                    <small id="preview-accent" style="font-family: '{{ object.accent_font|default:object.body_font|default:'Inter' }}', sans-serif; color: #6c757d;">
+                        Optional accent text for special elements
+                    </small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+{{ block.super }}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const headingFontField = document.getElementById('{{ form.heading_font.id_for_label }}');
+    const bodyFontField = document.getElementById('{{ form.body_font.id_for_label }}');
+    const accentFontField = document.getElementById('{{ form.accent_font.id_for_label }}');
+    const headingWeightField = document.getElementById('{{ form.heading_weight.id_for_label }}');
+    const bodyWeightField = document.getElementById('{{ form.body_weight.id_for_label }}');
+    
+    const previewHeading = document.getElementById('preview-heading');
+    const previewBody = document.getElementById('preview-body');
+    const previewAccent = document.getElementById('preview-accent');
+    
+    function updatePreview() {
+        const headingFont = headingFontField.value.trim() || 'Inter';
+        const bodyFont = bodyFontField.value.trim() || 'Inter';
+        const accentFont = accentFontField.value.trim() || bodyFont;
+        const headingWeight = headingWeightField.value.trim() || '700';
+        const bodyWeight = bodyWeightField.value.trim() || '400';
+        
+        previewHeading.style.fontFamily = `'${headingFont}', sans-serif`;
+        previewHeading.style.fontWeight = headingWeight;
+        
+        previewBody.style.fontFamily = `'${bodyFont}', sans-serif`;
+        previewBody.style.fontWeight = bodyWeight;
+        
+        previewAccent.style.fontFamily = `'${accentFont}', sans-serif`;
+        
+        // Load fonts dynamically
+        loadGoogleFont(headingFont);
+        if (bodyFont !== headingFont) {
+            loadGoogleFont(bodyFont);
+        }
+        if (accentFont !== headingFont && accentFont !== bodyFont) {
+            loadGoogleFont(accentFont);
+        }
+    }
+    
+    function loadGoogleFont(fontName) {
+        if (fontName && fontName !== 'Inter' && fontName !== 'Arial' && fontName !== 'Helvetica') {
+            const existingLink = document.querySelector(`link[href*="${fontName.replace(' ', '+')}"]`);
+            if (!existingLink) {
+                const link = document.createElement('link');
+                link.href = `https://fonts.googleapis.com/css2?family=${fontName.replace(' ', '+')}:wght@300;400;500;600;700&display=swap`;
+                link.rel = 'stylesheet';
+                document.head.appendChild(link);
+            }
+        }
+    }
+    
+    // Add event listeners
+    headingFontField.addEventListener('input', updatePreview);
+    bodyFontField.addEventListener('input', updatePreview);
+    accentFontField.addEventListener('input', updatePreview);
+    headingWeightField.addEventListener('input', updatePreview);
+    bodyWeightField.addEventListener('input', updatePreview);
+    
+    // Initialize preview with current values
+    updatePreview();
+    
+    // Load existing fonts
+    loadGoogleFont('{{ object.heading_font|default:"Inter" }}');
+    {% if object.body_font != object.heading_font %}
+    loadGoogleFont('{{ object.body_font|default:"Inter" }}');
+    {% endif %}
+    {% if object.accent_font and object.accent_font != object.heading_font and object.accent_font != object.body_font %}
+    loadGoogleFont('{{ object.accent_font }}');
+    {% endif %}
+});
+</script>
+{% endblock %}

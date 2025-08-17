@@ -1,0 +1,484 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}CV Preview - {{ cv_data.name }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .cv-preview-container {
+        background: #f8f9fa;
+        min-height: 100vh;
+        padding: 2rem 0;
+    }
+    
+    .preview-header {
+        background: white;
+        border-bottom: 1px solid #e9ecef;
+        padding: 2rem 0;
+        margin-bottom: 3rem;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.04);
+    }
+    
+    .preview-actions {
+        display: flex;
+        gap: 1rem;
+        align-items: center;
+        flex-wrap: wrap;
+    }
+    
+    .cv-preview-frame {
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        overflow: hidden;
+        margin: 0 auto;
+        max-width: 8.5in;
+        min-height: 11in;
+    }
+    
+    .cv-content {
+        padding: 0.75in;
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        font-size: 11pt;
+        line-height: 1.5;
+        color: #2d3748;
+    }
+    
+    /* Import CV styles but scoped to preview */
+    .cv-content .header {
+        border-bottom: 3px solid #4f46e5;
+        padding-bottom: 20px;
+        margin-bottom: 30px;
+    }
+    
+    .cv-content .name {
+        font-size: 32pt;
+        font-weight: 700;
+        color: #1a202c;
+        margin-bottom: 8px;
+        letter-spacing: -0.5px;
+    }
+    
+    .cv-content .title {
+        font-size: 16pt;
+        font-weight: 500;
+        color: #4f46e5;
+        margin-bottom: 15px;
+    }
+    
+    .cv-content .contact-info {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 20px;
+        font-size: 10pt;
+        color: #4a5568;
+    }
+    
+    .cv-content .contact-item {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+    
+    .cv-content .section {
+        margin-bottom: 25px;
+    }
+    
+    .cv-content .section-title {
+        font-size: 14pt;
+        font-weight: 600;
+        color: #1a202c;
+        margin-bottom: 15px;
+        padding-bottom: 5px;
+        border-bottom: 2px solid #e2e8f0;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    
+    .cv-content .summary {
+        font-size: 11pt;
+        line-height: 1.6;
+        color: #4a5568;
+        text-align: justify;
+    }
+    
+    .cv-content .experience-item {
+        margin-bottom: 20px;
+    }
+    
+    .cv-content .job-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 8px;
+    }
+    
+    .cv-content .job-title {
+        font-size: 13pt;
+        font-weight: 600;
+        color: #1a202c;
+    }
+    
+    .cv-content .job-company {
+        font-size: 12pt;
+        font-weight: 500;
+        color: #4f46e5;
+        margin-bottom: 4px;
+    }
+    
+    .cv-content .job-location {
+        font-size: 10pt;
+        color: #718096;
+        font-style: italic;
+    }
+    
+    .cv-content .job-duration {
+        font-size: 10pt;
+        color: #718096;
+        text-align: right;
+        white-space: nowrap;
+    }
+    
+    .cv-content .job-description {
+        font-size: 10pt;
+        line-height: 1.5;
+        color: #4a5568;
+        margin-bottom: 10px;
+    }
+    
+    .cv-content .achievements ul {
+        list-style: none;
+        padding-left: 0;
+    }
+    
+    .cv-content .achievements li {
+        position: relative;
+        padding-left: 15px;
+        margin-bottom: 5px;
+        font-size: 10pt;
+        line-height: 1.4;
+    }
+    
+    .cv-content .achievements li:before {
+        content: "▶";
+        position: absolute;
+        left: 0;
+        color: #4f46e5;
+        font-size: 8pt;
+    }
+    
+    .cv-content .tech-tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        margin-top: 8px;
+    }
+    
+    .cv-content .tech-tag {
+        background: #edf2f7;
+        color: #4a5568;
+        padding: 3px 8px;
+        border-radius: 12px;
+        font-size: 9pt;
+        font-weight: 500;
+    }
+    
+    .cv-content .skills-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 15px;
+    }
+    
+    .cv-content .skill-category-title {
+        font-size: 11pt;
+        font-weight: 600;
+        color: #1a202c;
+        margin-bottom: 6px;
+    }
+    
+    .cv-content .skill-list {
+        font-size: 10pt;
+        color: #4a5568;
+        line-height: 1.4;
+    }
+    
+    .download-actions {
+        margin-top: 2rem;
+        text-align: center;
+    }
+    
+    .download-info {
+        background: #e3f2fd;
+        border: 1px solid #1976d2;
+        border-radius: 8px;
+        padding: 1rem;
+        margin-bottom: 1rem;
+        color: #1565c0;
+    }
+    
+    @media (max-width: 768px) {
+        .cv-preview-frame {
+            margin: 0 1rem;
+            max-width: calc(100% - 2rem);
+        }
+        
+        .cv-content {
+            padding: 1rem;
+        }
+        
+        .cv-content .name {
+            font-size: 24pt;
+        }
+        
+        .cv-content .contact-info {
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        .cv-content .job-header {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+        
+        .cv-content .job-duration {
+            text-align: left;
+            margin-top: 4px;
+        }
+        
+        .cv-content .skills-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="cv-preview-container">
+    <!-- Preview Header -->
+    <div class="preview-header">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <h1 class="h3 mb-2">CV Preview</h1>
+                    <p class="text-muted mb-0">
+                        Review your CV before downloading. This is exactly how it will appear in the PDF.
+                    </p>
+                </div>
+                <div class="col-md-4 text-md-end">
+                    <div class="preview-actions">
+                        <a href="{% url 'portfolio:download_cv' %}" class="btn btn-primary">
+                            <i class="bi bi-download"></i> Download PDF
+                        </a>
+                        <a href="{% url 'portfolio:about' %}" class="btn btn-outline-secondary">
+                            <i class="bi bi-arrow-left"></i> Back to About
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- CV Preview Frame -->
+    <div class="container">
+        <div class="download-info">
+            <div class="row align-items-center">
+                <div class="col-auto">
+                    <i class="bi bi-info-circle fs-4"></i>
+                </div>
+                <div class="col">
+                    <strong>ATS-Friendly Format:</strong> This CV is optimized for Applicant Tracking Systems (ATS) 
+                    with clean formatting, proper heading structure, and keyword-friendly content.
+                </div>
+            </div>
+        </div>
+        
+        <div class="cv-preview-frame">
+            <div class="cv-content">
+                {% if 'header' in include_sections %}
+                <!-- Header Section -->
+                <header class="header">
+                    <h1 class="name">{{ cv_data.name }}</h1>
+                    <div class="title">{{ cv_data.title }}</div>
+                    <div class="contact-info">
+                        <div class="contact-item">
+                            <span>📧</span> {{ cv_data.email }}
+                        </div>
+                        {% if cv_data.phone %}
+                        <div class="contact-item">
+                            <span>📱</span> {{ cv_data.phone }}
+                        </div>
+                        {% endif %}
+                        {% if cv_data.location %}
+                        <div class="contact-item">
+                            <span>📍</span> {{ cv_data.location }}
+                        </div>
+                        {% endif %}
+                        {% if cv_data.website %}
+                        <div class="contact-item">
+                            <span>🌐</span> {{ cv_data.website }}
+                        </div>
+                        {% endif %}
+                        {% if cv_data.social.linkedin %}
+                        <div class="contact-item">
+                            <span>💼</span> LinkedIn
+                        </div>
+                        {% endif %}
+                        {% if cv_data.social.github %}
+                        <div class="contact-item">
+                            <span>💻</span> GitHub
+                        </div>
+                        {% endif %}
+                    </div>
+                </header>
+                {% endif %}
+                
+                {% if 'summary' in include_sections and cv_data.summary %}
+                <!-- Summary Section -->
+                <section class="section">
+                    <h2 class="section-title">Professional Summary</h2>
+                    <div class="summary">{{ cv_data.summary }}</div>
+                </section>
+                {% endif %}
+                
+                {% if 'experience' in include_sections and cv_data.experience %}
+                <!-- Experience Section -->
+                <section class="section">
+                    <h2 class="section-title">Professional Experience</h2>
+                    {% for job in cv_data.experience %}
+                    <div class="experience-item">
+                        <div class="job-header">
+                            <div>
+                                <div class="job-title">{{ job.title }}</div>
+                                <div class="job-company">{{ job.company }}</div>
+                                {% if job.location %}
+                                <div class="job-location">{{ job.location }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="job-duration">
+                                {{ job.start_date|date:"M Y" }} - 
+                                {% if job.is_current %}Present{% else %}{{ job.end_date|date:"M Y" }}{% endif %}
+                                {% if job.duration %}
+                                <br><small>({{ job.duration }})</small>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        {% if job.description %}
+                        <div class="job-description">{{ job.description }}</div>
+                        {% endif %}
+                        
+                        {% if job.achievements %}
+                        <div class="achievements">
+                            <ul>
+                                {% for achievement in job.achievements %}
+                                <li>{{ achievement }}</li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                        {% endif %}
+                        
+                        {% if job.technologies %}
+                        <div class="technologies">
+                            <div class="tech-tags">
+                                {% for tech in job.technologies %}
+                                <span class="tech-tag">{{ tech }}</span>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                </section>
+                {% endif %}
+                
+                {% if 'education' in include_sections and cv_data.education %}
+                <!-- Education Section -->
+                <section class="section">
+                    <h2 class="section-title">Education</h2>
+                    {% for edu in cv_data.education %}
+                    <div class="education-item">
+                        <div class="job-title">{{ edu.degree }}</div>
+                        <div class="job-company">{{ edu.institution }}</div>
+                        {% if edu.location %}
+                        <div class="job-location">{{ edu.location }}</div>
+                        {% endif %}
+                        <div class="job-duration">
+                            {{ edu.start_date|date:"Y" }} - {{ edu.end_date|date:"Y" }}
+                        </div>
+                        {% if edu.achievements %}
+                        <div class="achievements">
+                            <ul>
+                                {% for achievement in edu.achievements %}
+                                <li>{{ achievement }}</li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                </section>
+                {% endif %}
+                
+                {% if 'skills' in include_sections and cv_data.skills %}
+                <!-- Skills Section -->
+                <section class="section">
+                    <h2 class="section-title">Technical Skills</h2>
+                    <div class="skills-grid">
+                        {% for category, skills in cv_data.skills.items %}
+                        <div class="skill-category">
+                            <div class="skill-category-title">{{ category|title }}</div>
+                            <div class="skill-list">
+                                {% if skills|length > 0 %}
+                                    {% if skills.0.name %}
+                                        {% for skill in skills %}{{ skill.name }}{% if not forloop.last %}, {% endif %}{% endfor %}
+                                    {% else %}
+                                        {% for skill in skills %}{{ skill }}{% if not forloop.last %}, {% endif %}{% endfor %}
+                                    {% endif %}
+                                {% endif %}
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </section>
+                {% endif %}
+                
+                {% if cv_data.achievements %}
+                <!-- Achievements Section -->
+                <section class="section">
+                    <h2 class="section-title">Certifications & Achievements</h2>
+                    {% for achievement in cv_data.achievements %}
+                    <div class="achievement-item">
+                        <div class="job-title">{{ achievement.title }}</div>
+                        <span class="job-company">{{ achievement.organization }}</span>
+                        {% if achievement.date %}
+                        <span class="job-duration">{{ achievement.date|date:"M Y" }}</span>
+                        {% endif %}
+                        {% if achievement.description %}
+                        <div class="job-description">{{ achievement.description }}</div>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                </section>
+                {% endif %}
+            </div>
+        </div>
+        
+        <div class="download-actions">
+            <div class="row">
+                <div class="col-md-8 offset-md-2 text-center">
+                    <p class="text-muted mb-3">
+                        <i class="bi bi-shield-check"></i> 
+                        Your CV is ready for download as a professional PDF document.
+                    </p>
+                    <a href="{% url 'portfolio:download_cv' %}" class="btn btn-primary btn-lg">
+                        <i class="bi bi-download"></i> Download CV as PDF
+                    </a>
+                    <p class="small text-muted mt-2">
+                        Generated on {{ generated_date|date:"F j, Y" }} | {{ format_type|title }} Format
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,239 @@
+{% extends 'parameters/admin/base_admin.html' %}
+{% load static %}
+
+{% block breadcrumb %}
+<li class="breadcrumb-item">
+    <a href="{% url 'parameters:professional_journey_list' %}">Professional Journey</a>
+</li>
+<li class="breadcrumb-item active" aria-current="page">Edit Entry</li>
+{% endblock %}
+
+{% block page_description %}
+<p class="text-muted mb-0">Edit professional journey entry: {{ object.title }}</p>
+{% endblock %}
+
+{% block page_actions %}
+<div>
+    <a href="{% url 'parameters:professional_journey_list' %}" class="btn btn-secondary">
+        <i class="bi bi-arrow-left me-2"></i>Back to List
+    </a>
+</div>
+{% endblock %}
+
+{% block admin_content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">
+                    <i class="bi bi-pencil me-2"></i>Edit Professional Journey Entry
+                </h5>
+                <div>
+                    <span class="badge bg-{% if object.is_active %}success{% else %}secondary{% endif %}">
+                        {{ object.is_active|yesno:"Active,Inactive" }}
+                    </span>
+                    {% if object.is_featured %}
+                    <span class="badge bg-warning text-dark">Featured</span>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="card-body">
+                <form method="post" novalidate>
+                    {% csrf_token %}
+                    
+                    <div class="row g-3">
+                        <!-- Title -->
+                        <div class="col-md-6">
+                            <label for="{{ form.title.id_for_label }}" class="form-label">
+                                Position/Title <span class="text-danger">*</span>
+                            </label>
+                            {{ form.title }}
+                            {% if form.title.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.title.errors.0 }}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <!-- Company -->
+                        <div class="col-md-6">
+                            <label for="{{ form.company.id_for_label }}" class="form-label">
+                                Company/Institution <span class="text-danger">*</span>
+                            </label>
+                            {{ form.company }}
+                            {% if form.company.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.company.errors.0 }}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <!-- Location -->
+                        <div class="col-md-6">
+                            <label for="{{ form.location.id_for_label }}" class="form-label">Location</label>
+                            {{ form.location }}
+                            {% if form.location.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.location.errors.0 }}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <!-- Entry Type -->
+                        <div class="col-md-6">
+                            <label for="{{ form.entry_type.id_for_label }}" class="form-label">
+                                Type <span class="text-danger">*</span>
+                            </label>
+                            {{ form.entry_type }}
+                            {% if form.entry_type.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.entry_type.errors.0 }}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <!-- Dates -->
+                        <div class="col-md-6">
+                            <label for="{{ form.start_date.id_for_label }}" class="form-label">
+                                Start Date <span class="text-danger">*</span>
+                            </label>
+                            {{ form.start_date }}
+                            {% if form.start_date.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.start_date.errors.0 }}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <label for="{{ form.end_date.id_for_label }}" class="form-label">End Date</label>
+                            {{ form.end_date }}
+                            {% if form.end_date.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.end_date.errors.0 }}
+                                </div>
+                            {% endif %}
+                            <div class="form-check mt-2">
+                                {{ form.is_current }}
+                                <label class="form-check-label" for="{{ form.is_current.id_for_label }}">
+                                    Currently working here
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <!-- Description -->
+                        <div class="col-12">
+                            <label for="{{ form.description.id_for_label }}" class="form-label">Description</label>
+                            {{ form.description }}
+                            {% if form.description.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.description.errors.0 }}
+                                </div>
+                            {% endif %}
+                            <div class="form-text">Brief description of your role and responsibilities</div>
+                        </div>
+                        
+                        <!-- Achievements -->
+                        <div class="col-12">
+                            <label for="{{ form.achievements.id_for_label }}" class="form-label">Achievements</label>
+                            {{ form.achievements }}
+                            {% if form.achievements.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.achievements.errors.0 }}
+                                </div>
+                            {% endif %}
+                            <div class="form-text">List key achievements (one per line)</div>
+                        </div>
+                        
+                        <!-- Technologies -->
+                        <div class="col-12">
+                            <label for="{{ form.technologies.id_for_label }}" class="form-label">Technologies</label>
+                            {{ form.technologies }}
+                            {% if form.technologies.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.technologies.errors.0 }}
+                                </div>
+                            {% endif %}
+                            <div class="form-text">Comma-separated list of technologies used</div>
+                        </div>
+                        
+                        <!-- Options -->
+                        <div class="col-md-4">
+                            <label for="{{ form.order.id_for_label }}" class="form-label">Display Order</label>
+                            {{ form.order }}
+                            {% if form.order.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.order.errors.0 }}
+                                </div>
+                            {% endif %}
+                            <div class="form-text">Lower numbers appear first</div>
+                        </div>
+                        
+                        <div class="col-md-4">
+                            <div class="form-check">
+                                {{ form.is_featured }}
+                                <label class="form-check-label" for="{{ form.is_featured.id_for_label }}">
+                                    Featured Entry
+                                </label>
+                            </div>
+                            <div class="form-text">Show prominently on portfolio</div>
+                        </div>
+                        
+                        <div class="col-md-4">
+                            <div class="form-check">
+                                {{ form.is_active }}
+                                <label class="form-check-label" for="{{ form.is_active.id_for_label }}">
+                                    Active
+                                </label>
+                            </div>
+                            <div class="form-text">Display on public portfolio</div>
+                        </div>
+                    </div>
+                    
+                    <div class="d-flex justify-content-between mt-4 pt-3 border-top">
+                        <div>
+                            <a href="{% url 'parameters:professional_journey_list' %}" class="btn btn-outline-secondary">
+                                <i class="bi bi-x-circle me-2"></i>Cancel
+                            </a>
+                            <form method="post" action="{% url 'parameters:professional_journey_delete' object.pk %}" class="d-inline ms-2">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-outline-danger" onclick="return confirm('Are you sure you want to delete this entry?')">
+                                    <i class="bi bi-trash me-2"></i>Delete
+                                </button>
+                            </form>
+                        </div>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-check-circle me-2"></i>Update Entry
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+{{ block.super }}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Toggle end date field based on is_current checkbox
+    const isCurrentCheckbox = document.getElementById('{{ form.is_current.id_for_label }}');
+    const endDateField = document.getElementById('{{ form.end_date.id_for_label }}');
+    
+    function toggleEndDate() {
+        if (isCurrentCheckbox.checked) {
+            endDateField.disabled = true;
+            endDateField.value = '';
+            endDateField.parentElement.classList.add('text-muted');
+        } else {
+            endDateField.disabled = false;
+            endDateField.parentElement.classList.remove('text-muted');
+        }
+    }
+    
+    isCurrentCheckbox.addEventListener('change', toggleEndDate);
+    toggleEndDate(); // Run on page load
+});
+</script>
+{% endblock %}

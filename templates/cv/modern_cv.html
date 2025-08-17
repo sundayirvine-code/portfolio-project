@@ -440,10 +440,14 @@
             <div class="skills-grid">
                 {% for category, skills in cv_data.skills.items %}
                 <div class="skill-category">
-                    <div class="skill-category-title">{{ category|title|replace:"_":" " }}</div>
+                    <div class="skill-category-title">{{ category|title }}</div>
                     <div class="skill-list">
                         {% if skills|length > 0 %}
-                            {% for skill in skills %}{{ skill }}{% if not forloop.last %}, {% endif %}{% endfor %}
+                            {% if skills.0.name %}
+                                {% for skill in skills %}{{ skill.name }}{% if not forloop.last %}, {% endif %}{% endfor %}
+                            {% else %}
+                                {% for skill in skills %}{{ skill }}{% if not forloop.last %}, {% endif %}{% endfor %}
+                            {% endif %}
                         {% endif %}
                     </div>
                 </div>

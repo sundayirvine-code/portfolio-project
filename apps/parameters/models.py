@@ -96,6 +96,10 @@ class SiteParameter(models.Model):
     fun_facts = models.JSONField(_("Fun Facts"), default=dict, blank=True,
                                help_text="Store as JSON: {'cups_of_coffee': 500, 'projects_completed': 50, ...}")
     
+    # Skills & Expertise (stored as JSON)
+    skills_expertise = models.JSONField(_("Skills & Expertise"), default=list, blank=True,
+                                      help_text="Store as JSON: [{'name': 'Python', 'category': 'programming', 'level': 90, 'icon': 'code', 'color': 'primary'}]")
+    
     # Contact Section Dynamic Content
     availability_status = models.CharField(_("Availability Status"), max_length=20,
                                          choices=[

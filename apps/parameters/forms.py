@@ -3,6 +3,7 @@ from django.core.validators import RegexValidator
 from django.forms import formset_factory
 import json
 from .models import SiteParameter, NavigationMenu, ColorPalette, FontPalette, ProfessionalJourney, FAQ, QuickAnswer
+from .widgets import Base64ImageField
 
 
 class SiteParameterForm(forms.ModelForm):
@@ -287,6 +288,13 @@ class ColorPaletteForm(forms.ModelForm):
 class ExtendedSiteParameterForm(forms.ModelForm):
     """Extended form for managing all site parameters including JSON fields"""
     
+    # Custom field for profile image with image picker
+    profile_image_base64 = Base64ImageField(
+        label="Profile Image",
+        help_text="Upload your profile picture. It will be automatically converted to Base64 format.",
+        required=False
+    )
+    
     class Meta:
         model = SiteParameter
         fields = [
@@ -467,3 +475,5 @@ class QuickAnswerForm(forms.ModelForm):
             'order': forms.NumberInput(attrs={'class': 'form-control', 'min': 0}),
             'is_active': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
         }
+
+
