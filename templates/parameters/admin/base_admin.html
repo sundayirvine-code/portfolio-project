@@ -1,0 +1,326 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ title|default:"Admin Panel" }} - {{ site_settings.site_name }}{% endblock %}
+
+{% block body_class %}admin-panel{% endblock %}
+
+{% block content %}
+<div class="container-fluid mt-4">
+    <div class="row">
+        <!-- Sidebar Navigation -->
+        <div class="col-lg-2 col-md-3 mb-4">
+            <div class="admin-sidebar bg-white rounded shadow-sm p-3 sticky-top" style="top: 100px;">
+                <h6 class="text-muted mb-3 text-uppercase fw-bold">Admin Panel</h6>
+                
+                <!-- Site Settings Section -->
+                <div class="mb-4">
+                    <h6 class="text-muted mb-2 small text-uppercase">Site Settings</h6>
+                    <div class="nav nav-pills flex-column">
+                        <a href="{% url 'parameters:dashboard' %}" class="nav-link small {% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}">
+                            <i class="bi bi-speedometer2 me-2"></i>Dashboard
+                        </a>
+                        <a href="{% url 'parameters:comprehensive_settings' %}" class="nav-link small {% if request.resolver_match.url_name == 'comprehensive_settings' %}active{% endif %}">
+                            <i class="bi bi-gear me-2"></i>General Settings
+                        </a>
+                        <a href="{% url 'parameters:fun_facts_management' %}" class="nav-link small {% if request.resolver_match.url_name == 'fun_facts_management' %}active{% endif %}">
+                            <i class="bi bi-bar-chart me-2"></i>Fun Facts
+                        </a>
+                        <a href="{% url 'parameters:values_interests_management' %}" class="nav-link small {% if request.resolver_match.url_name == 'values_interests_management' %}active{% endif %}">
+                            <i class="bi bi-heart me-2"></i>Values & Interests
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Content Management Section -->
+                <div class="mb-4">
+                    <h6 class="text-muted mb-2 small text-uppercase">Content</h6>
+                    <div class="nav nav-pills flex-column">
+                        <a href="{% url 'parameters:professional_journey_list' %}" class="nav-link small {% if 'professional_journey' in request.resolver_match.url_name %}active{% endif %}">
+                            <i class="bi bi-briefcase me-2"></i>Experience & Education
+                        </a>
+                        <a href="{% url 'parameters:faq_list' %}" class="nav-link small {% if 'faq' in request.resolver_match.url_name %}active{% endif %}">
+                            <i class="bi bi-question-circle me-2"></i>FAQ
+                        </a>
+                        <a href="{% url 'parameters:quick_answer_list' %}" class="nav-link small {% if 'quick_answer' in request.resolver_match.url_name %}active{% endif %}">
+                            <i class="bi bi-lightning me-2"></i>Quick Answers
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Design & Appearance Section -->
+                <div class="mb-4">
+                    <h6 class="text-muted mb-2 small text-uppercase">Design</h6>
+                    <div class="nav nav-pills flex-column">
+                        <a href="{% url 'parameters:navigation_list' %}" class="nav-link small {% if 'navigation' in request.resolver_match.url_name %}active{% endif %}">
+                            <i class="bi bi-list me-2"></i>Navigation
+                        </a>
+                        <a href="{% url 'parameters:color_palette_list' %}" class="nav-link small {% if 'color_palette' in request.resolver_match.url_name %}active{% endif %}">
+                            <i class="bi bi-palette me-2"></i>Color Palettes
+                        </a>
+                        <a href="{% url 'parameters:font_palette_list' %}" class="nav-link small {% if 'font_palette' in request.resolver_match.url_name %}active{% endif %}">
+                            <i class="bi bi-fonts me-2"></i>Font Palettes
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Quick Actions -->
+                <div class="mb-4">
+                    <h6 class="text-muted mb-2 small text-uppercase">Quick Actions</h6>
+                    <div class="d-grid gap-2">
+                        <a href="{% url 'portfolio:home' %}" class="btn btn-outline-primary btn-sm" target="_blank">
+                            <i class="bi bi-eye me-1"></i>View Site
+                        </a>
+                        <a href="/admin/" class="btn btn-outline-secondary btn-sm" target="_blank">
+                            <i class="bi bi-tools me-1"></i>Django Admin
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content Area -->
+        <div class="col-lg-10 col-md-9">
+            <!-- Breadcrumb -->
+            <nav aria-label="breadcrumb" class="mb-3">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item">
+                        <a href="{% url 'parameters:dashboard' %}" class="text-decoration-none">
+                            <i class="bi bi-house-door me-1"></i>Admin
+                        </a>
+                    </li>
+                    {% block breadcrumb %}
+                    <li class="breadcrumb-item active" aria-current="page">{{ title }}</li>
+                    {% endblock %}
+                </ol>
+            </nav>
+
+            <!-- Page Header -->
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h1 class="h3 mb-1">{{ title }}</h1>
+                    {% block page_description %}
+                    <p class="text-muted mb-0">{{ description|default:"Manage your portfolio settings and content" }}</p>
+                    {% endblock %}
+                </div>
+                {% block page_actions %}{% endblock %}
+            </div>
+
+            <!-- Messages -->
+            {% if messages %}
+            <div class="messages mb-4">
+                {% for message in messages %}
+                <div class="alert alert-{{ message.tags|default:'info' }} alert-dismissible fade show" role="alert">
+                    {% if message.tags == 'success' %}
+                    <i class="bi bi-check-circle me-2"></i>
+                    {% elif message.tags == 'error' %}
+                    <i class="bi bi-exclamation-triangle me-2"></i>
+                    {% elif message.tags == 'warning' %}
+                    <i class="bi bi-exclamation-circle me-2"></i>
+                    {% else %}
+                    <i class="bi bi-info-circle me-2"></i>
+                    {% endif %}
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            <!-- Main Content -->
+            <div class="admin-content">
+                {% block admin_content %}{% endblock %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+/* Modern Admin Panel Styles */
+.admin-panel {
+    background: #f8f9fa;
+    min-height: 100vh;
+}
+
+.admin-sidebar {
+    min-height: calc(100vh - 150px);
+    border: 1px solid rgba(0,0,0,0.1);
+}
+
+.admin-sidebar .nav-link {
+    color: #6c757d;
+    border-radius: 6px;
+    margin-bottom: 2px;
+    transition: all 0.2s ease;
+}
+
+.admin-sidebar .nav-link:hover {
+    background-color: #e9ecef;
+    color: #495057;
+}
+
+.admin-sidebar .nav-link.active {
+    background-color: var(--theme-primary, #0d6efd);
+    color: white;
+}
+
+.admin-content .card {
+    border: 1px solid rgba(0,0,0,0.1);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.admin-content .table {
+    margin-bottom: 0;
+}
+
+.admin-content .table th {
+    border-top: none;
+    font-weight: 600;
+    color: #495057;
+    background-color: #f8f9fa;
+}
+
+.admin-content .table td {
+    vertical-align: middle;
+}
+
+.admin-content .btn-group .btn {
+    padding: 0.25rem 0.5rem;
+}
+
+/* Form Styles */
+.form-floating > label {
+    color: #6c757d;
+}
+
+.form-control:focus {
+    border-color: var(--theme-primary, #0d6efd);
+    box-shadow: 0 0 0 0.2rem rgba(var(--theme-primary-rgb, 13, 110, 253), 0.25);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .admin-sidebar {
+        position: static !important;
+        margin-bottom: 1rem;
+    }
+    
+    .admin-sidebar .nav-pills {
+        flex-direction: row;
+        flex-wrap: wrap;
+    }
+    
+    .admin-sidebar .nav-link {
+        margin-right: 0.5rem;
+        margin-bottom: 0.5rem;
+    }
+}
+
+/* Badge Styles */
+.badge-status {
+    padding: 0.4em 0.6em;
+    font-size: 0.75em;
+}
+
+/* Action Buttons */
+.btn-action {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.875rem;
+}
+
+/* Card Headers */
+.card-header {
+    background-color: #fff;
+    border-bottom: 1px solid rgba(0,0,0,0.1);
+    font-weight: 600;
+}
+
+/* Tab Styles */
+.nav-tabs .nav-link {
+    border: 1px solid transparent;
+    border-top-left-radius: 0.375rem;
+    border-top-right-radius: 0.375rem;
+}
+
+.nav-tabs .nav-link.active {
+    background-color: #fff;
+    border-color: #dee2e6 #dee2e6 #fff;
+}
+
+/* Pagination */
+.pagination {
+    margin-bottom: 0;
+}
+
+.page-link {
+    color: var(--theme-primary, #0d6efd);
+}
+
+.page-item.active .page-link {
+    background-color: var(--theme-primary, #0d6efd);
+    border-color: var(--theme-primary, #0d6efd);
+}
+
+/* Dark Mode Support */
+[data-bs-theme="dark"] .admin-sidebar,
+[data-bs-theme="dark"] .admin-content .card {
+    background-color: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.1);
+}
+
+[data-bs-theme="dark"] .admin-sidebar .nav-link {
+    color: rgba(255, 255, 255, 0.75);
+}
+
+[data-bs-theme="dark"] .admin-sidebar .nav-link:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    color: white;
+}
+
+[data-bs-theme="dark"] .table th {
+    background-color: rgba(255, 255, 255, 0.05);
+    color: rgba(255, 255, 255, 0.9);
+}
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Auto-dismiss alerts after 5 seconds
+    const alerts = document.querySelectorAll('.alert');
+    alerts.forEach(alert => {
+        if (!alert.classList.contains('alert-danger')) {
+            setTimeout(() => {
+                const bsAlert = new bootstrap.Alert(alert);
+                bsAlert.close();
+            }, 5000);
+        }
+    });
+    
+    // Confirm delete actions
+    const deleteButtons = document.querySelectorAll('[data-action="delete"]');
+    deleteButtons.forEach(button => {
+        button.addEventListener('click', function(e) {
+            if (!confirm('Are you sure you want to delete this item? This action cannot be undone.')) {
+                e.preventDefault();
+            }
+        });
+    });
+    
+    // Form validation enhancement
+    const forms = document.querySelectorAll('form');
+    forms.forEach(form => {
+        form.addEventListener('submit', function() {
+            const submitBtn = form.querySelector('button[type="submit"]');
+            if (submitBtn) {
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Saving...';
+            }
+        });
+    });
+});
+</script>
+{% endblock %}

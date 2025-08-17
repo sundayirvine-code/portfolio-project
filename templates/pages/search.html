@@ -1,0 +1,367 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Search Results{% if query %} for "{{ query }}"{% endif %} - {{ site_settings.site_name }}{% endblock %}
+
+{% block body_class %}search-page{% endblock %}
+
+{% block content %}
+<div class="container mt-5 pt-4">
+    <!-- Search Header -->
+    <div class="row justify-content-center mb-5">
+        <div class="col-lg-8">
+            <div class="text-center mb-4">
+                <h1 class="display-5 fw-bold mb-3">
+                    {% if query %}
+                        Search Results for "{{ query }}"
+                    {% else %}
+                        Search Portfolio
+                    {% endif %}
+                </h1>
+                {% if query %}
+                <p class="lead text-muted">
+                    Found {{ projects|length|add:blog_posts|length|add:services|length }} results across projects, blog posts, and services
+                </p>
+                {% else %}
+                <p class="lead text-muted">
+                    Search through projects, blog posts, and services
+                </p>
+                {% endif %}
+            </div>
+            
+            <!-- Search Form -->
+            <form method="get" class="mb-5">
+                <div class="input-group input-group-lg">
+                    <input type="text" 
+                           class="form-control" 
+                           name="q" 
+                           value="{{ query }}" 
+                           placeholder="Search projects, blog posts, services..."
+                           required>
+                    <button class="btn btn-primary" type="submit">
+                        <i class="bi bi-search me-2"></i>Search
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    {% if query %}
+    <!-- Search Results -->
+    {% if projects or blog_posts or services %}
+    <div class="row">
+        <!-- Projects Results -->
+        {% if projects %}
+        <div class="col-12 mb-5">
+            <h3 class="h4 mb-4">
+                <i class="bi bi-folder me-2 text-primary"></i>
+                Projects <span class="badge bg-primary">{{ projects|length }}</span>
+            </h3>
+            <div class="row g-4">
+                {% for project in projects %}
+                <div class="col-lg-4 col-md-6">
+                    <div class="card h-100 shadow-sm border-0">
+                        {% if project.featured_image %}
+                        <img src="{{ project.featured_image }}" class="card-img-top" alt="{{ project.title }}" style="height: 200px; object-fit: cover;">
+                        {% else %}
+                        <div class="card-img-top bg-light d-flex align-items-center justify-content-center" style="height: 200px;">
+                            <i class="bi bi-image text-muted" style="font-size: 3rem;"></i>
+                        </div>
+                        {% endif %}
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <h5 class="card-title">{{ project.title }}</h5>
+                                {% if project.category %}
+                                <span class="badge bg-{{ project.category.color|default:'primary' }}">{{ project.category.name }}</span>
+                                {% endif %}
+                            </div>
+                            <p class="card-text text-muted">{{ project.description|truncatewords:20 }}</p>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <small class="text-muted">{{ project.created_at|date:"M d, Y" }}</small>
+                                <a href="{% url 'portfolio:project_detail' project.slug %}" class="btn btn-primary btn-sm">
+                                    View Project <i class="bi bi-arrow-right ms-1"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Blog Posts Results -->
+        {% if blog_posts %}
+        <div class="col-12 mb-5">
+            <h3 class="h4 mb-4">
+                <i class="bi bi-journal-text me-2 text-success"></i>
+                Blog Posts <span class="badge bg-success">{{ blog_posts|length }}</span>
+            </h3>
+            <div class="row g-4">
+                {% for post in blog_posts %}
+                <div class="col-lg-4 col-md-6">
+                    <div class="card h-100 shadow-sm border-0">
+                        {% if post.featured_image %}
+                        <img src="{{ post.featured_image }}" class="card-img-top" alt="{{ post.title }}" style="height: 200px; object-fit: cover;">
+                        {% else %}
+                        <div class="card-img-top bg-light d-flex align-items-center justify-content-center" style="height: 200px;">
+                            <i class="bi bi-journal-text text-muted" style="font-size: 3rem;"></i>
+                        </div>
+                        {% endif %}
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <h5 class="card-title">{{ post.title }}</h5>
+                                {% if post.category %}
+                                <span class="badge bg-info">{{ post.category.name }}</span>
+                                {% endif %}
+                            </div>
+                            <p class="card-text text-muted">{{ post.excerpt|truncatewords:20 }}</p>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <small class="text-muted">{{ post.published_at|date:"M d, Y" }}</small>
+                                <a href="{% url 'portfolio:blog_detail' post.slug %}" class="btn btn-success btn-sm">
+                                    Read More <i class="bi bi-arrow-right ms-1"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Services Results -->
+        {% if services %}
+        <div class="col-12 mb-5">
+            <h3 class="h4 mb-4">
+                <i class="bi bi-gear me-2 text-warning"></i>
+                Services <span class="badge bg-warning text-dark">{{ services|length }}</span>
+            </h3>
+            <div class="row g-4">
+                {% for service in services %}
+                <div class="col-lg-4 col-md-6">
+                    <div class="card h-100 shadow-sm border-0">
+                        <div class="card-body text-center">
+                            <div class="service-icon mb-3">
+                                {% if service.icon %}
+                                <i class="{{ service.icon }} display-6 text-warning"></i>
+                                {% else %}
+                                <i class="bi bi-gear display-6 text-warning"></i>
+                                {% endif %}
+                            </div>
+                            <h5 class="card-title">{{ service.name }}</h5>
+                            <p class="card-text text-muted">{{ service.short_description|truncatewords:15 }}</p>
+                            {% if service.starting_price %}
+                            <div class="price-info mb-3">
+                                <span class="h5 text-primary">{{ service.starting_price }}</span>
+                                <small class="text-muted">{{ service.price_unit }}</small>
+                            </div>
+                            {% endif %}
+                            <a href="{% url 'portfolio:services' %}" class="btn btn-warning">
+                                Learn More <i class="bi bi-arrow-right ms-1"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+    </div>
+    
+    {% else %}
+    <!-- No Results -->
+    <div class="row justify-content-center">
+        <div class="col-lg-6 text-center">
+            <div class="py-5">
+                <i class="bi bi-search display-1 text-muted mb-4"></i>
+                <h3 class="mb-3">No Results Found</h3>
+                <p class="text-muted mb-4">
+                    Sorry, we couldn't find anything matching "{{ query }}". 
+                    Try adjusting your search terms or browse our sections below.
+                </p>
+                <div class="d-flex gap-3 justify-content-center">
+                    <a href="{% url 'portfolio:projects' %}" class="btn btn-primary">
+                        <i class="bi bi-folder me-2"></i>Browse Projects
+                    </a>
+                    <a href="{% url 'portfolio:blog' %}" class="btn btn-success">
+                        <i class="bi bi-journal-text me-2"></i>Read Blog
+                    </a>
+                    <a href="{% url 'portfolio:services' %}" class="btn btn-warning">
+                        <i class="bi bi-gear me-2"></i>View Services
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+    
+    {% else %}
+    <!-- Search Suggestions -->
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="text-center mb-5">
+                <h3 class="mb-4">Popular Searches</h3>
+                <div class="d-flex flex-wrap gap-2 justify-content-center">
+                    <span class="badge bg-light text-dark p-2 fs-6">Django</span>
+                    <span class="badge bg-light text-dark p-2 fs-6">Python</span>
+                    <span class="badge bg-light text-dark p-2 fs-6">Web Development</span>
+                    <span class="badge bg-light text-dark p-2 fs-6">API</span>
+                    <span class="badge bg-light text-dark p-2 fs-6">Frontend</span>
+                    <span class="badge bg-light text-dark p-2 fs-6">Backend</span>
+                    <span class="badge bg-light text-dark p-2 fs-6">Mobile</span>
+                </div>
+            </div>
+            
+            <!-- Quick Links -->
+            <div class="row g-4">
+                <div class="col-md-4 text-center">
+                    <div class="p-4 border rounded">
+                        <i class="bi bi-folder display-4 text-primary mb-3"></i>
+                        <h5>Projects</h5>
+                        <p class="text-muted small">Browse my latest work and case studies</p>
+                        <a href="{% url 'portfolio:projects' %}" class="btn btn-primary btn-sm">Explore</a>
+                    </div>
+                </div>
+                <div class="col-md-4 text-center">
+                    <div class="p-4 border rounded">
+                        <i class="bi bi-journal-text display-4 text-success mb-3"></i>
+                        <h5>Blog</h5>
+                        <p class="text-muted small">Read insights and tutorials</p>
+                        <a href="{% url 'portfolio:blog' %}" class="btn btn-success btn-sm">Read</a>
+                    </div>
+                </div>
+                <div class="col-md-4 text-center">
+                    <div class="p-4 border rounded">
+                        <i class="bi bi-gear display-4 text-warning mb-3"></i>
+                        <h5>Services</h5>
+                        <p class="text-muted small">Discover what I can do for you</p>
+                        <a href="{% url 'portfolio:services' %}" class="btn btn-warning btn-sm">Learn More</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+/* Search Page Styles */
+.search-page .card {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.search-page .card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.15) !important;
+}
+
+.search-page .badge {
+    font-size: 0.75em;
+}
+
+.search-page .service-icon {
+    height: 80px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Dark mode adjustments */
+[data-bs-theme="dark"] .search-page .card {
+    background-color: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+[data-bs-theme="dark"] .search-page .bg-light {
+    background-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+[data-bs-theme="dark"] .search-page .border {
+    border-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+/* Search input focus */
+.search-page .form-control:focus {
+    border-color: var(--bs-primary);
+    box-shadow: 0 0 0 0.2rem rgba(var(--bs-primary-rgb), 0.25);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .search-page .display-5 {
+        font-size: 2rem;
+    }
+    
+    .search-page .input-group-lg .form-control {
+        font-size: 1rem;
+    }
+}
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Highlight search terms in results
+    const query = "{{ query|escapejs }}";
+    if (query) {
+        highlightSearchTerms(query);
+    }
+    
+    // Add click tracking for search results
+    const resultLinks = document.querySelectorAll('.card a[href*="portfolio"]');
+    resultLinks.forEach(link => {
+        link.addEventListener('click', function() {
+            // Track search result clicks
+            console.log('Search result clicked:', this.href);
+        });
+    });
+});
+
+function highlightSearchTerms(query) {
+    const terms = query.toLowerCase().split(' ');
+    const textNodes = getTextNodes(document.body);
+    
+    textNodes.forEach(node => {
+        const text = node.textContent.toLowerCase();
+        terms.forEach(term => {
+            if (text.includes(term) && term.length > 2) {
+                const regex = new RegExp(`(${term})`, 'gi');
+                const parent = node.parentNode;
+                const wrapper = document.createElement('span');
+                wrapper.innerHTML = node.textContent.replace(regex, '<mark class="bg-warning">$1</mark>');
+                parent.replaceChild(wrapper, node);
+            }
+        });
+    });
+}
+
+function getTextNodes(element) {
+    const textNodes = [];
+    const walker = document.createTreeWalker(
+        element,
+        NodeFilter.SHOW_TEXT,
+        {
+            acceptNode: function(node) {
+                // Skip script and style elements
+                if (node.parentElement.tagName === 'SCRIPT' || 
+                    node.parentElement.tagName === 'STYLE') {
+                    return NodeFilter.FILTER_REJECT;
+                }
+                return NodeFilter.FILTER_ACCEPT;
+            }
+        }
+    );
+    
+    let node;
+    while (node = walker.nextNode()) {
+        textNodes.push(node);
+    }
+    
+    return textNodes;
+}
+</script>
+{% endblock %}

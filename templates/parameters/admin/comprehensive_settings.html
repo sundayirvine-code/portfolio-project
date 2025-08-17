@@ -1,0 +1,423 @@
+{% extends 'parameters/admin/base_admin.html' %}
+{% load static %}
+
+{% block breadcrumb %}
+<li class="breadcrumb-item active" aria-current="page">General Settings</li>
+{% endblock %}
+
+{% block page_description %}
+<p class="text-muted mb-0">Configure all site parameters, owner information, and general settings</p>
+{% endblock %}
+
+{% block admin_content %}
+<div class="card">
+    <form method="post" class="needs-validation" novalidate>
+        {% csrf_token %}
+        
+        <!-- Settings Tabs -->
+        <div class="card-header">
+            <ul class="nav nav-tabs card-header-tabs" id="settingsTabs" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active" id="basic-tab" data-bs-toggle="tab" data-bs-target="#basic" type="button" role="tab">
+                        <i class="bi bi-info-circle me-2"></i>Basic Info
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="owner-tab" data-bs-toggle="tab" data-bs-target="#owner" type="button" role="tab">
+                        <i class="bi bi-person me-2"></i>Owner Details
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="theme-tab" data-bs-toggle="tab" data-bs-target="#theme" type="button" role="tab">
+                        <i class="bi bi-palette me-2"></i>Theme & Typography
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="content-tab" data-bs-toggle="tab" data-bs-target="#content" type="button" role="tab">
+                        <i class="bi bi-file-text me-2"></i>Dynamic Content
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="contact-tab" data-bs-toggle="tab" data-bs-target="#contact" type="button" role="tab">
+                        <i class="bi bi-envelope me-2"></i>Contact & Social
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="seo-tab" data-bs-toggle="tab" data-bs-target="#seo" type="button" role="tab">
+                        <i class="bi bi-search me-2"></i>SEO & Analytics
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="features-tab" data-bs-toggle="tab" data-bs-target="#features" type="button" role="tab">
+                        <i class="bi bi-toggles me-2"></i>Features
+                    </button>
+                </li>
+            </ul>
+        </div>
+
+        <div class="card-body">
+            <div class="tab-content" id="settingsTabContent">
+                <!-- Basic Information Tab -->
+                <div class="tab-pane fade show active" id="basic" role="tabpanel" aria-labelledby="basic-tab">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <div class="form-floating">
+                                {{ form.site_name }}
+                                <label for="{{ form.site_name.id_for_label }}">Site Name</label>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-floating">
+                                {{ form.site_tagline }}
+                                <label for="{{ form.site_tagline.id_for_label }}">Site Tagline</label>
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <div class="form-floating">
+                                {{ form.site_description }}
+                                <label for="{{ form.site_description.id_for_label }}">Site Description</label>
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <div class="form-floating">
+                                {{ form.site_url }}
+                                <label for="{{ form.site_url.id_for_label }}">Site URL</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Owner Information Tab -->
+                <div class="tab-pane fade" id="owner" role="tabpanel" aria-labelledby="owner-tab">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <div class="form-floating">
+                                {{ form.owner_name }}
+                                <label for="{{ form.owner_name.id_for_label }}">Full Name</label>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-floating">
+                                {{ form.owner_title }}
+                                <label for="{{ form.owner_title.id_for_label }}">Professional Title</label>
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <label for="{{ form.profile_image_base64.id_for_label }}" class="form-label">Profile Image (Base64)</label>
+                            {{ form.profile_image_base64 }}
+                            <div class="form-text">Paste base64 encoded image data here or upload an image and convert it.</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Theme & Typography Tab -->
+                <div class="tab-pane fade" id="theme" role="tabpanel" aria-labelledby="theme-tab">
+                    <div class="row g-3">
+                        <div class="col-md-4">
+                            <div class="form-floating">
+                                {{ form.active_theme }}
+                                <label for="{{ form.active_theme.id_for_label }}">Active Theme</label>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-floating">
+                                {{ form.default_mode }}
+                                <label for="{{ form.default_mode.id_for_label }}">Default Mode</label>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-floating">
+                                {{ form.active_font_palette }}
+                                <label for="{{ form.active_font_palette.id_for_label }}">Font Palette</label>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-floating">
+                                {{ form.base_font_size }}
+                                <label for="{{ form.base_font_size.id_for_label }}">Base Font Size</label>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-floating">
+                                {{ form.heading_font_scale }}
+                                <label for="{{ form.heading_font_scale.id_for_label }}">Heading Scale</label>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-floating">
+                                {{ form.small_font_scale }}
+                                <label for="{{ form.small_font_scale.id_for_label }}">Small Text Scale</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Dynamic Content Tab -->
+                <div class="tab-pane fade" id="content" role="tabpanel" aria-labelledby="content-tab">
+                    <div class="row g-3">
+                        <div class="col-12">
+                            <label for="{{ form.about_me_text.id_for_label }}" class="form-label">About Me Text</label>
+                            {{ form.about_me_text }}
+                            <div class="form-text">Main about section content that appears on your about page.</div>
+                        </div>
+                        <div class="col-12">
+                            <label for="{{ form.my_story_text.id_for_label }}" class="form-label">My Story Text</label>
+                            {{ form.my_story_text }}
+                            <div class="form-text">Personal/professional story content for detailed narrative.</div>
+                        </div>
+                        <div class="col-12">
+                            <label for="{{ form.bio.id_for_label }}" class="form-label">Short Biography</label>
+                            {{ form.bio }}
+                            <div class="form-text">Brief bio that can be used in various sections.</div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-floating">
+                                {{ form.availability_status }}
+                                <label for="{{ form.availability_status.id_for_label }}">Availability Status</label>
+                            </div>
+                        </div>
+                        <div class="col-md-8">
+                            <div class="form-floating">
+                                {{ form.response_time }}
+                                <label for="{{ form.response_time.id_for_label }}">Response Time</label>
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <label for="{{ form.availability_message.id_for_label }}" class="form-label">Availability Message</label>
+                            {{ form.availability_message }}
+                            <div class="form-text">Custom message about your current availability.</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Contact & Social Tab -->
+                <div class="tab-pane fade" id="contact" role="tabpanel" aria-labelledby="contact-tab">
+                    <div class="row g-3">
+                        <div class="col-md-4">
+                            <div class="form-floating">
+                                {{ form.email }}
+                                <label for="{{ form.email.id_for_label }}">Email Address</label>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-floating">
+                                {{ form.phone }}
+                                <label for="{{ form.phone.id_for_label }}">Phone Number</label>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-floating">
+                                {{ form.location }}
+                                <label for="{{ form.location.id_for_label }}">Location</label>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-floating">
+                                {{ form.github_url }}
+                                <label for="{{ form.github_url.id_for_label }}">GitHub URL</label>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-floating">
+                                {{ form.linkedin_url }}
+                                <label for="{{ form.linkedin_url.id_for_label }}">LinkedIn URL</label>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-floating">
+                                {{ form.twitter_url }}
+                                <label for="{{ form.twitter_url.id_for_label }}">Twitter URL</label>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-floating">
+                                {{ form.instagram_url }}
+                                <label for="{{ form.instagram_url.id_for_label }}">Instagram URL</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SEO & Analytics Tab -->
+                <div class="tab-pane fade" id="seo" role="tabpanel" aria-labelledby="seo-tab">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <div class="form-floating">
+                                {{ form.meta_title }}
+                                <label for="{{ form.meta_title.id_for_label }}">Meta Title</label>
+                            </div>
+                            <div class="form-text">Optimal length: 50-60 characters</div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-floating">
+                                {{ form.google_analytics_id }}
+                                <label for="{{ form.google_analytics_id.id_for_label }}">Google Analytics ID</label>
+                            </div>
+                            <div class="form-text">Format: G-XXXXXXXXXX</div>
+                        </div>
+                        <div class="col-12">
+                            <div class="form-floating">
+                                {{ form.meta_description }}
+                                <label for="{{ form.meta_description.id_for_label }}">Meta Description</label>
+                            </div>
+                            <div class="form-text">Optimal length: 150-160 characters</div>
+                        </div>
+                        <div class="col-12">
+                            <div class="form-floating">
+                                {{ form.meta_keywords }}
+                                <label for="{{ form.meta_keywords.id_for_label }}">Meta Keywords</label>
+                            </div>
+                            <div class="form-text">Comma-separated keywords (optional, modern SEO relies more on content)</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Features Tab -->
+                <div class="tab-pane fade" id="features" role="tabpanel" aria-labelledby="features-tab">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <div class="form-check form-switch">
+                                {{ form.enable_blog }}
+                                <label class="form-check-label" for="{{ form.enable_blog.id_for_label }}">
+                                    Enable Blog Section
+                                </label>
+                                <div class="form-text">Show/hide the blog section on your portfolio</div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-check form-switch">
+                                {{ form.enable_testimonials }}
+                                <label class="form-check-label" for="{{ form.enable_testimonials.id_for_label }}">
+                                    Enable Testimonials
+                                </label>
+                                <div class="form-text">Show/hide testimonials throughout the site</div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-check form-switch">
+                                {{ form.enable_contact_form }}
+                                <label class="form-check-label" for="{{ form.enable_contact_form.id_for_label }}">
+                                    Enable Contact Form
+                                </label>
+                                <div class="form-text">Allow visitors to send messages through contact form</div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-check form-switch">
+                                {{ form.enable_animations }}
+                                <label class="form-check-label" for="{{ form.enable_animations.id_for_label }}">
+                                    Enable Animations
+                                </label>
+                                <div class="form-text">Use scroll animations and visual effects</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Form Actions -->
+        <div class="card-footer">
+            <div class="d-flex justify-content-between align-items-center">
+                <a href="{% url 'parameters:dashboard' %}" class="btn btn-outline-secondary">
+                    <i class="bi bi-arrow-left me-2"></i>Back to Dashboard
+                </a>
+                <div>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-check-lg me-2"></i>Save Settings
+                    </button>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+
+<!-- Quick Actions Sidebar -->
+<div class="mt-4">
+    <div class="card">
+        <div class="card-header">
+            <h6 class="mb-0"><i class="bi bi-lightning me-2"></i>Quick Actions</h6>
+        </div>
+        <div class="card-body">
+            <div class="d-grid gap-2">
+                <a href="{% url 'parameters:fun_facts_management' %}" class="btn btn-outline-primary btn-sm">
+                    <i class="bi bi-bar-chart me-2"></i>Manage Fun Facts
+                </a>
+                <a href="{% url 'parameters:values_interests_management' %}" class="btn btn-outline-primary btn-sm">
+                    <i class="bi bi-heart me-2"></i>Manage Values & Interests
+                </a>
+                <a href="{% url 'portfolio:about' %}" class="btn btn-outline-success btn-sm" target="_blank">
+                    <i class="bi bi-eye me-2"></i>Preview About Page
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+{{ block.super }}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Character counter for meta fields
+    const metaTitle = document.getElementById('id_meta_title');
+    const metaDescription = document.getElementById('id_meta_description');
+    
+    if (metaTitle) {
+        addCharacterCounter(metaTitle, 60);
+    }
+    
+    if (metaDescription) {
+        addCharacterCounter(metaDescription, 160);
+    }
+    
+    function addCharacterCounter(element, maxLength) {
+        const counter = document.createElement('div');
+        counter.className = 'form-text text-end';
+        element.parentElement.appendChild(counter);
+        
+        function updateCounter() {
+            const length = element.value.length;
+            const remaining = maxLength - length;
+            counter.textContent = `${length}/${maxLength} characters`;
+            
+            if (remaining < 10) {
+                counter.className = 'form-text text-end text-warning';
+            } else if (remaining < 0) {
+                counter.className = 'form-text text-end text-danger';
+            } else {
+                counter.className = 'form-text text-end text-muted';
+            }
+        }
+        
+        element.addEventListener('input', updateCounter);
+        updateCounter();
+    }
+    
+    // Save form state to localStorage on change
+    const form = document.querySelector('form');
+    const inputs = form.querySelectorAll('input, textarea, select');
+    
+    inputs.forEach(input => {
+        input.addEventListener('change', function() {
+            localStorage.setItem(`form_${this.name}`, this.value);
+        });
+    });
+    
+    // Restore form state from localStorage
+    inputs.forEach(input => {
+        const saved = localStorage.getItem(`form_${input.name}`);
+        if (saved && !input.value) {
+            input.value = saved;
+        }
+    });
+    
+    // Clear localStorage on successful submit
+    form.addEventListener('submit', function() {
+        inputs.forEach(input => {
+            localStorage.removeItem(`form_${input.name}`);
+        });
+    });
+});
+</script>
+{% endblock %}

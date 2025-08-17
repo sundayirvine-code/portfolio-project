@@ -1,0 +1,347 @@
+{% extends 'parameters/admin/base_admin.html' %}
+{% load static %}
+
+{% block breadcrumb %}
+<li class="breadcrumb-item">
+    <a href="{% url 'parameters:comprehensive_settings' %}" class="text-decoration-none">Site Settings</a>
+</li>
+<li class="breadcrumb-item active" aria-current="page">Fun Facts</li>
+{% endblock %}
+
+{% block page_description %}
+<p class="text-muted mb-0">Manage fun facts that display animated counters on your about page</p>
+{% endblock %}
+
+{% block page_actions %}
+<div>
+    <a href="{% url 'portfolio:about' %}" class="btn btn-outline-success" target="_blank">
+        <i class="bi bi-eye me-2"></i>Preview
+    </a>
+</div>
+{% endblock %}
+
+{% block admin_content %}
+<div class="row">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h6 class="mb-0"><i class="bi bi-bar-chart me-2"></i>Fun Facts</h6>
+                    <button type="button" class="btn btn-sm btn-outline-primary" onclick="addFunFact()">
+                        <i class="bi bi-plus me-1"></i>Add Fact
+                    </button>
+                </div>
+            </div>
+            
+            <form method="post" class="needs-validation" novalidate>
+                {% csrf_token %}
+                <div class="card-body">
+                    <div id="fun-facts-container">
+                        {% for fact in fun_facts_data %}
+                        <div class="fun-fact-item border rounded p-3 mb-3" data-index="{{ forloop.counter0 }}">
+                            <div class="d-flex justify-content-between align-items-start mb-3">
+                                <h6 class="mb-0">Fact {{ forloop.counter }}</h6>
+                                <button type="button" class="btn btn-sm btn-outline-danger" onclick="removeFunFact(this)">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </div>
+                            
+                            <div class="row g-3">
+                                <div class="col-md-5">
+                                    <div class="form-floating">
+                                        <input type="text" 
+                                               class="form-control" 
+                                               name="fact_{{ forloop.counter0 }}_label" 
+                                               id="fact_{{ forloop.counter0 }}_label"
+                                               value="{{ fact.label|default:'' }}"
+                                               placeholder="e.g., Cups of Coffee"
+                                               required>
+                                        <label for="fact_{{ forloop.counter0 }}_label">Label</label>
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <div class="form-floating">
+                                        <input type="number" 
+                                               class="form-control" 
+                                               name="fact_{{ forloop.counter0 }}_value" 
+                                               id="fact_{{ forloop.counter0 }}_value"
+                                               value="{{ fact.value|default:'0' }}"
+                                               min="0"
+                                               placeholder="500"
+                                               required>
+                                        <label for="fact_{{ forloop.counter0 }}_value">Value</label>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-floating">
+                                        <select class="form-select" 
+                                                name="fact_{{ forloop.counter0 }}_color" 
+                                                id="fact_{{ forloop.counter0 }}_color">
+                                            <option value="primary" {% if fact.color == 'primary' %}selected{% endif %}>Blue</option>
+                                            <option value="success" {% if fact.color == 'success' %}selected{% endif %}>Green</option>
+                                            <option value="warning" {% if fact.color == 'warning' %}selected{% endif %}>Yellow</option>
+                                            <option value="danger" {% if fact.color == 'danger' %}selected{% endif %}>Red</option>
+                                            <option value="info" {% if fact.color == 'info' %}selected{% endif %}>Cyan</option>
+                                            <option value="secondary" {% if fact.color == 'secondary' %}selected{% endif %}>Gray</option>
+                                        </select>
+                                        <label for="fact_{{ forloop.counter0 }}_color">Color</label>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Preview -->
+                            <div class="mt-3 p-3 bg-light rounded">
+                                <div class="text-center fun-fact-preview">
+                                    <h3 class="display-6 fw-bold text-{{ fact.color|default:'primary' }} mb-2">{{ fact.value|default:'0' }}</h3>
+                                    <p class="text-muted mb-0">{{ fact.label|default:'Label' }}</p>
+                                </div>
+                            </div>
+                        </div>
+                        {% empty %}
+                        <div class="text-center py-4">
+                            <i class="bi bi-bar-chart display-4 text-muted mb-3"></i>
+                            <h6 class="text-muted mb-2">No Fun Facts Yet</h6>
+                            <p class="text-muted small mb-3">Add some interesting statistics about yourself</p>
+                            <button type="button" class="btn btn-primary" onclick="addFunFact()">
+                                <i class="bi bi-plus me-2"></i>Add Your First Fact
+                            </button>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <div class="card-footer">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <a href="{% url 'parameters:comprehensive_settings' %}" class="btn btn-outline-secondary">
+                            <i class="bi bi-arrow-left me-2"></i>Back to Settings
+                        </a>
+                        <div>
+                            <button type="submit" class="btn btn-success">
+                                <i class="bi bi-check-lg me-2"></i>Save Fun Facts
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <div class="col-lg-4">
+        <!-- Help Card -->
+        <div class="card">
+            <div class="card-header">
+                <h6 class="mb-0"><i class="bi bi-lightbulb me-2"></i>Tips</h6>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <h6 class="small text-uppercase text-muted mb-2">Good Examples</h6>
+                    <ul class="list-unstyled small text-muted">
+                        <li class="mb-2">
+                            <strong>Cups of Coffee:</strong> 2,847
+                        </li>
+                        <li class="mb-2">
+                            <strong>Projects Completed:</strong> 87
+                        </li>
+                        <li class="mb-2">
+                            <strong>Hours of Coding:</strong> 10,000+
+                        </li>
+                        <li class="mb-2">
+                            <strong>Happy Clients:</strong> 156
+                        </li>
+                    </ul>
+                </div>
+                
+                <div class="mb-3">
+                    <h6 class="small text-uppercase text-muted mb-2">Color Guide</h6>
+                    <div class="d-flex flex-wrap gap-2">
+                        <span class="badge bg-primary">Blue - Professional</span>
+                        <span class="badge bg-success">Green - Growth</span>
+                        <span class="badge bg-warning text-dark">Yellow - Energy</span>
+                        <span class="badge bg-danger">Red - Passion</span>
+                        <span class="badge bg-info">Cyan - Tech</span>
+                        <span class="badge bg-secondary">Gray - Neutral</span>
+                    </div>
+                </div>
+                
+                <div class="alert alert-info">
+                    <i class="bi bi-info-circle me-2"></i>
+                    <small>Fun facts display with animated counters that count up when visitors scroll to them.</small>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Current Data Card -->
+        {% if fun_facts_data %}
+        <div class="card mt-4">
+            <div class="card-header">
+                <h6 class="mb-0"><i class="bi bi-eye me-2"></i>Current Preview</h6>
+            </div>
+            <div class="card-body">
+                <div class="row g-3 text-center">
+                    {% for fact in fun_facts_data %}
+                    <div class="col-6">
+                        <div class="p-2 border rounded">
+                            <h5 class="text-{{ fact.color|default:'primary' }} mb-1">{{ fact.value }}</h5>
+                            <small class="text-muted">{{ fact.label }}</small>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+{{ block.super }}
+<script>
+let factIndex = {{ fun_facts_data|length|default:0 }};
+
+function addFunFact() {
+    const container = document.getElementById('fun-facts-container');
+    
+    // Remove empty state if it exists
+    const emptyState = container.querySelector('.text-center.py-4');
+    if (emptyState) {
+        emptyState.remove();
+    }
+    
+    const factHTML = `
+        <div class="fun-fact-item border rounded p-3 mb-3" data-index="${factIndex}">
+            <div class="d-flex justify-content-between align-items-start mb-3">
+                <h6 class="mb-0">Fact ${factIndex + 1}</h6>
+                <button type="button" class="btn btn-sm btn-outline-danger" onclick="removeFunFact(this)">
+                    <i class="bi bi-trash"></i>
+                </button>
+            </div>
+            
+            <div class="row g-3">
+                <div class="col-md-5">
+                    <div class="form-floating">
+                        <input type="text" 
+                               class="form-control" 
+                               name="fact_${factIndex}_label" 
+                               id="fact_${factIndex}_label"
+                               placeholder="e.g., Cups of Coffee"
+                               required
+                               oninput="updatePreview(this)">
+                        <label for="fact_${factIndex}_label">Label</label>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="form-floating">
+                        <input type="number" 
+                               class="form-control" 
+                               name="fact_${factIndex}_value" 
+                               id="fact_${factIndex}_value"
+                               min="0"
+                               placeholder="500"
+                               required
+                               oninput="updatePreview(this)">
+                        <label for="fact_${factIndex}_value">Value</label>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="form-floating">
+                        <select class="form-select" 
+                                name="fact_${factIndex}_color" 
+                                id="fact_${factIndex}_color"
+                                onchange="updatePreview(this)">
+                            <option value="primary">Blue</option>
+                            <option value="success">Green</option>
+                            <option value="warning">Yellow</option>
+                            <option value="danger">Red</option>
+                            <option value="info">Cyan</option>
+                            <option value="secondary">Gray</option>
+                        </select>
+                        <label for="fact_${factIndex}_color">Color</label>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Preview -->
+            <div class="mt-3 p-3 bg-light rounded">
+                <div class="text-center fun-fact-preview">
+                    <h3 class="display-6 fw-bold text-primary mb-2">0</h3>
+                    <p class="text-muted mb-0">Label</p>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    container.insertAdjacentHTML('beforeend', factHTML);
+    factIndex++;
+    
+    // Focus on the new label input
+    document.getElementById(`fact_${factIndex - 1}_label`).focus();
+}
+
+function removeFunFact(button) {
+    if (confirm('Are you sure you want to remove this fun fact?')) {
+        const factItem = button.closest('.fun-fact-item');
+        factItem.remove();
+        
+        // Re-number remaining facts
+        renumberFacts();
+        
+        // Add empty state if no facts remain
+        const container = document.getElementById('fun-facts-container');
+        if (container.children.length === 0) {
+            addEmptyState();
+        }
+    }
+}
+
+function renumberFacts() {
+    const facts = document.querySelectorAll('.fun-fact-item');
+    facts.forEach((fact, index) => {
+        const title = fact.querySelector('h6');
+        title.textContent = `Fact ${index + 1}`;
+        fact.dataset.index = index;
+    });
+}
+
+function addEmptyState() {
+    const container = document.getElementById('fun-facts-container');
+    const emptyHTML = `
+        <div class="text-center py-4">
+            <i class="bi bi-bar-chart display-4 text-muted mb-3"></i>
+            <h6 class="text-muted mb-2">No Fun Facts Yet</h6>
+            <p class="text-muted small mb-3">Add some interesting statistics about yourself</p>
+            <button type="button" class="btn btn-primary" onclick="addFunFact()">
+                <i class="bi bi-plus me-2"></i>Add Your First Fact
+            </button>
+        </div>
+    `;
+    container.innerHTML = emptyHTML;
+}
+
+function updatePreview(input) {
+    const factItem = input.closest('.fun-fact-item');
+    const preview = factItem.querySelector('.fun-fact-preview');
+    const index = factItem.dataset.index;
+    
+    const label = factItem.querySelector(`[name="fact_${index}_label"]`).value || 'Label';
+    const value = factItem.querySelector(`[name="fact_${index}_value"]`).value || '0';
+    const color = factItem.querySelector(`[name="fact_${index}_color"]`).value || 'primary';
+    
+    const valueElement = preview.querySelector('h3');
+    const labelElement = preview.querySelector('p');
+    
+    valueElement.textContent = value;
+    valueElement.className = `display-6 fw-bold text-${color} mb-2`;
+    labelElement.textContent = label;
+}
+
+// Add input listeners to existing facts
+document.addEventListener('DOMContentLoaded', function() {
+    const inputs = document.querySelectorAll('.fun-fact-item input, .fun-fact-item select');
+    inputs.forEach(input => {
+        input.addEventListener('input', () => updatePreview(input));
+        input.addEventListener('change', () => updatePreview(input));
+    });
+});
+</script>
+{% endblock %}

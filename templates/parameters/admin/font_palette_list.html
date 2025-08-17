@@ -1,0 +1,452 @@
+{% extends 'parameters/admin/base_admin.html' %}
+{% load static %}
+
+{% block breadcrumb %}
+<li class="breadcrumb-item active" aria-current="page">Font Palettes</li>
+{% endblock %}
+
+{% block page_description %}
+<p class="text-muted mb-0">Manage font combinations and typography styles for your portfolio</p>
+{% endblock %}
+
+{% block page_actions %}
+<div>
+    <a href="{% url 'parameters:font_palette_create' %}" class="btn btn-primary">
+        <i class="bi bi-plus me-2"></i>Add Font Palette
+    </a>
+</div>
+{% endblock %}
+
+{% block admin_content %}
+<!-- Filter and Search -->
+<div class="card mb-4">
+    <div class="card-body">
+        <div class="row g-3 align-items-center">
+            <div class="col-md-6">
+                <div class="input-group">
+                    <span class="input-group-text">
+                        <i class="bi bi-search"></i>
+                    </span>
+                    <input type="text" class="form-control" placeholder="Search font palettes..." id="searchInput">
+                </div>
+            </div>
+            <div class="col-md-3">
+                <select class="form-select" id="styleFilter">
+                    <option value="">All Styles</option>
+                    <option value="modern">Modern</option>
+                    <option value="classic">Classic</option>
+                    <option value="creative">Creative</option>
+                    <option value="minimal">Minimal</option>
+                    <option value="elegant">Elegant</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <select class="form-select" id="statusFilter">
+                    <option value="">All Status</option>
+                    <option value="active">Active</option>
+                    <option value="inactive">Inactive</option>
+                </select>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Font Palettes Grid -->
+<div class="row g-4 mb-4">
+    {% for palette in page_obj %}
+    <div class="col-lg-6 col-xl-4">
+        <div class="card h-100 font-palette-card {% if palette.is_active %}border-primary{% endif %}" data-palette-id="{{ palette.pk }}">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <div>
+                    <h6 class="mb-0">{{ palette.name }}</h6>
+                    {% if palette.is_default %}
+                    <span class="badge bg-warning text-dark">Default</span>
+                    {% endif %}
+                    {% if palette.is_active %}
+                    <span class="badge bg-success">Active</span>
+                    {% else %}
+                    <span class="badge bg-secondary">Inactive</span>
+                    {% endif %}
+                </div>
+                <div class="dropdown">
+                    <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                        <i class="bi bi-three-dots"></i>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li>
+                            <a class="dropdown-item" href="{% url 'parameters:font_palette_edit' palette.pk %}">
+                                <i class="bi bi-pencil me-2"></i>Edit
+                            </a>
+                        </li>
+                        <li>
+                            <button class="dropdown-item" onclick="previewPalette({{ palette.pk }})">
+                                <i class="bi bi-eye me-2"></i>Preview
+                            </button>
+                        </li>
+                        <li>
+                            <button class="dropdown-item" onclick="duplicatePalette({{ palette.pk }})">
+                                <i class="bi bi-files me-2"></i>Duplicate
+                            </button>
+                        </li>
+                        {% if not palette.is_default %}
+                        <li><hr class="dropdown-divider"></li>
+                        <li>
+                            <form method="post" action="{% url 'parameters:font_palette_delete' palette.pk %}" class="d-inline">
+                                {% csrf_token %}
+                                <button type="submit" class="dropdown-item text-danger" onclick="return confirm('Delete this font palette?')">
+                                    <i class="bi bi-trash me-2"></i>Delete
+                                </button>
+                            </form>
+                        </li>
+                        {% endif %}
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="card-body">
+                <!-- Font Preview -->
+                <div class="font-preview mb-3">
+                    <div class="text-center p-3 bg-light rounded">
+                        <h4 class="mb-2" style="font-family: '{{ palette.heading_font|default:'Inter' }}', sans-serif; font-weight: {{ palette.heading_weight|default:'700' }};">
+                            Sample Heading
+                        </h4>
+                        <p class="mb-0" style="font-family: '{{ palette.body_font|default:'Inter' }}', sans-serif; font-weight: {{ palette.body_weight|default:'400' }};">
+                            This is how your body text will look with this font combination.
+                        </p>
+                    </div>
+                </div>
+                
+                <!-- Font Details -->
+                <div class="font-details">
+                    <div class="row g-2 text-sm">
+                        <div class="col-6">
+                            <strong class="text-muted small">HEADING FONT</strong><br>
+                            <span class="font-name">{{ palette.heading_font|default:'Inter' }}</span><br>
+                            <small class="text-muted">Weight: {{ palette.heading_weight|default:'700' }}</small>
+                        </div>
+                        <div class="col-6">
+                            <strong class="text-muted small">BODY FONT</strong><br>
+                            <span class="font-name">{{ palette.body_font|default:'Inter' }}</span><br>
+                            <small class="text-muted">Weight: {{ palette.body_weight|default:'400' }}</small>
+                        </div>
+                        {% if palette.accent_font %}
+                        <div class="col-12 mt-2">
+                            <strong class="text-muted small">ACCENT FONT</strong><br>
+                            <span class="font-name" style="font-family: '{{ palette.accent_font }}', sans-serif;">{{ palette.accent_font }}</span><br>
+                            <small class="text-muted">Weight: {{ palette.accent_weight|default:'400' }}</small>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <!-- Style Tags -->
+                {% if palette.style_tags %}
+                <div class="style-tags mt-3">
+                    {% for tag in palette.style_tags %}
+                    <span class="badge bg-light text-dark me-1">{{ tag }}</span>
+                    {% endfor %}
+                </div>
+                {% endif %}
+            </div>
+            
+            <div class="card-footer d-flex justify-content-between align-items-center">
+                <small class="text-muted">
+                    {% if palette.created_at %}
+                    Created {{ palette.created_at|date:"M d, Y" }}
+                    {% endif %}
+                </small>
+                <div>
+                    {% if not palette.is_active %}
+                    <button class="btn btn-sm btn-outline-primary" onclick="activatePalette({{ palette.pk }})">
+                        <i class="bi bi-check me-1"></i>Activate
+                    </button>
+                    {% endif %}
+                    <a href="{% url 'parameters:font_palette_edit' palette.pk %}" class="btn btn-sm btn-primary">
+                        <i class="bi bi-pencil"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% empty %}
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body text-center py-5">
+                <i class="bi bi-fonts display-4 text-muted mb-3"></i>
+                <h5 class="text-muted mb-2">No Font Palettes Found</h5>
+                <p class="text-muted mb-4">
+                    Create your first font palette to customize your portfolio typography.
+                </p>
+                <a href="{% url 'parameters:font_palette_create' %}" class="btn btn-primary">
+                    <i class="bi bi-plus me-2"></i>Add Font Palette
+                </a>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<!-- Pagination -->
+{% if page_obj.has_other_pages %}
+<div class="card">
+    <div class="card-footer">
+        <div class="d-flex justify-content-between align-items-center">
+            <div class="text-muted small">
+                Showing {{ page_obj.start_index }} to {{ page_obj.end_index }} of {{ page_obj.paginator.count }} palettes
+            </div>
+            <nav aria-label="Page navigation">
+                <ul class="pagination pagination-sm mb-0">
+                    {% if page_obj.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.previous_page_number }}">
+                            <i class="bi bi-chevron-left"></i>
+                        </a>
+                    </li>
+                    {% endif %}
+                    
+                    {% for num in page_obj.paginator.page_range %}
+                    {% if page_obj.number == num %}
+                    <li class="page-item active">
+                        <span class="page-link">{{ num }}</span>
+                    </li>
+                    {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                    </li>
+                    {% endif %}
+                    {% endfor %}
+                    
+                    {% if page_obj.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.next_page_number }}">
+                            <i class="bi bi-chevron-right"></i>
+                        </a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </nav>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- Quick Stats -->
+{% if page_obj.paginator.count > 0 %}
+<div class="row mt-4">
+    <div class="col-md-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <i class="bi bi-fonts text-primary fs-3"></i>
+                <h4 class="mt-2 mb-0">{{ page_obj.paginator.count }}</h4>
+                <small class="text-muted">Total Palettes</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <i class="bi bi-check-circle text-success fs-3"></i>
+                <h4 class="mt-2 mb-0">{{ active_count|default:0 }}</h4>
+                <small class="text-muted">Active</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <i class="bi bi-star text-warning fs-3"></i>
+                <h4 class="mt-2 mb-0">{{ default_count|default:0 }}</h4>
+                <small class="text-muted">Default</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <i class="bi bi-palette text-info fs-3"></i>
+                <h4 class="mt-2 mb-0">{{ style_count|default:0 }}</h4>
+                <small class="text-muted">Styles</small>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- Preview Modal -->
+<div class="modal fade" id="previewModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="bi bi-eye me-2"></i>Font Palette Preview
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div id="previewContent">
+                    <!-- Content loaded via JavaScript -->
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" id="applyPreviewBtn">Apply This Palette</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.font-palette-card {
+    transition: all 0.3s ease;
+}
+
+.font-palette-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+}
+
+.font-preview {
+    min-height: 120px;
+}
+
+.font-name {
+    font-weight: 600;
+    color: var(--bs-dark);
+}
+
+.style-tags .badge {
+    font-size: 0.75em;
+}
+
+/* Dark mode adjustments */
+[data-bs-theme="dark"] .font-palette-card .bg-light {
+    background-color: rgba(255, 255, 255, 0.05) !important;
+}
+
+[data-bs-theme="dark"] .font-preview h4,
+[data-bs-theme="dark"] .font-preview p {
+    color: var(--bs-light);
+}
+</style>
+{% endblock %}
+
+{% block extra_js %}
+{{ block.super }}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Search and filter functionality
+    const searchInput = document.getElementById('searchInput');
+    const styleFilter = document.getElementById('styleFilter');
+    const statusFilter = document.getElementById('statusFilter');
+    
+    function filterPalettes() {
+        const searchTerm = searchInput.value.toLowerCase();
+        const styleValue = styleFilter.value.toLowerCase();
+        const statusValue = statusFilter.value.toLowerCase();
+        
+        const paletteCards = document.querySelectorAll('.font-palette-card');
+        
+        paletteCards.forEach(card => {
+            const name = card.querySelector('h6').textContent.toLowerCase();
+            const fonts = Array.from(card.querySelectorAll('.font-name')).map(el => el.textContent.toLowerCase()).join(' ');
+            const badges = Array.from(card.querySelectorAll('.badge')).map(el => el.textContent.toLowerCase()).join(' ');
+            
+            const matchesSearch = name.includes(searchTerm) || fonts.includes(searchTerm);
+            const matchesStyle = !styleValue || badges.includes(styleValue);
+            const matchesStatus = !statusValue || badges.includes(statusValue);
+            
+            const parentCol = card.closest('.col-lg-6, .col-xl-4');
+            if (matchesSearch && matchesStyle && matchesStatus) {
+                parentCol.style.display = '';
+            } else {
+                parentCol.style.display = 'none';
+            }
+        });
+    }
+    
+    searchInput.addEventListener('input', filterPalettes);
+    styleFilter.addEventListener('change', filterPalettes);
+    statusFilter.addEventListener('change', filterPalettes);
+    
+    // Load Google Fonts dynamically for preview
+    loadGoogleFonts();
+});
+
+function loadGoogleFonts() {
+    const fontNames = Array.from(document.querySelectorAll('.font-name')).map(el => el.textContent);
+    const uniqueFonts = [...new Set(fontNames)];
+    
+    uniqueFonts.forEach(fontName => {
+        if (fontName && fontName !== 'Inter' && fontName !== 'Arial' && fontName !== 'Helvetica') {
+            const link = document.createElement('link');
+            link.href = `https://fonts.googleapis.com/css2?family=${fontName.replace(' ', '+')}:wght@300;400;500;600;700&display=swap`;
+            link.rel = 'stylesheet';
+            document.head.appendChild(link);
+        }
+    });
+}
+
+function previewPalette(paletteId) {
+    const modal = new bootstrap.Modal(document.getElementById('previewModal'));
+    const content = document.getElementById('previewContent');
+    
+    content.innerHTML = `
+        <div class="d-flex justify-content-center py-4">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+        </div>
+    `;
+    
+    modal.show();
+    
+    // Simulate loading preview content
+    setTimeout(() => {
+        content.innerHTML = `
+            <div class="font-preview-large">
+                <h1 class="display-4 mb-3">Portfolio Title</h1>
+                <h2 class="h3 mb-3">Section Heading</h2>
+                <p class="lead mb-3">This is how your lead text will appear with the selected font palette.</p>
+                <p class="mb-3">Regular paragraph text content will look like this. The font combination creates a cohesive and professional appearance across your portfolio.</p>
+                <small class="text-muted">Small text and captions will use this styling.</small>
+            </div>
+        `;
+        
+        document.getElementById('applyPreviewBtn').onclick = () => activatePalette(paletteId);
+    }, 1000);
+}
+
+function activatePalette(paletteId) {
+    // This would typically send an AJAX request to activate the palette
+    fetch(`/admin/font-palettes/${paletteId}/activate/`, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            location.reload();
+        } else {
+            alert('Failed to activate palette');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('An error occurred while activating the palette');
+    });
+}
+
+function duplicatePalette(paletteId) {
+    if (confirm('Create a copy of this font palette?')) {
+        // This would typically send an AJAX request to duplicate the palette
+        console.log('Duplicating palette:', paletteId);
+        // Implementation would involve calling a backend endpoint
+    }
+}
+</script>
+{% endblock %}

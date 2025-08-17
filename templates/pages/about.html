@@ -356,8 +356,57 @@
     </div>
 </section>
 
-<!-- Values & Interests -->
+<!-- Education History -->
+{% if education_history %}
 <section class="py-5 bg-light">
+    <div class="container">
+        <div class="text-center mb-5" data-aos="fade-up">
+            <h2 class="h3 mb-3">Education</h2>
+            <p class="text-muted">Academic foundation and continuous learning</p>
+        </div>
+        
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="timeline">
+                    {% for entry in education_history %}
+                    <div class="timeline-item" data-aos="fade-up" data-aos-delay="{{ forloop.counter|add:"00" }}">
+                        <div class="timeline-marker"></div>
+                        <div class="timeline-content">
+                            <div class="timeline-header d-flex justify-content-between align-items-start mb-2">
+                                <div>
+                                    <h6 class="mb-1">{{ entry.title }}</h6>
+                                    <p class="text-muted mb-0">{{ entry.company }}</p>
+                                    {% if entry.location %}
+                                    <small class="text-muted">{{ entry.location }}</small>
+                                    {% endif %}
+                                </div>
+                                <span class="badge bg-{% cycle 'info' 'success' 'warning' 'primary' %}">
+                                    {{ entry.start_date|date:"Y" }} - 
+                                    {% if entry.is_current %}Present{% else %}{{ entry.end_date|date:"Y" }}{% endif %}
+                                </span>
+                            </div>
+                            {% if entry.description %}
+                            <p class="text-muted mb-0">{{ entry.description }}</p>
+                            {% endif %}
+                            {% if entry.achievements_list %}
+                            <ul class="text-muted mt-2 mb-0">
+                                {% for achievement in entry.achievements_list %}
+                                <li>{{ achievement }}</li>
+                                {% endfor %}
+                            </ul>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endif %}
+
+<!-- Values & Interests -->
+<section class="py-5 {% if not education_history %}bg-light{% endif %}">
     <div class="container">
         <div class="text-center mb-5" data-aos="fade-up">
             <h2 class="h3 mb-3">Values & Interests</h2>
@@ -365,8 +414,8 @@
         </div>
         
         <div class="row g-4">
-            {% if site_settings.values %}
-                {% for value in site_settings.values_list %}
+            {% if values_list %}
+                {% for value in values_list %}
                 <div class="col-lg-3 col-md-6" data-aos="fade-up" data-aos-delay="{{ forloop.counter|add:"00" }}">
                     <div class="value-card card border-0 shadow-sm text-center p-4 h-100">
                         <div class="value-icon mb-3">
@@ -442,8 +491,8 @@
         <div class="row justify-content-center">
             <div class="col-lg-8">
                 <div class="row g-4 text-center">
-                    {% if site_settings.fun_facts %}
-                        {% for fact in site_settings.fun_facts_list %}
+                    {% if fun_facts_list %}
+                        {% for fact in fun_facts_list %}
                         <div class="col-md-3" data-aos="zoom-in" data-aos-delay="{{ forloop.counter|add:"00" }}">
                             <div class="fun-fact">
                                 <h3 class="display-4 fw-bold text-{{ fact.color|default:'primary' }} mb-2" data-count="{{ fact.value }}">0</h3>
