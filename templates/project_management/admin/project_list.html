@@ -1,0 +1,604 @@
+{% extends 'parameters/admin/base_admin.html' %}
+{% load static %}
+
+{% block page_actions %}
+<div class="d-flex gap-2">
+    <a href="{% url 'portfolio:project_create' %}" class="btn btn-primary">
+        <i class="bi bi-plus-lg me-1"></i>Add Project
+    </a>
+</div>
+{% endblock %}
+
+{% block admin_content %}
+<!-- Search and Filters -->
+<div class="card mb-4">
+    <div class="card-body">
+        <form method="get" class="row g-3">
+            <div class="col-md-3">
+                <div class="input-group">
+                    <span class="input-group-text">
+                        <i class="bi bi-search"></i>
+                    </span>
+                    <input type="text" 
+                           name="search" 
+                           value="{{ search_query }}" 
+                           class="form-control" 
+                           placeholder="Search projects...">
+                </div>
+            </div>
+            <div class="col-md-2">
+                <select name="status" class="form-select">
+                    <option value="">All Statuses</option>
+                    {% for value, label in project_statuses %}
+                    <option value="{{ value }}" {% if status_filter == value %}selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-2">
+                <select name="category" class="form-select">
+                    <option value="">All Categories</option>
+                    {% for category in categories %}
+                    <option value="{{ category.pk }}" {% if category_filter == category.pk|stringformat:"s" %}selected{% endif %}>{{ category.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-2">
+                <select name="type" class="form-select">
+                    <option value="">All Types</option>
+                    {% for value, label in project_types %}
+                    <option value="{{ value }}" {% if type_filter == value %}selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-3">
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn btn-outline-primary">
+                        <i class="bi bi-funnel me-1"></i>Filter
+                    </button>
+                    {% if search_query or status_filter or category_filter or type_filter %}
+                    <a href="{% url 'portfolio:project_list' %}" class="btn btn-outline-secondary">
+                        <i class="bi bi-x-lg me-1"></i>Clear
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Projects Grid -->
+<div class="row">
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h5 class="mb-0">
+                <i class="bi bi-folder me-2"></i>Projects
+                <span class="badge bg-secondary ms-2">{{ page_obj.paginator.count }}</span>
+            </h5>
+            <div class="btn-group" role="group" aria-label="View options">
+                <input type="radio" class="btn-check" name="view" id="gridView" checked>
+                <label class="btn btn-outline-secondary btn-sm" for="gridView">
+                    <i class="bi bi-grid"></i>
+                </label>
+                <input type="radio" class="btn-check" name="view" id="listView">
+                <label class="btn btn-outline-secondary btn-sm" for="listView">
+                    <i class="bi bi-list"></i>
+                </label>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% if page_obj %}
+<!-- Grid View -->
+<div id="gridViewContent" class="row g-4">
+    {% for project in page_obj %}
+    <div class="col-lg-4 col-md-6">
+        <div class="card h-100 project-card">
+            <div class="position-relative">
+                {% if project.featured_image_url %}
+                <img src="{{ project.featured_image_url }}" 
+                     class="card-img-top" 
+                     style="height: 200px; object-fit: cover;"
+                     alt="{{ project.title }}">
+                {% else %}
+                <div class="card-img-top bg-light d-flex align-items-center justify-content-center" 
+                     style="height: 200px;">
+                    <i class="bi bi-image text-muted" style="font-size: 3rem;"></i>
+                </div>
+                {% endif %}
+                
+                <!-- Status Badge -->
+                <div class="position-absolute top-0 end-0 m-2">
+                    <span class="badge 
+                        {% if project.status == 'featured' %}bg-warning
+                        {% elif project.status == 'published' %}bg-success
+                        {% elif project.status == 'draft' %}bg-secondary
+                        {% else %}bg-dark{% endif %}">
+                        {{ project.get_status_display }}
+                    </span>
+                </div>
+                
+                <!-- Quick Actions -->
+                <div class="position-absolute top-0 start-0 m-2">
+                    <div class="btn-group-vertical" role="group">
+                        <input type="checkbox" class="btn-check item-checkbox" value="{{ project.pk }}" id="project{{ project.pk }}">
+                        <label class="btn btn-outline-light btn-sm" for="project{{ project.pk }}" title="Select">
+                            <i class="bi bi-check"></i>
+                        </label>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card-body d-flex flex-column">
+                <div class="d-flex justify-content-between align-items-start mb-2">
+                    <h6 class="card-title mb-0">{{ project.title }}</h6>
+                    {% if project.category %}
+                    <span class="badge" style="background-color: {{ project.category.color }};">
+                        {{ project.category.name }}
+                    </span>
+                    {% endif %}
+                </div>
+                
+                <p class="card-text text-muted small flex-grow-1">
+                    {{ project.description|truncatechars:120 }}
+                </p>
+                
+                <!-- Project Info -->
+                <div class="mb-3">
+                    <div class="d-flex justify-content-between text-muted small">
+                        <span>
+                            <i class="bi bi-gear me-1"></i>{{ project.project_type|capfirst }}
+                        </span>
+                        {% if project.client %}
+                        <span>
+                            <i class="bi bi-building me-1"></i>{{ project.client }}
+                        </span>
+                        {% endif %}
+                    </div>
+                    {% if project.technologies.exists %}
+                    <div class="mt-2">
+                        {% for tech in project.technologies.all|slice:":3" %}
+                        <span class="badge bg-light text-dark me-1 small">{{ tech.name }}</span>
+                        {% endfor %}
+                        {% if project.technologies.count > 3 %}
+                        <span class="text-muted small">+{{ project.technologies.count|add:"-3" }} more</span>
+                        {% endif %}
+                    </div>
+                    {% endif %}
+                </div>
+                
+                <!-- Links -->
+                <div class="mb-3">
+                    <div class="d-flex gap-2 flex-wrap">
+                        {% if project.live_url %}
+                        <a href="{{ project.live_url }}" target="_blank" class="btn btn-outline-primary btn-sm">
+                            <i class="bi bi-globe me-1"></i>Live
+                        </a>
+                        {% endif %}
+                        {% if project.github_url %}
+                        <a href="{{ project.github_url }}" target="_blank" class="btn btn-outline-dark btn-sm">
+                            <i class="bi bi-github me-1"></i>Code
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <!-- Actions -->
+                <div class="mt-auto">
+                    <div class="d-flex justify-content-between">
+                        <small class="text-muted">
+                            {{ project.updated_at|date:"M d, Y" }}
+                        </small>
+                        <div class="btn-group" role="group">
+                            <a href="{% url 'portfolio:project_edit' project.pk %}" 
+                               class="btn btn-outline-primary btn-sm" 
+                               title="Edit Project">
+                                <i class="bi bi-pencil"></i>
+                            </a>
+                            <a href="{% url 'portfolio:project_detail' project.slug %}" 
+                               class="btn btn-outline-info btn-sm" 
+                               title="View Project"
+                               target="_blank">
+                                <i class="bi bi-eye"></i>
+                            </a>
+                            <a href="{% url 'portfolio:project_delete' project.pk %}" 
+                               class="btn btn-outline-danger btn-sm"
+                               title="Delete Project"
+                               data-action="delete"
+                               onclick="return confirm('Are you sure you want to delete this project?')">
+                                <i class="bi bi-trash"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<!-- List View (Hidden by default) -->
+<div id="listViewContent" style="display: none;">
+    <div class="card">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead>
+                    <tr>
+                        <th style="width: 40px;">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="selectAll">
+                                <label class="form-check-label" for="selectAll"></label>
+                            </div>
+                        </th>
+                        <th>Project</th>
+                        <th>Category</th>
+                        <th>Type</th>
+                        <th>Status</th>
+                        <th>Updated</th>
+                        <th style="width: 120px;">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for project in page_obj %}
+                    <tr>
+                        <td>
+                            <div class="form-check">
+                                <input class="form-check-input item-checkbox" 
+                                       type="checkbox" 
+                                       value="{{ project.pk }}">
+                            </div>
+                        </td>
+                        <td>
+                            <div class="d-flex align-items-center">
+                                {% if project.featured_image_url %}
+                                <img src="{{ project.featured_image_url }}" 
+                                     class="rounded me-2" 
+                                     style="width: 40px; height: 40px; object-fit: cover;"
+                                     alt="{{ project.title }}">
+                                {% else %}
+                                <div class="bg-light rounded me-2 d-flex align-items-center justify-content-center" 
+                                     style="width: 40px; height: 40px;">
+                                    <i class="bi bi-image text-muted"></i>
+                                </div>
+                                {% endif %}
+                                <div>
+                                    <div class="fw-bold">{{ project.title }}</div>
+                                    <div class="small text-muted">{{ project.description|truncatechars:60 }}</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            {% if project.category %}
+                            <span class="badge" style="background-color: {{ project.category.color }};">
+                                {{ project.category.name }}
+                            </span>
+                            {% else %}
+                            <span class="text-muted">Uncategorized</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <span class="badge bg-light text-dark">{{ project.get_project_type_display }}</span>
+                        </td>
+                        <td>
+                            <span class="badge 
+                                {% if project.status == 'featured' %}bg-warning
+                                {% elif project.status == 'published' %}bg-success
+                                {% elif project.status == 'draft' %}bg-secondary
+                                {% else %}bg-dark{% endif %}">
+                                {{ project.get_status_display }}
+                            </span>
+                        </td>
+                        <td>
+                            <div class="small">{{ project.updated_at|date:"M d, Y" }}</div>
+                            <div class="small text-muted">{{ project.updated_at|time:"g:i A" }}</div>
+                        </td>
+                        <td>
+                            <div class="btn-group" role="group">
+                                <a href="{% url 'portfolio:project_edit' project.pk %}" 
+                                   class="btn btn-sm btn-outline-primary" 
+                                   title="Edit Project">
+                                    <i class="bi bi-pencil"></i>
+                                </a>
+                                <a href="{% url 'portfolio:project_detail' project.slug %}" 
+                                   class="btn btn-sm btn-outline-info" 
+                                   title="View Project"
+                                   target="_blank">
+                                    <i class="bi bi-eye"></i>
+                                </a>
+                                <a href="{% url 'portfolio:project_delete' project.pk %}" 
+                                   class="btn btn-sm btn-outline-danger"
+                                   title="Delete Project"
+                                   data-action="delete"
+                                   onclick="return confirm('Are you sure you want to delete this project?')">
+                                    <i class="bi bi-trash"></i>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Pagination -->
+{% if page_obj.has_other_pages %}
+<nav aria-label="Projects pagination" class="mt-4">
+    <ul class="pagination justify-content-center">
+        {% if page_obj.has_previous %}
+        <li class="page-item">
+            <a class="page-link" href="?page=1{% if search_query %}&search={{ search_query }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}{% if category_filter %}&category={{ category_filter }}{% endif %}{% if type_filter %}&type={{ type_filter }}{% endif %}">
+                <i class="bi bi-chevron-double-left"></i>
+            </a>
+        </li>
+        <li class="page-item">
+            <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}{% if category_filter %}&category={{ category_filter }}{% endif %}{% if type_filter %}&type={{ type_filter }}{% endif %}">
+                <i class="bi bi-chevron-left"></i>
+            </a>
+        </li>
+        {% endif %}
+        
+        {% for num in page_obj.paginator.page_range %}
+            {% if page_obj.number|add:'-3' <= num <= page_obj.number|add:'3' %}
+                {% if num == page_obj.number %}
+                <li class="page-item active">
+                    <span class="page-link">{{ num }}</span>
+                </li>
+                {% else %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ num }}{% if search_query %}&search={{ search_query }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}{% if category_filter %}&category={{ category_filter }}{% endif %}{% if type_filter %}&type={{ type_filter }}{% endif %}">{{ num }}</a>
+                </li>
+                {% endif %}
+            {% endif %}
+        {% endfor %}
+        
+        {% if page_obj.has_next %}
+        <li class="page-item">
+            <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}{% if category_filter %}&category={{ category_filter }}{% endif %}{% if type_filter %}&type={{ type_filter }}{% endif %}">
+                <i class="bi bi-chevron-right"></i>
+            </a>
+        </li>
+        <li class="page-item">
+            <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}{% if search_query %}&search={{ search_query }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}{% if category_filter %}&category={{ category_filter }}{% endif %}{% if type_filter %}&type={{ type_filter }}{% endif %}">
+                <i class="bi bi-chevron-double-right"></i>
+            </a>
+        </li>
+        {% endif %}
+    </ul>
+    
+    <div class="text-center">
+        <small class="text-muted">
+            Showing {{ page_obj.start_index }} to {{ page_obj.end_index }} of {{ page_obj.paginator.count }} projects
+        </small>
+    </div>
+</nav>
+{% endif %}
+
+{% else %}
+<div class="text-center py-5">
+    <div class="text-muted">
+        <i class="bi bi-folder display-1 mb-3"></i>
+        <h5>No Projects Found</h5>
+        <p>{% if search_query or status_filter or category_filter or type_filter %}No projects match your search criteria.{% else %}Get started by creating your first project.{% endif %}</p>
+        <a href="{% url 'portfolio:project_create' %}" class="btn btn-primary">
+            <i class="bi bi-plus-lg me-1"></i>Create Project
+        </a>
+    </div>
+</div>
+{% endif %}
+
+<!-- Bulk Actions -->
+<div class="bulk-actions mt-3" style="display: none;">
+    <div class="card">
+        <div class="card-body">
+            <div class="d-flex align-items-center gap-3 flex-wrap">
+                <span class="selected-count fw-bold">0 selected</span>
+                <div class="vr"></div>
+                <select class="form-select form-select-sm" style="width: auto;" id="bulkStatusSelect">
+                    <option value="">Change Status</option>
+                    {% for value, label in project_statuses %}
+                    <option value="{{ value }}">{{ label }}</option>
+                    {% endfor %}
+                </select>
+                <button type="button" class="btn btn-sm btn-outline-primary" id="bulkStatusUpdate">
+                    <i class="bi bi-arrow-repeat me-1"></i>Update Status
+                </button>
+                <button type="button" class="btn btn-sm btn-outline-danger" id="bulkDelete">
+                    <i class="bi bi-trash me-1"></i>Delete Selected
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+{{ block.super }}
+<style>
+.project-card {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.project-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+}
+
+.bulk-actions {
+    position: sticky;
+    bottom: 20px;
+    z-index: 1000;
+}
+
+.btn-check:checked + .btn-outline-light {
+    background-color: rgba(0,0,0,0.2);
+    border-color: rgba(0,0,0,0.3);
+}
+
+/* Dark mode support */
+[data-bs-theme="dark"] .project-card:hover {
+    box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+}
+
+[data-bs-theme="dark"] .badge.bg-light {
+    background-color: rgba(255,255,255,0.1) !important;
+    color: rgba(255,255,255,0.8) !important;
+}
+</style>
+{% endblock %}
+
+{% block extra_js %}
+{{ block.super }}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // View toggle functionality
+    const gridViewBtn = document.getElementById('gridView');
+    const listViewBtn = document.getElementById('listView');
+    const gridViewContent = document.getElementById('gridViewContent');
+    const listViewContent = document.getElementById('listViewContent');
+    
+    gridViewBtn?.addEventListener('change', function() {
+        if (this.checked) {
+            gridViewContent.style.display = 'block';
+            listViewContent.style.display = 'none';
+        }
+    });
+    
+    listViewBtn?.addEventListener('change', function() {
+        if (this.checked) {
+            gridViewContent.style.display = 'none';
+            listViewContent.style.display = 'block';
+        }
+    });
+    
+    // Bulk operations functionality
+    const selectAllCheckbox = document.getElementById('selectAll');
+    const itemCheckboxes = document.querySelectorAll('.item-checkbox');
+    const bulkActions = document.querySelector('.bulk-actions');
+    const selectedCount = document.querySelector('.selected-count');
+    
+    function updateBulkActions() {
+        const selectedItems = document.querySelectorAll('.item-checkbox:checked');
+        const count = selectedItems.length;
+        
+        if (count > 0) {
+            bulkActions.style.display = 'block';
+            selectedCount.textContent = `${count} selected`;
+        } else {
+            bulkActions.style.display = 'none';
+        }
+        
+        // Update select all checkbox
+        if (selectAllCheckbox) {
+            selectAllCheckbox.checked = count === itemCheckboxes.length;
+            selectAllCheckbox.indeterminate = count > 0 && count < itemCheckboxes.length;
+        }
+    }
+    
+    selectAllCheckbox?.addEventListener('change', function() {
+        itemCheckboxes.forEach(checkbox => {
+            checkbox.checked = this.checked;
+        });
+        updateBulkActions();
+    });
+    
+    itemCheckboxes.forEach(checkbox => {
+        checkbox.addEventListener('change', updateBulkActions);
+    });
+    
+    // Bulk status update
+    document.getElementById('bulkStatusUpdate')?.addEventListener('click', function() {
+        const selectedItems = Array.from(document.querySelectorAll('.item-checkbox:checked'))
+                                  .map(cb => cb.value);
+        const newStatus = document.getElementById('bulkStatusSelect').value;
+        
+        if (selectedItems.length === 0) {
+            alert('Please select projects to update.');
+            return;
+        }
+        
+        if (!newStatus) {
+            alert('Please select a status.');
+            return;
+        }
+        
+        if (confirm(`Update status of ${selectedItems.length} projects to "${newStatus}"?`)) {
+            // Create and submit form
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = '{% url "portfolio:bulk_status_update" %}';
+            
+            // Add CSRF token
+            const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]');
+            if (csrfToken) {
+                form.appendChild(csrfToken.cloneNode(true));
+            }
+            
+            // Add fields
+            const selectedInput = document.createElement('input');
+            selectedInput.type = 'hidden';
+            selectedInput.name = 'selected_items';
+            selectedInput.value = selectedItems.join(',');
+            form.appendChild(selectedInput);
+            
+            const statusInput = document.createElement('input');
+            statusInput.type = 'hidden';
+            statusInput.name = 'new_status';
+            statusInput.value = newStatus;
+            form.appendChild(statusInput);
+            
+            const modelTypeInput = document.createElement('input');
+            modelTypeInput.type = 'hidden';
+            modelTypeInput.name = 'model_type';
+            modelTypeInput.value = 'project';
+            form.appendChild(modelTypeInput);
+            
+            document.body.appendChild(form);
+            form.submit();
+        }
+    });
+    
+    // Bulk delete
+    document.getElementById('bulkDelete')?.addEventListener('click', function() {
+        const selectedItems = Array.from(document.querySelectorAll('.item-checkbox:checked'))
+                                  .map(cb => cb.value);
+        
+        if (selectedItems.length === 0) {
+            alert('Please select projects to delete.');
+            return;
+        }
+        
+        if (confirm(`Are you sure you want to delete ${selectedItems.length} projects? This action cannot be undone.`)) {
+            // Create form and submit
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = '{% url "portfolio:bulk_delete" %}';
+            
+            // Add CSRF token
+            const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]');
+            if (csrfToken) {
+                form.appendChild(csrfToken.cloneNode(true));
+            }
+            
+            // Add selected items
+            const selectedInput = document.createElement('input');
+            selectedInput.type = 'hidden';
+            selectedInput.name = 'selected_items';
+            selectedInput.value = selectedItems.join(',');
+            form.appendChild(selectedInput);
+            
+            // Add model type
+            const modelTypeInput = document.createElement('input');
+            modelTypeInput.type = 'hidden';
+            modelTypeInput.name = 'model_type';
+            modelTypeInput.value = 'project';
+            form.appendChild(modelTypeInput);
+            
+            document.body.appendChild(form);
+            form.submit();
+        }
+    });
+});
+</script>
+{% endblock %}

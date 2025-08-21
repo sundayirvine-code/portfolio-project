@@ -128,7 +128,7 @@
                     
                     <!-- Main Content -->
                     <div class="content-text" data-aos="fade-up">
-                        {{ post.content|linebreaks }}
+                        {{ post.content|safe }}
                     </div>
                     
                     <!-- Tags -->
@@ -399,6 +399,7 @@
     padding: 0.2rem 0.4rem;
     border-radius: 4px;
     font-size: 0.9em;
+    color: #e83e8c;
 }
 
 .content-text pre {
@@ -407,6 +408,95 @@
     border-radius: 8px;
     overflow-x: auto;
     margin: 1.5rem 0;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.content-text pre code {
+    background: none;
+    padding: 0;
+    color: inherit;
+}
+
+/* CKEditor rich text content styling */
+.content-text ul, 
+.content-text ol {
+    margin-bottom: 1.5rem;
+    padding-left: 2rem;
+}
+
+.content-text ul li,
+.content-text ol li {
+    margin-bottom: 0.5rem;
+}
+
+.content-text table {
+    width: 100%;
+    margin: 1.5rem 0;
+    border-collapse: collapse;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.content-text table th,
+.content-text table td {
+    padding: 0.75rem;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    text-align: left;
+}
+
+.content-text table th {
+    background: var(--theme-background);
+    font-weight: 600;
+}
+
+.content-text img {
+    max-width: 100%;
+    height: auto;
+    margin: 1.5rem 0;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.content-text a {
+    color: var(--theme-primary);
+    text-decoration: underline;
+    transition: color 0.2s ease;
+}
+
+.content-text a:hover {
+    color: var(--theme-secondary);
+}
+
+.content-text strong {
+    font-weight: 600;
+    color: var(--theme-text);
+}
+
+.content-text em {
+    font-style: italic;
+}
+
+.content-text mark {
+    background: rgba(var(--theme-primary), 0.2);
+    padding: 0.1rem 0.2rem;
+    border-radius: 3px;
+}
+
+/* Code block syntax highlighting */
+.content-text .ck-code-block {
+    position: relative;
+    background: #2d3748;
+    color: #e2e8f0;
+    border-radius: 8px;
+    margin: 1.5rem 0;
+    overflow: hidden;
+}
+
+.content-text .ck-code-block code {
+    background: none;
+    color: inherit;
+    padding: 1rem;
+    display: block;
+    white-space: pre-wrap;
 }
 
 /* Table of Contents */
@@ -539,6 +629,24 @@
 [data-bs-theme="dark"] .content-text code,
 [data-bs-theme="dark"] .content-text pre {
     background: rgba(255, 255, 255, 0.05);
+}
+
+[data-bs-theme="dark"] .content-text table th {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+[data-bs-theme="dark"] .content-text table th,
+[data-bs-theme="dark"] .content-text table td {
+    border-color: rgba(255, 255, 255, 0.1);
+}
+
+[data-bs-theme="dark"] .content-text table {
+    border-color: rgba(255, 255, 255, 0.1);
+}
+
+[data-bs-theme="dark"] .content-text mark {
+    background: rgba(var(--theme-primary), 0.3);
+    color: rgba(255, 255, 255, 0.9);
 }
 
 [data-bs-theme="dark"] .table-of-contents {

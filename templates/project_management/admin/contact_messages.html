@@ -1,0 +1,377 @@
+{% extends 'parameters/admin/base_admin.html' %}
+{% load static %}
+
+{% block admin_content %}
+<!-- Search and Filters -->
+<div class="card mb-4">
+    <div class="card-body">
+        <form method="get" class="row g-3">
+            <div class="col-md-4">
+                <div class="input-group">
+                    <span class="input-group-text">
+                        <i class="bi bi-search"></i>
+                    </span>
+                    <input type="text" 
+                           name="search" 
+                           value="{{ search_query }}" 
+                           class="form-control" 
+                           placeholder="Search messages...">
+                </div>
+            </div>
+            <div class="col-md-3">
+                <select name="status" class="form-select">
+                    <option value="">All Statuses</option>
+                    {% for value, label in message_statuses %}
+                    <option value="{{ value }}" {% if status_filter == value %}selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-3">
+                <select name="service" class="form-select">
+                    <option value="">All Services</option>
+                    {% for service in services %}
+                    <option value="{{ service.pk }}" {% if service_filter == service.pk|stringformat:"s" %}selected{% endif %}>{{ service.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-2">
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn btn-outline-primary">
+                        <i class="bi bi-funnel me-1"></i>Filter
+                    </button>
+                    {% if search_query or status_filter or service_filter %}
+                    <a href="{% url 'portfolio:contact_messages' %}" class="btn btn-outline-secondary">
+                        <i class="bi bi-x-lg me-1"></i>Clear
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Messages List -->
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h5 class="mb-0">
+            <i class="bi bi-envelope me-2"></i>Contact Messages
+            <span class="badge bg-secondary ms-2">{{ page_obj.paginator.count }}</span>
+        </h5>
+        <div class="d-flex gap-2">
+            <span class="badge bg-danger">{{ page_obj.paginator.count }} New</span>
+        </div>
+    </div>
+    
+    {% if page_obj %}
+    <div class="table-responsive">
+        <table class="table table-hover mb-0">
+            <thead>
+                <tr>
+                    <th style="width: 40px;">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="selectAll">
+                            <label class="form-check-label" for="selectAll"></label>
+                        </div>
+                    </th>
+                    <th>Sender</th>
+                    <th>Subject</th>
+                    <th>Service</th>
+                    <th>Status</th>
+                    <th>Received</th>
+                    <th style="width: 120px;">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for message in page_obj %}
+                <tr class="{% if message.status == 'new' %}table-warning{% endif %}">
+                    <td>
+                        <div class="form-check">
+                            <input class="form-check-input item-checkbox" 
+                                   type="checkbox" 
+                                   value="{{ message.pk }}">
+                        </div>
+                    </td>
+                    <td>
+                        <div class="fw-bold">{{ message.name }}</div>
+                        <div class="small text-muted">
+                            <i class="bi bi-envelope me-1"></i>{{ message.email }}
+                        </div>
+                        {% if message.phone %}
+                        <div class="small text-muted">
+                            <i class="bi bi-telephone me-1"></i>{{ message.phone }}
+                        </div>
+                        {% endif %}
+                        {% if message.company %}
+                        <div class="small text-muted">
+                            <i class="bi bi-building me-1"></i>{{ message.company }}
+                        </div>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <div class="fw-bold">{{ message.subject }}</div>
+                        <div class="text-truncate small text-muted" style="max-width: 200px;" title="{{ message.message }}">
+                            {{ message.message|truncatechars:80 }}
+                        </div>
+                    </td>
+                    <td>
+                        {% if message.service_interest %}
+                        <span class="badge bg-info">{{ message.service_interest.name }}</span>
+                        {% else %}
+                        <span class="text-muted">General</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <span class="badge 
+                            {% if message.status == 'new' %}bg-danger
+                            {% elif message.status == 'in_progress' %}bg-warning
+                            {% elif message.status == 'replied' %}bg-success
+                            {% else %}bg-secondary{% endif %}">
+                            {{ message.get_status_display }}
+                        </span>
+                    </td>
+                    <td>
+                        <div class="small">{{ message.created_at|date:"M d, Y" }}</div>
+                        <div class="small text-muted">{{ message.created_at|time:"g:i A" }}</div>
+                    </td>
+                    <td>
+                        <div class="btn-group" role="group">
+                            <a href="{% url 'portfolio:contact_message_detail' message.pk %}" 
+                               class="btn btn-sm btn-outline-primary" 
+                               title="View Message">
+                                <i class="bi bi-eye"></i>
+                            </a>
+                            <a href="mailto:{{ message.email }}?subject=Re: {{ message.subject }}" 
+                               class="btn btn-sm btn-outline-success" 
+                               title="Reply via Email">
+                                <i class="bi bi-reply"></i>
+                            </a>
+                            <a href="{% url 'portfolio:contact_message_delete' message.pk %}" 
+                               class="btn btn-sm btn-outline-danger"
+                               title="Delete Message"
+                               data-action="delete"
+                               onclick="return confirm('Are you sure you want to delete this message? This action cannot be undone.')">
+                                <i class="bi bi-trash"></i>
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    
+    <!-- Pagination -->
+    {% if page_obj.has_other_pages %}
+    <div class="card-footer">
+        <nav aria-label="Messages pagination">
+            <ul class="pagination pagination-sm justify-content-center mb-0">
+                {% if page_obj.has_previous %}
+                <li class="page-item">
+                    <a class="page-link" href="?page=1{% if search_query %}&search={{ search_query }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}{% if service_filter %}&service={{ service_filter }}{% endif %}">
+                        <i class="bi bi-chevron-double-left"></i>
+                    </a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}{% if service_filter %}&service={{ service_filter }}{% endif %}">
+                        <i class="bi bi-chevron-left"></i>
+                    </a>
+                </li>
+                {% endif %}
+                
+                {% for num in page_obj.paginator.page_range %}
+                    {% if page_obj.number|add:'-3' <= num <= page_obj.number|add:'3' %}
+                        {% if num == page_obj.number %}
+                        <li class="page-item active">
+                            <span class="page-link">{{ num }}</span>
+                        </li>
+                        {% else %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ num }}{% if search_query %}&search={{ search_query }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}{% if service_filter %}&service={{ service_filter }}{% endif %}">{{ num }}</a>
+                        </li>
+                        {% endif %}
+                    {% endif %}
+                {% endfor %}
+                
+                {% if page_obj.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}{% if service_filter %}&service={{ service_filter }}{% endif %}">
+                        <i class="bi bi-chevron-right"></i>
+                    </a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}{% if search_query %}&search={{ search_query }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}{% if service_filter %}&service={{ service_filter }}{% endif %}">
+                        <i class="bi bi-chevron-double-right"></i>
+                    </a>
+                </li>
+                {% endif %}
+            </ul>
+        </nav>
+        
+        <div class="text-center mt-2">
+            <small class="text-muted">
+                Showing {{ page_obj.start_index }} to {{ page_obj.end_index }} of {{ page_obj.paginator.count }} messages
+            </small>
+        </div>
+    </div>
+    {% endif %}
+    
+    {% else %}
+    <div class="card-body text-center py-5">
+        <div class="text-muted">
+            <i class="bi bi-envelope display-1 mb-3"></i>
+            <h5>No Messages Found</h5>
+            <p>{% if search_query or status_filter or service_filter %}No messages match your search criteria.{% else %}No contact messages received yet.{% endif %}</p>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Bulk Actions -->
+<div class="bulk-actions mt-3" style="display: none;">
+    <div class="card">
+        <div class="card-body">
+            <div class="d-flex align-items-center gap-3">
+                <span class="selected-count fw-bold">0 selected</span>
+                <div class="vr"></div>
+                <button type="button" class="btn btn-sm btn-outline-warning" id="bulkMarkReplied">
+                    <i class="bi bi-check-circle me-1"></i>Mark as Replied
+                </button>
+                <button type="button" class="btn btn-sm btn-outline-danger" id="bulkDelete">
+                    <i class="bi bi-trash me-1"></i>Delete Selected
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+{{ block.super }}
+<style>
+.table td {
+    vertical-align: middle;
+}
+
+.bulk-actions {
+    position: sticky;
+    bottom: 20px;
+    z-index: 1000;
+}
+
+/* Highlight new messages */
+.table-warning {
+    --bs-table-accent-bg: rgba(255, 193, 7, 0.1);
+}
+
+/* Dark mode support */
+[data-bs-theme="dark"] .table td {
+    border-color: rgba(255,255,255,0.1);
+}
+
+[data-bs-theme="dark"] .table-warning {
+    --bs-table-accent-bg: rgba(255, 193, 7, 0.2);
+}
+</style>
+{% endblock %}
+
+{% block extra_js %}
+{{ block.super }}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Select all functionality
+    const selectAllCheckbox = document.getElementById('selectAll');
+    const itemCheckboxes = document.querySelectorAll('.item-checkbox');
+    const bulkActions = document.querySelector('.bulk-actions');
+    const selectedCount = document.querySelector('.selected-count');
+    
+    selectAllCheckbox?.addEventListener('change', function() {
+        itemCheckboxes.forEach(checkbox => {
+            checkbox.checked = this.checked;
+        });
+        updateBulkActions();
+    });
+    
+    itemCheckboxes.forEach(checkbox => {
+        checkbox.addEventListener('change', updateBulkActions);
+    });
+    
+    function updateBulkActions() {
+        const selectedItems = document.querySelectorAll('.item-checkbox:checked');
+        const count = selectedItems.length;
+        
+        if (count > 0) {
+            bulkActions.style.display = 'block';
+            selectedCount.textContent = `${count} selected`;
+        } else {
+            bulkActions.style.display = 'none';
+        }
+        
+        // Update select all checkbox
+        if (selectAllCheckbox) {
+            selectAllCheckbox.checked = count === itemCheckboxes.length;
+            selectAllCheckbox.indeterminate = count > 0 && count < itemCheckboxes.length;
+        }
+    }
+    
+    // Bulk delete functionality
+    document.getElementById('bulkDelete')?.addEventListener('click', function() {
+        const selectedItems = Array.from(document.querySelectorAll('.item-checkbox:checked'))
+                                  .map(cb => cb.value);
+        
+        if (selectedItems.length === 0) {
+            alert('Please select messages to delete.');
+            return;
+        }
+        
+        if (confirm(`Are you sure you want to delete ${selectedItems.length} messages? This action cannot be undone.`)) {
+            // Create form and submit
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = '{% url "portfolio:bulk_delete" %}';
+            
+            // Add CSRF token
+            const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]');
+            if (csrfToken) {
+                form.appendChild(csrfToken.cloneNode(true));
+            }
+            
+            // Add selected items
+            const selectedInput = document.createElement('input');
+            selectedInput.type = 'hidden';
+            selectedInput.name = 'selected_items';
+            selectedInput.value = selectedItems.join(',');
+            form.appendChild(selectedInput);
+            
+            // Add model type
+            const modelTypeInput = document.createElement('input');
+            modelTypeInput.type = 'hidden';
+            modelTypeInput.name = 'model_type';
+            modelTypeInput.value = 'contact_message';
+            form.appendChild(modelTypeInput);
+            
+            document.body.appendChild(form);
+            form.submit();
+        }
+    });
+    
+    // Auto-refresh every 30 seconds for new messages
+    setInterval(function() {
+        // Check for new messages without refreshing the page
+        fetch(window.location.href, {
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(response => {
+            if (response.ok) {
+                // Update badge count if needed
+                // This could be enhanced to show real-time updates
+            }
+        })
+        .catch(error => {
+            console.log('Auto-refresh failed:', error);
+        });
+    }, 30000);
+});
+</script>
+{% endblock %}

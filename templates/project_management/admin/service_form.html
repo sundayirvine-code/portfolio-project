@@ -1,0 +1,496 @@
+{% extends 'parameters/admin/base_admin.html' %}
+{% load static %}
+
+{% block breadcrumb %}
+<li class="breadcrumb-item">
+    <a href="{% url 'portfolio:service_list' %}" class="text-decoration-none">Services</a>
+</li>
+<li class="breadcrumb-item active" aria-current="page">
+    {% if service %}Edit Service{% else %}Create Service{% endif %}
+</li>
+{% endblock %}
+
+{% block page_actions %}
+<div class="d-flex gap-2">
+    <button type="submit" form="serviceForm" class="btn btn-primary">
+        <i class="bi bi-check-lg me-1"></i>{{ form_action }} Service
+    </button>
+    <a href="{% url 'portfolio:service_list' %}" class="btn btn-outline-secondary">
+        <i class="bi bi-arrow-left me-1"></i>Back to Services
+    </a>
+</div>
+{% endblock %}
+
+{% block admin_content %}
+<div class="row">
+    <div class="col-lg-8">
+        <form method="post" id="serviceForm" class="needs-validation" novalidate>
+            {% csrf_token %}
+            
+            <!-- Basic Information -->
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="bi bi-info-circle me-2"></i>Basic Information
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-8">
+                            <div class="mb-3">
+                                <label for="{{ form.name.id_for_label }}" class="form-label">
+                                    Service Name <span class="text-danger">*</span>
+                                </label>
+                                {{ form.name }}
+                                {% if form.name.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {% for error in form.name.errors %}{{ error }}{% endfor %}
+                                    </div>
+                                {% endif %}
+                                <div class="form-text">Enter the service name that will be displayed to clients</div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label for="{{ form.icon.id_for_label }}" class="form-label">Icon</label>
+                                {{ form.icon }}
+                                {% if form.icon.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {% for error in form.icon.errors %}{{ error }}{% endfor %}
+                                    </div>
+                                {% endif %}
+                                <div class="form-text">Bootstrap icon class (e.g., bi-code-slash)</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="{{ form.slug.id_for_label }}" class="form-label">
+                            URL Slug <span class="text-danger">*</span>
+                        </label>
+                        {{ form.slug }}
+                        {% if form.slug.errors %}
+                            <div class="invalid-feedback d-block">
+                                {% for error in form.slug.errors %}{{ error }}{% endfor %}
+                            </div>
+                        {% endif %}
+                        <div class="form-text">URL-friendly version of the service name (auto-generated from name)</div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="{{ form.short_description.id_for_label }}" class="form-label">Short Description</label>
+                        {{ form.short_description }}
+                        {% if form.short_description.errors %}
+                            <div class="invalid-feedback d-block">
+                                {% for error in form.short_description.errors %}{{ error }}{% endfor %}
+                            </div>
+                        {% endif %}
+                        <div class="form-text">Brief description shown in service listings</div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="{{ form.description.id_for_label }}" class="form-label">
+                            Full Description <span class="text-danger">*</span>
+                        </label>
+                        {{ form.description }}
+                        {% if form.description.errors %}
+                            <div class="invalid-feedback d-block">
+                                {% for error in form.description.errors %}{{ error }}{% endfor %}
+                            </div>
+                        {% endif %}
+                        <div class="form-text">Detailed description of the service</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Pricing Information -->
+            <div class="card mt-4">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="bi bi-currency-dollar me-2"></i>Pricing Information
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="{{ form.starting_price.id_for_label }}" class="form-label">Starting Price</label>
+                                {{ form.starting_price }}
+                                {% if form.starting_price.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {% for error in form.starting_price.errors %}{{ error }}{% endfor %}
+                                    </div>
+                                {% endif %}
+                                <div class="form-text">Leave empty for "Contact for quote"</div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="{{ form.price_unit.id_for_label }}" class="form-label">Price Unit</label>
+                                {{ form.price_unit }}
+                                {% if form.price_unit.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {% for error in form.price_unit.errors %}{{ error }}{% endfor %}
+                                    </div>
+                                {% endif %}
+                                <div class="form-text">e.g., "per hour", "per project", "monthly"</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Service Details -->
+            <div class="card mt-4">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="bi bi-list-check me-2"></i>Service Details
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="{{ form.technologies.id_for_label }}" class="form-label">Technologies Used</label>
+                                {{ form.technologies }}
+                                {% if form.technologies.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {% for error in form.technologies.errors %}{{ error }}{% endfor %}
+                                    </div>
+                                {% endif %}
+                                <div class="form-text">Select technologies associated with this service</div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="{{ form.delivery_time.id_for_label }}" class="form-label">Delivery Time</label>
+                                {{ form.delivery_time }}
+                                {% if form.delivery_time.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {% for error in form.delivery_time.errors %}{{ error }}{% endfor %}
+                                    </div>
+                                {% endif %}
+                                <div class="form-text">Estimated delivery time (e.g., "2-4 weeks")</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="{{ form.features.id_for_label }}" class="form-label">Key Features</label>
+                        {{ form.features }}
+                        {% if form.features.errors %}
+                            <div class="invalid-feedback d-block">
+                                {% for error in form.features.errors %}{{ error }}{% endfor %}
+                            </div>
+                        {% endif %}
+                        <div class="form-text">JSON array of key features (e.g., ["Feature 1", "Feature 2"])</div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="{{ form.process_steps.id_for_label }}" class="form-label">Process Steps</label>
+                        {{ form.process_steps }}
+                        {% if form.process_steps.errors %}
+                            <div class="invalid-feedback d-block">
+                                {% for error in form.process_steps.errors %}{{ error }}{% endfor %}
+                            </div>
+                        {% endif %}
+                        <div class="form-text">JSON array of process steps (e.g., ["Step 1", "Step 2"])</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Settings -->
+            <div class="card mt-4">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="bi bi-gear me-2"></i>Settings
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label for="{{ form.order.id_for_label }}" class="form-label">Display Order</label>
+                                {{ form.order }}
+                                {% if form.order.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {% for error in form.order.errors %}{{ error }}{% endfor %}
+                                    </div>
+                                {% endif %}
+                                <div class="form-text">Order in which service appears (lower = first)</div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-check mt-4">
+                                {{ form.is_active }}
+                                <label class="form-check-label" for="{{ form.is_active.id_for_label }}">
+                                    Active Service
+                                </label>
+                                {% if form.is_active.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {% for error in form.is_active.errors %}{{ error }}{% endfor %}
+                                    </div>
+                                {% endif %}
+                                <div class="form-text">Whether this service is currently offered</div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-check mt-4">
+                                {{ form.is_featured }}
+                                <label class="form-check-label" for="{{ form.is_featured.id_for_label }}">
+                                    Featured Service
+                                </label>
+                                {% if form.is_featured.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {% for error in form.is_featured.errors %}{{ error }}{% endfor %}
+                                    </div>
+                                {% endif %}
+                                <div class="form-text">Highlight this service on the homepage</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+    
+    <div class="col-lg-4">
+        <!-- Live Preview -->
+        <div class="card sticky-top" style="top: 1rem;">
+            <div class="card-header">
+                <h6 class="mb-0">
+                    <i class="bi bi-eye me-2"></i>Live Preview
+                </h6>
+            </div>
+            <div class="card-body">
+                <div id="servicePreview">
+                    <!-- Service preview will be populated by JavaScript -->
+                    <div class="text-center text-muted py-4">
+                        <i class="bi bi-tools display-4 mb-2"></i>
+                        <p>Fill out the form to see a preview</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Quick Tips -->
+        <div class="card mt-3">
+            <div class="card-header">
+                <h6 class="mb-0">
+                    <i class="bi bi-lightbulb me-2"></i>Quick Tips
+                </h6>
+            </div>
+            <div class="card-body">
+                <ul class="list-unstyled small mb-0">
+                    <li class="mb-2">
+                        <i class="bi bi-check text-success me-1"></i>
+                        Use clear, benefit-focused descriptions
+                    </li>
+                    <li class="mb-2">
+                        <i class="bi bi-check text-success me-1"></i>
+                        Set realistic delivery timeframes
+                    </li>
+                    <li class="mb-2">
+                        <i class="bi bi-check text-success me-1"></i>
+                        Featured services appear on homepage
+                    </li>
+                    <li class="mb-2">
+                        <i class="bi bi-check text-success me-1"></i>
+                        Use JSON arrays for features: ["Feature 1", "Feature 2"]
+                    </li>
+                    <li class="mb-0">
+                        <i class="bi bi-check text-success me-1"></i>
+                        Lower order numbers display first
+                    </li>
+                </ul>
+            </div>
+        </div>
+        
+        {% if service %}
+        <!-- Service Statistics -->
+        <div class="card mt-3">
+            <div class="card-header">
+                <h6 class="mb-0">
+                    <i class="bi bi-graph-up me-2"></i>Service Statistics
+                </h6>
+            </div>
+            <div class="card-body">
+                <ul class="list-unstyled mb-0">
+                    <li class="d-flex justify-content-between mb-2">
+                        <span>Technologies:</span>
+                        <span class="badge bg-info">{{ service.technologies.count }}</span>
+                    </li>
+                    <li class="d-flex justify-content-between mb-2">
+                        <span>Created:</span>
+                        <span class="small text-muted">{{ service.created_at|date:"M d, Y" }}</span>
+                    </li>
+                    <li class="d-flex justify-content-between">
+                        <span>Updated:</span>
+                        <span class="small text-muted">{{ service.updated_at|date:"M d, Y" }}</span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+{{ block.super }}
+<style>
+.form-control:focus,
+.form-select:focus {
+    border-color: #0d6efd;
+    box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+}
+
+.service-preview-card {
+    border: 1px solid rgba(0,0,0,0.125);
+    border-radius: 0.375rem;
+    padding: 1rem;
+    background: #fff;
+}
+
+.service-preview-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 0.375rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #f8f9fa;
+    font-size: 1.5rem;
+}
+
+/* Dark mode support */
+[data-bs-theme="dark"] .service-preview-card {
+    background: var(--bs-dark);
+    border-color: rgba(255,255,255,0.125);
+}
+
+[data-bs-theme="dark"] .service-preview-icon {
+    background: rgba(255,255,255,0.1);
+}
+</style>
+{% endblock %}
+
+{% block extra_js %}
+{{ block.super }}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Auto-generate slug from name
+    const nameField = document.getElementById('{{ form.name.id_for_label }}');
+    const slugField = document.getElementById('{{ form.slug.id_for_label }}');
+    
+    if (nameField && slugField) {
+        nameField.addEventListener('input', function() {
+            if (!slugField.dataset.userModified) {
+                slugField.value = generateSlug(this.value);
+                updatePreview();
+            }
+        });
+        
+        slugField.addEventListener('input', function() {
+            this.dataset.userModified = 'true';
+        });
+    }
+    
+    // Live preview updates
+    const formFields = document.querySelectorAll('#serviceForm input, #serviceForm textarea, #serviceForm select');
+    formFields.forEach(field => {
+        field.addEventListener('input', updatePreview);
+        field.addEventListener('change', updatePreview);
+    });
+    
+    // Initial preview update
+    updatePreview();
+    
+    function generateSlug(text) {
+        return text
+            .toLowerCase()
+            .replace(/[^\w\s-]/g, '')
+            .replace(/[\s_-]+/g, '-')
+            .replace(/^-+|-+$/g, '');
+    }
+    
+    function updatePreview() {
+        const name = document.getElementById('{{ form.name.id_for_label }}')?.value || '';
+        const shortDesc = document.getElementById('{{ form.short_description.id_for_label }}')?.value || '';
+        const icon = document.getElementById('{{ form.icon.id_for_label }}')?.value || 'bi-tools';
+        const startingPrice = document.getElementById('{{ form.starting_price.id_for_label }}')?.value || '';
+        const priceUnit = document.getElementById('{{ form.price_unit.id_for_label }}')?.value || '';
+        const isActive = document.getElementById('{{ form.is_active.id_for_label }}')?.checked || false;
+        const isFeatured = document.getElementById('{{ form.is_featured.id_for_label }}')?.checked || false;
+        
+        const preview = document.getElementById('servicePreview');
+        
+        if (!name && !shortDesc) {
+            preview.innerHTML = `
+                <div class="text-center text-muted py-4">
+                    <i class="bi bi-tools display-4 mb-2"></i>
+                    <p>Fill out the form to see a preview</p>
+                </div>
+            `;
+            return;
+        }
+        
+        let priceHtml = '';
+        if (startingPrice) {
+            priceHtml = `
+                <div class="fw-bold text-success">$${startingPrice}</div>
+                <div class="small text-muted">${priceUnit}</div>
+            `;
+        } else {
+            priceHtml = '<span class="text-muted">Contact for quote</span>';
+        }
+        
+        let badgesHtml = '';
+        if (isActive) {
+            badgesHtml += '<span class="badge bg-success me-1">Active</span>';
+        } else {
+            badgesHtml += '<span class="badge bg-secondary me-1">Inactive</span>';
+        }
+        if (isFeatured) {
+            badgesHtml += '<span class="badge bg-warning">Featured</span>';
+        }
+        
+        preview.innerHTML = `
+            <div class="service-preview-card">
+                <div class="d-flex align-items-start mb-3">
+                    <div class="service-preview-icon me-3">
+                        <i class="${icon}"></i>
+                    </div>
+                    <div class="flex-grow-1">
+                        <h6 class="mb-1">${name || 'Service Name'}</h6>
+                        <div class="mb-2">${badgesHtml}</div>
+                    </div>
+                </div>
+                <p class="text-muted small mb-3">${shortDesc || 'Short description will appear here...'}</p>
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>${priceHtml}</div>
+                    <div class="btn-group">
+                        <button type="button" class="btn btn-sm btn-outline-primary" disabled>
+                            <i class="bi bi-pencil"></i>
+                        </button>
+                        <button type="button" class="btn btn-sm btn-outline-danger" disabled>
+                            <i class="bi bi-trash"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+    
+    // Form validation
+    const form = document.getElementById('serviceForm');
+    form.addEventListener('submit', function(e) {
+        if (!form.checkValidity()) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+        form.classList.add('was-validated');
+    });
+});
+</script>
+{% endblock %}

@@ -1,0 +1,392 @@
+{% extends 'parameters/admin/base_admin.html' %}
+{% load static %}
+
+{% block breadcrumb %}
+<li class="breadcrumb-item">
+    <a href="{% url 'portfolio:technology_list' %}" class="text-decoration-none">Technologies</a>
+</li>
+<li class="breadcrumb-item active" aria-current="page">
+    {% if technology %}Edit Technology{% else %}Create Technology{% endif %}
+</li>
+{% endblock %}
+
+{% block page_actions %}
+<div class="d-flex gap-2">
+    <a href="{% url 'portfolio:technology_list' %}" class="btn btn-outline-secondary">
+        <i class="bi bi-arrow-left me-1"></i>Back to Technologies
+    </a>
+</div>
+{% endblock %}
+
+{% block admin_content %}
+<div class="row">
+    <div class="col-lg-8">
+        <!-- Main Form -->
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="bi bi-cpu me-2"></i>
+                    {% if technology %}Edit Technology{% else %}Create Technology{% endif %}
+                </h5>
+            </div>
+            <div class="card-body">
+                <form method="post" novalidate>
+                    {% csrf_token %}
+                    
+                    <!-- Name Field -->
+                    <div class="mb-4">
+                        <label for="{{ form.name.id_for_label }}" class="form-label fw-bold">
+                            Technology Name <span class="text-danger">*</span>
+                        </label>
+                        {{ form.name }}
+                        {% if form.name.errors %}
+                            <div class="invalid-feedback d-block">
+                                {% for error in form.name.errors %}{{ error }}{% endfor %}
+                            </div>
+                        {% endif %}
+                        <div class="form-text">
+                            The name of the technology, programming language, or tool
+                        </div>
+                    </div>
+                    
+                    <!-- Description Field -->
+                    <div class="mb-4">
+                        <label for="{{ form.description.id_for_label }}" class="form-label fw-bold">
+                            Description
+                        </label>
+                        {{ form.description }}
+                        {% if form.description.errors %}
+                            <div class="invalid-feedback d-block">
+                                {% for error in form.description.errors %}{{ error }}{% endfor %}
+                            </div>
+                        {% endif %}
+                        <div class="form-text">
+                            Brief description of the technology and your experience with it
+                        </div>
+                    </div>
+                    
+                    <!-- Icon and Website Row -->
+                    <div class="row">
+                        <div class="col-md-6">
+                            <!-- Icon Field -->
+                            <div class="mb-4">
+                                <label for="{{ form.icon.id_for_label }}" class="form-label fw-bold">
+                                    Icon Class
+                                </label>
+                                <div class="input-group">
+                                    {{ form.icon }}
+                                    <span class="input-group-text" id="iconPreview">
+                                        <i class="{{ form.icon.value|default:'bi-gear' }}" id="iconDisplay"></i>
+                                    </span>
+                                </div>
+                                {% if form.icon.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {% for error in form.icon.errors %}{{ error }}{% endfor %}
+                                    </div>
+                                {% endif %}
+                                <div class="form-text">
+                                    Bootstrap icon class (e.g., bi-code, bi-database)
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <!-- Website URL Field -->
+                            <div class="mb-4">
+                                <label for="{{ form.website_url.id_for_label }}" class="form-label fw-bold">
+                                    Official Website
+                                </label>
+                                {{ form.website_url }}
+                                {% if form.website_url.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {% for error in form.website_url.errors %}{{ error }}{% endfor %}
+                                    </div>
+                                {% endif %}
+                                <div class="form-text">
+                                    Link to the official website or documentation
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Proficiency and Experience Row -->
+                    <div class="row">
+                        <div class="col-md-6">
+                            <!-- Proficiency Field -->
+                            <div class="mb-4">
+                                <label for="{{ form.proficiency.id_for_label }}" class="form-label fw-bold">
+                                    Proficiency Level <span class="text-danger">*</span>
+                                </label>
+                                <div class="input-group">
+                                    {{ form.proficiency }}
+                                    <span class="input-group-text">%</span>
+                                </div>
+                                {% if form.proficiency.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {% for error in form.proficiency.errors %}{{ error }}{% endfor %}
+                                    </div>
+                                {% endif %}
+                                <div class="form-text">
+                                    Rate your proficiency from 0-100%
+                                </div>
+                                <!-- Proficiency Scale Guide -->
+                                <div class="mt-2">
+                                    <small class="text-muted">
+                                        <strong>Scale:</strong> 
+                                        0-49% Beginner, 50-69% Intermediate, 70-89% Advanced, 90-100% Expert
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <!-- Years Experience Field -->
+                            <div class="mb-4">
+                                <label for="{{ form.years_experience.id_for_label }}" class="form-label fw-bold">
+                                    Years of Experience
+                                </label>
+                                <div class="input-group">
+                                    {{ form.years_experience }}
+                                    <span class="input-group-text">years</span>
+                                </div>
+                                {% if form.years_experience.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {% for error in form.years_experience.errors %}{{ error }}{% endfor %}
+                                    </div>
+                                {% endif %}
+                                <div class="form-text">
+                                    How many years you've been working with this technology
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Form Actions -->
+                    <div class="d-flex justify-content-between pt-3 border-top">
+                        <a href="{% url 'portfolio:technology_list' %}" class="btn btn-outline-secondary">
+                            <i class="bi bi-x-lg me-1"></i>Cancel
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-check-lg me-1"></i>{{ form_action }} Technology
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-lg-4">
+        <!-- Preview Card -->
+        <div class="card">
+            <div class="card-header">
+                <h6 class="mb-0">
+                    <i class="bi bi-eye me-2"></i>Live Preview
+                </h6>
+            </div>
+            <div class="card-body">
+                <div class="technology-preview p-3 border rounded">
+                    <div class="d-flex align-items-center mb-2">
+                        <i class="{{ form.icon.value|default:'bi-gear' }} me-2 text-primary fs-5" id="previewIcon"></i>
+                        <span class="fw-bold" id="previewName">
+                            {% if form.name.value %}{{ form.name.value }}{% else %}Technology Name{% endif %}
+                        </span>
+                    </div>
+                    <p class="text-muted small mb-2" id="previewDescription">
+                        {% if form.description.value %}{{ form.description.value }}{% else %}Technology description will appear here...{% endif %}
+                    </p>
+                    
+                    <!-- Proficiency Bar -->
+                    <div class="mb-2">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <small class="text-muted">Proficiency</small>
+                            <span class="badge" id="proficiencyBadge">{{ form.proficiency.value|default:50 }}%</span>
+                        </div>
+                        <div class="progress" style="height: 8px;">
+                            <div class="progress-bar" 
+                                 id="proficiencyBar"
+                                 style="width: {{ form.proficiency.value|default:50 }}%"></div>
+                        </div>
+                    </div>
+                    
+                    <!-- Experience -->
+                    <div class="d-flex justify-content-between">
+                        <small class="text-muted">Experience:</small>
+                        <span class="badge bg-info" id="experienceBadge">
+                            {{ form.years_experience.value|default:0 }} year{{ form.years_experience.value|default:0|floatformat:0|pluralize }}
+                        </span>
+                    </div>
+                </div>
+                
+                {% if technology %}
+                <div class="mt-3">
+                    <h6 class="small text-muted text-uppercase">Usage Statistics</h6>
+                    <ul class="list-unstyled small">
+                        <li class="d-flex justify-content-between">
+                            <span>Projects:</span>
+                            <span class="badge bg-primary">{{ technology.project_count|default:0 }}</span>
+                        </li>
+                        <li class="d-flex justify-content-between">
+                            <span>Services:</span>
+                            <span class="badge bg-success">{{ technology.service_count|default:0 }}</span>
+                        </li>
+                        <li class="d-flex justify-content-between">
+                            <span>Created:</span>
+                            <span class="text-muted">{{ technology.created_at|date:"M d, Y" }}</span>
+                        </li>
+                        <li class="d-flex justify-content-between">
+                            <span>Modified:</span>
+                            <span class="text-muted">{{ technology.updated_at|date:"M d, Y" }}</span>
+                        </li>
+                    </ul>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <!-- Tips Card -->
+        <div class="card mt-3">
+            <div class="card-header">
+                <h6 class="mb-0">
+                    <i class="bi bi-lightbulb me-2"></i>Tips
+                </h6>
+            </div>
+            <div class="card-body">
+                <ul class="list-unstyled small mb-0">
+                    <li class="mb-2">
+                        <i class="bi bi-check-circle text-success me-2"></i>
+                        Be honest about your proficiency level
+                    </li>
+                    <li class="mb-2">
+                        <i class="bi bi-check-circle text-success me-2"></i>
+                        Include relevant icons for better visual appeal
+                    </li>
+                    <li class="mb-2">
+                        <i class="bi bi-check-circle text-success me-2"></i>
+                        Add official website links for credibility
+                    </li>
+                    <li class="mb-0">
+                        <i class="bi bi-check-circle text-success me-2"></i>
+                        Update regularly as your skills improve
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+{{ block.super }}
+<style>
+.technology-preview {
+    background: rgba(var(--bs-primary-rgb), 0.1);
+}
+
+.progress {
+    border-radius: 10px;
+}
+
+.form-label.fw-bold {
+    color: var(--bs-dark);
+}
+
+/* Dark mode support */
+[data-bs-theme="dark"] .technology-preview {
+    background: rgba(var(--bs-primary-rgb), 0.2);
+}
+
+[data-bs-theme="dark"] .form-label.fw-bold {
+    color: var(--bs-light);
+}
+</style>
+{% endblock %}
+
+{% block extra_js %}
+{{ block.super }}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Live preview updates
+    const nameInput = document.getElementById('id_name');
+    const descriptionInput = document.getElementById('id_description');
+    const iconInput = document.getElementById('id_icon');
+    const proficiencyInput = document.getElementById('id_proficiency');
+    const experienceInput = document.getElementById('id_years_experience');
+    
+    const previewName = document.getElementById('previewName');
+    const previewDescription = document.getElementById('previewDescription');
+    const previewIcon = document.getElementById('previewIcon');
+    const iconDisplay = document.getElementById('iconDisplay');
+    const proficiencyBadge = document.getElementById('proficiencyBadge');
+    const proficiencyBar = document.getElementById('proficiencyBar');
+    const experienceBadge = document.getElementById('experienceBadge');
+    
+    // Update name preview
+    nameInput?.addEventListener('input', function() {
+        previewName.textContent = this.value || 'Technology Name';
+    });
+    
+    // Update description preview
+    descriptionInput?.addEventListener('input', function() {
+        previewDescription.textContent = this.value || 'Technology description will appear here...';
+    });
+    
+    // Update icon preview
+    iconInput?.addEventListener('input', function() {
+        const iconClass = this.value || 'bi-gear';
+        previewIcon.className = iconClass + ' me-2 text-primary fs-5';
+        iconDisplay.className = iconClass;
+    });
+    
+    // Update proficiency preview
+    proficiencyInput?.addEventListener('input', function() {
+        const proficiency = this.value || 50;
+        proficiencyBadge.textContent = proficiency + '%';
+        proficiencyBar.style.width = proficiency + '%';
+        
+        // Update progress bar color based on proficiency
+        proficiencyBar.className = 'progress-bar';
+        if (proficiency >= 90) {
+            proficiencyBar.classList.add('bg-success');
+            proficiencyBadge.className = 'badge bg-success';
+        } else if (proficiency >= 70) {
+            proficiencyBar.classList.add('bg-primary');
+            proficiencyBadge.className = 'badge bg-primary';
+        } else if (proficiency >= 50) {
+            proficiencyBar.classList.add('bg-warning');
+            proficiencyBadge.className = 'badge bg-warning';
+        } else {
+            proficiencyBar.classList.add('bg-secondary');
+            proficiencyBadge.className = 'badge bg-secondary';
+        }
+    });
+    
+    // Update experience preview
+    experienceInput?.addEventListener('input', function() {
+        const years = parseFloat(this.value) || 0;
+        const yearText = years === 1 ? 'year' : 'years';
+        experienceBadge.textContent = `${years} ${yearText}`;
+    });
+    
+    // Form validation
+    const form = document.querySelector('form');
+    form?.addEventListener('submit', function(e) {
+        const nameValue = nameInput?.value.trim();
+        const proficiencyValue = proficiencyInput?.value;
+        
+        if (!nameValue) {
+            e.preventDefault();
+            nameInput?.focus();
+            alert('Please enter a technology name.');
+            return false;
+        }
+        
+        if (proficiencyValue < 0 || proficiencyValue > 100) {
+            e.preventDefault();
+            proficiencyInput?.focus();
+            alert('Proficiency must be between 0 and 100.');
+            return false;
+        }
+    });
+});
+</script>
+{% endblock %}

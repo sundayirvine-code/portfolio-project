@@ -3,7 +3,7 @@
 
 {% block title %}{{ project.title }} - {{ site_settings.site_name }}{% endblock %}
 
-{% block meta_description %}{{ project.description }}{% endblock %}
+{% block meta_description %}{{ project.meta_description|default:project.description }}{% endblock %}
 
 {% block body_class %}project-detail-page{% endblock %}
 
@@ -43,9 +43,9 @@
                             <i class="bi bi-calendar me-1"></i>{{ project.created_at|date:"F Y" }}
                         </span>
                         
-                        {% if project.completion_date %}
+                        {% if project.end_date %}
                         <span class="text-muted">
-                            <i class="bi bi-check-circle me-1"></i>Completed {{ project.completion_date|date:"F Y" }}
+                            <i class="bi bi-check-circle me-1"></i>Completed {{ project.end_date|date:"F Y" }}
                         </span>
                         {% endif %}
                     </div>
@@ -89,7 +89,7 @@
 </section>
 
 <!-- Project Gallery -->
-{% if project.featured_image_url or project.gallery_images %}
+{% if project.featured_image_url or project.gallery_images_list %}
 <section class="project-gallery py-5 bg-light">
     <div class="container">
         <div class="row">
@@ -103,11 +103,15 @@
                 </div>
                 {% endif %}
                 
-                {% if project.gallery_images %}
+                {% if project.gallery_images_list %}
                 <div class="gallery-grid">
                     <div class="row g-3">
+                        <div class="col-12 mb-3">
+                            <h3 class="h4 text-center">Project Gallery</h3>
+                            <p class="text-muted text-center">Click on any image to view it in full size</p>
+                        </div>
                         {% for image in project.gallery_images_list %}
-                        <div class="col-md-4" data-aos="fade-up" data-aos-delay="{{ forloop.counter0|mul:100 }}">
+                        <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="{{ forloop.counter0|mul:100 }}">
                             <div class="gallery-item">
                                 <img src="{{ image }}" 
                                      class="img-fluid rounded shadow-sm w-100 gallery-image" 
@@ -115,7 +119,8 @@
                                      style="height: 250px; object-fit: cover; cursor: pointer;"
                                      data-bs-toggle="modal" 
                                      data-bs-target="#imageModal"
-                                     data-image-src="{{ image }}">
+                                     data-image-src="{{ image }}"
+                                     loading="lazy">
                             </div>
                         </div>
                         {% endfor %}
@@ -152,7 +157,7 @@
                 </div>
                 
                 <!-- Key Features -->
-                {% if project.key_features %}
+                {% if project.key_features_list %}
                 <div class="key-features mt-5" data-aos="fade-up" data-aos-delay="100">
                     <h3 class="h4 mb-4">Key Features</h3>
                     <div class="row g-3">
@@ -172,8 +177,29 @@
                 {% if project.challenges %}
                 <div class="challenges-solutions mt-5" data-aos="fade-up" data-aos-delay="200">
                     <h3 class="h4 mb-4">Challenges & Solutions</h3>
-                    <div class="content-text">
-                        {{ project.challenges|linebreaks }}
+                    <div class="row g-4">
+                        <div class="col-md-6">
+                            <div class="challenge-section">
+                                <h5 class="text-danger mb-3">
+                                    <i class="bi bi-exclamation-triangle me-2"></i>Challenges
+                                </h5>
+                                <div class="content-text">
+                                    {{ project.challenges|linebreaks }}
+                                </div>
+                            </div>
+                        </div>
+                        {% if project.solutions %}
+                        <div class="col-md-6">
+                            <div class="solution-section">
+                                <h5 class="text-success mb-3">
+                                    <i class="bi bi-lightbulb me-2"></i>Solutions
+                                </h5>
+                                <div class="content-text">
+                                    {{ project.solutions|linebreaks }}
+                                </div>
+                            </div>
+                        </div>
+                        {% endif %}
                     </div>
                 </div>
                 {% endif %}
@@ -220,10 +246,10 @@
                         </div>
                         {% endif %}
                         
-                        {% if project.my_role %}
+                        {% if project.meta_title %}
                         <div class="info-item mb-3">
-                            <strong class="d-block text-muted small">My Role</strong>
-                            <span>{{ project.my_role }}</span>
+                            <strong class="d-block text-muted small">SEO Title</strong>
+                            <span>{{ project.meta_title }}</span>
                         </div>
                         {% endif %}
                     </div>
@@ -412,12 +438,45 @@
 
 /* Feature Items */
 .feature-item {
-    padding: 0.5rem 0;
+    padding: 0.75rem 0;
     border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+    transition: all 0.2s ease;
 }
 
 .feature-item:last-child {
     border-bottom: none;
+}
+
+.feature-item:hover {
+    background-color: rgba(var(--theme-primary), 0.05);
+    padding-left: 0.5rem;
+    border-radius: 0.375rem;
+}
+
+/* Challenge and Solution Sections */
+.challenge-section,
+.solution-section {
+    padding: 1.5rem;
+    border-radius: 0.5rem;
+    height: 100%;
+}
+
+.challenge-section {
+    background: linear-gradient(135deg, rgba(220, 53, 69, 0.1), rgba(220, 53, 69, 0.05));
+    border-left: 4px solid #dc3545;
+}
+
+.solution-section {
+    background: linear-gradient(135deg, rgba(25, 135, 84, 0.1), rgba(25, 135, 84, 0.05));
+    border-left: 4px solid #198754;
+}
+
+/* Results Section */
+.results-impact {
+    background: linear-gradient(135deg, rgba(var(--theme-primary), 0.1), rgba(var(--theme-secondary), 0.05));
+    padding: 2rem;
+    border-radius: 0.5rem;
+    border-left: 4px solid var(--theme-primary);
 }
 
 /* Sidebar Styling */

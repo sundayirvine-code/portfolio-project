@@ -1,0 +1,666 @@
+{% extends 'parameters/admin/base_admin.html' %}
+{% load static %}
+
+{% block breadcrumb %}
+<li class="breadcrumb-item">
+    <a href="{% url 'portfolio:blogpost_list' %}" class="text-decoration-none">Blog Posts</a>
+</li>
+<li class="breadcrumb-item active" aria-current="page">
+    {% if blog_post %}Edit Post{% else %}New Post{% endif %}
+</li>
+{% endblock %}
+
+{% block page_actions %}
+<div class="d-flex gap-2">
+    <div class="btn-group">
+        <button type="button" class="btn btn-outline-secondary" onclick="saveDraft()">
+            <i class="bi bi-file-earmark me-1"></i>Save Draft
+        </button>
+        <button type="button" class="btn btn-success" onclick="publishPost()">
+            <i class="bi bi-check-lg me-1"></i>Publish
+        </button>
+    </div>
+    <a href="{% url 'portfolio:blogpost_list' %}" class="btn btn-outline-secondary">
+        <i class="bi bi-arrow-left me-1"></i>Back to Posts
+    </a>
+</div>
+{% endblock %}
+
+{% block admin_content %}
+<div class="row">
+    <div class="col-lg-8">
+        <form method="post" id="blogpostForm" class="needs-validation" novalidate>
+            {% csrf_token %}
+            <input type="hidden" name="status" id="statusField" value="draft">
+            
+            <!-- Basic Information -->
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="bi bi-pencil me-2"></i>Post Content
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label for="{{ form.title.id_for_label }}" class="form-label">
+                            Post Title <span class="text-danger">*</span>
+                        </label>
+                        {{ form.title }}
+                        {% if form.title.errors %}
+                            <div class="invalid-feedback d-block">
+                                {% for error in form.title.errors %}{{ error }}{% endfor %}
+                            </div>
+                        {% endif %}
+                        <div class="form-text">The main title of your blog post</div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="{{ form.excerpt.id_for_label }}" class="form-label">
+                            Excerpt
+                        </label>
+                        {{ form.excerpt }}
+                        {% if form.excerpt.errors %}
+                            <div class="invalid-feedback d-block">
+                                {% for error in form.excerpt.errors %}{{ error }}{% endfor %}
+                            </div>
+                        {% endif %}
+                        <div class="form-text">Brief summary for listings and SEO (max 300 characters)</div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="{{ form.content.id_for_label }}" class="form-label">
+                            Post Content <span class="text-danger">*</span>
+                        </label>
+                        {{ form.content }}
+                        {% if form.content.errors %}
+                            <div class="invalid-feedback d-block">
+                                {% for error in form.content.errors %}{{ error }}{% endfor %}
+                            </div>
+                        {% endif %}
+                        <div class="form-text">Rich text content for your blog post</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Featured Image -->
+            <div class="card mt-4">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="bi bi-image me-2"></i>Featured Image
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-8">
+                            <input type="file" 
+                                   class="form-control" 
+                                   id="featuredImageUpload" 
+                                   accept="image/*"
+                                   onchange="handleFeaturedImageUpload(this)">
+                            <div class="form-text">Upload blog post featured image (recommended: 800x600px, max 5MB)</div>
+                        </div>
+                        <div class="col-md-4">
+                            <div id="featuredImagePreview" class="image-preview">
+                                {% if blog_post and blog_post.featured_image_url %}
+                                <img src="{{ blog_post.featured_image_url }}" alt="Featured Image" class="img-thumbnail w-100">
+                                {% else %}
+                                <div class="placeholder-image d-flex align-items-center justify-content-center bg-light rounded">
+                                    <i class="bi bi-image text-muted fs-3"></i>
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Hidden field to store base64 data -->
+                    {{ form.featured_image_file }}
+                    {% if form.featured_image_file.errors %}
+                        <div class="invalid-feedback d-block">
+                            {% for error in form.featured_image_file.errors %}{{ error }}{% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Metadata & Publishing Settings -->
+            <div class="card mt-4">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="bi bi-tags me-2"></i>Settings & Metadata
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="{{ form.category.id_for_label }}" class="form-label">Category</label>
+                                {{ form.category }}
+                                {% if form.category.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {% for error in form.category.errors %}{{ error }}{% endfor %}
+                                    </div>
+                                {% endif %}
+                                <div class="form-text">Select a category for this post</div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="{{ form.reading_time.id_for_label }}" class="form-label">Reading Time (minutes)</label>
+                                {{ form.reading_time }}
+                                {% if form.reading_time.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {% for error in form.reading_time.errors %}{{ error }}{% endfor %}
+                                    </div>
+                                {% endif %}
+                                <div class="form-text">Estimated reading time (0 for auto-calculation)</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="{{ form.tags.id_for_label }}" class="form-label">Tags</label>
+                                {{ form.tags }}
+                                {% if form.tags.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {% for error in form.tags.errors %}{{ error }}{% endfor %}
+                                    </div>
+                                {% endif %}
+                                <div class="form-text">Comma-separated tags (e.g., web, python, tutorial)</div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="{{ form.published_at.id_for_label }}" class="form-label">Publish Date & Time</label>
+                                {{ form.published_at }}
+                                {% if form.published_at.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {% for error in form.published_at.errors %}{{ error }}{% endfor %}
+                                    </div>
+                                {% endif %}
+                                <div class="form-text">When to publish this post (leave empty for immediate)</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SEO Settings -->
+            <div class="card mt-4">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="bi bi-search me-2"></i>SEO Settings
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="{{ form.meta_title.id_for_label }}" class="form-label">Meta Title</label>
+                                {{ form.meta_title }}
+                                {% if form.meta_title.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {% for error in form.meta_title.errors %}{{ error }}{% endfor %}
+                                    </div>
+                                {% endif %}
+                                <div class="form-text">SEO title for search engines (max 60 characters)</div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="{{ form.meta_description.id_for_label }}" class="form-label">Meta Description</label>
+                                {{ form.meta_description }}
+                                {% if form.meta_description.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {% for error in form.meta_description.errors %}{{ error }}{% endfor %}
+                                    </div>
+                                {% endif %}
+                                <div class="form-text">SEO description for search engines (max 160 characters)</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+    
+    <div class="col-lg-4">
+        <!-- Post Status -->
+        <div class="card sticky-top" style="top: 1rem;">
+            <div class="card-header">
+                <h6 class="mb-0">
+                    <i class="bi bi-flag me-2"></i>Post Status
+                </h6>
+            </div>
+            <div class="card-body">
+                <div id="postStatus">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="status-indicator bg-secondary rounded-circle me-2" style="width: 12px; height: 12px;"></div>
+                        <span class="fw-bold">Draft</span>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <small class="text-muted d-block mb-1">Last saved:</small>
+                        <span class="small" id="lastSaved">{% if blog_post %}{{ blog_post.updated_at|date:"M d, Y g:i A" }}{% else %}Not saved yet{% endif %}</span>
+                    </div>
+                    
+                    <div class="d-grid gap-2">
+                        {% if blog_post %}
+                        <a href="{% url 'portfolio:blog_detail' blog_post.slug %}" 
+                           class="btn btn-outline-primary btn-sm" target="_blank">
+                            <i class="bi bi-eye me-1"></i>View Live
+                        </a>
+                        {% endif %}
+                        <button type="button" class="btn btn-outline-secondary btn-sm" onclick="autoSave()">
+                            <i class="bi bi-cloud-upload me-1"></i>Save Now
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Post Statistics -->
+        {% if blog_post %}
+        <div class="card mt-3">
+            <div class="card-header">
+                <h6 class="mb-0">
+                    <i class="bi bi-graph-up me-2"></i>Post Statistics
+                </h6>
+            </div>
+            <div class="card-body">
+                <ul class="list-unstyled mb-0">
+                    <li class="d-flex justify-content-between mb-2">
+                        <span>Content length:</span>
+                        <span class="badge bg-info" id="contentLength">{{ blog_post.content|length }}</span>
+                    </li>
+                    <li class="d-flex justify-content-between mb-2">
+                        <span>Views:</span>
+                        <span class="badge bg-success">{{ blog_post.views_count }}</span>
+                    </li>
+                    <li class="d-flex justify-content-between mb-2">
+                        <span>Reading time:</span>
+                        <span class="badge bg-info">{{ blog_post.reading_time|default:"Auto" }} min</span>
+                    </li>
+                    <li class="d-flex justify-content-between mb-2">
+                        <span>Created:</span>
+                        <span class="small text-muted">{{ blog_post.created_at|date:"M d, Y" }}</span>
+                    </li>
+                    <li class="d-flex justify-content-between">
+                        <span>Updated:</span>
+                        <span class="small text-muted">{{ blog_post.updated_at|date:"M d, Y" }}</span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        {% endif %}
+        
+        <!-- Writing Tips -->
+        <div class="card mt-3">
+            <div class="card-header">
+                <h6 class="mb-0">
+                    <i class="bi bi-lightbulb me-2"></i>Writing Tips
+                </h6>
+            </div>
+            <div class="card-body">
+                <ul class="list-unstyled small mb-0">
+                    <li class="mb-2">
+                        <i class="bi bi-check text-success me-1"></i>
+                        Use compelling headlines to grab attention
+                    </li>
+                    <li class="mb-2">
+                        <i class="bi bi-check text-success me-1"></i>
+                        Include relevant tags for better discoverability
+                    </li>
+                    <li class="mb-2">
+                        <i class="bi bi-check text-success me-1"></i>
+                        Add a featured image to make posts visually appealing
+                    </li>
+                    <li class="mb-2">
+                        <i class="bi bi-check text-success me-1"></i>
+                        Write engaging excerpts for social sharing
+                    </li>
+                    <li class="mb-0">
+                        <i class="bi bi-check text-success me-1"></i>
+                        Optimize meta title and description for SEO
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+{{ block.super }}
+<style>
+.form-control:focus,
+.form-select:focus {
+    border-color: #0d6efd;
+    box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+}
+
+.status-indicator {
+    transition: background-color 0.3s ease;
+}
+
+.status-indicator.draft {
+    background-color: #6c757d !important;
+}
+
+.status-indicator.published {
+    background-color: #198754 !important;
+}
+
+.status-indicator.featured {
+    background-color: #ffc107 !important;
+}
+
+/* CKEditor styling */
+.ck-editor {
+    border: 1px solid #dee2e6;
+    border-radius: 0.375rem;
+    overflow: hidden;
+}
+
+.ck-editor__editable {
+    min-height: 400px !important;
+    padding: 1rem !important;
+    font-size: 16px !important;
+    line-height: 1.6 !important;
+}
+
+/* Hide the original textarea when CKEditor is active */
+#{{ form.content.id_for_label }}.ck-hidden {
+    display: none !important;
+}
+
+/* CKEditor toolbar styling */
+.ck-toolbar {
+    border-bottom: 1px solid #dee2e6 !important;
+    padding: 0.5rem !important;
+}
+
+/* CKEditor dark mode support */
+[data-bs-theme="dark"] .ck-editor {
+    border-color: rgba(255, 255, 255, 0.3);
+}
+
+[data-bs-theme="dark"] .ck-toolbar {
+    border-bottom-color: rgba(255, 255, 255, 0.3) !important;
+    background-color: rgba(255, 255, 255, 0.05) !important;
+}
+
+[data-bs-theme="dark"] .ck-editor__editable {
+    background-color: rgba(255, 255, 255, 0.05) !important;
+    color: rgba(255, 255, 255, 0.9) !important;
+}
+
+/* Image upload styling */
+.image-preview {
+    min-height: 120px;
+    border: 2px dashed #dee2e6;
+    border-radius: 0.375rem;
+    overflow: hidden;
+}
+
+.image-preview img {
+    max-height: 120px;
+    object-fit: cover;
+}
+
+.placeholder-image {
+    height: 120px;
+    border: 2px dashed #dee2e6;
+    cursor: pointer;
+    transition: border-color 0.3s ease;
+}
+
+.placeholder-image:hover {
+    border-color: #0d6efd;
+}
+
+/* Auto-save indicator */
+.auto-save-indicator {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 1050;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.auto-save-indicator.show {
+    opacity: 1;
+}
+
+/* Dark mode support */
+[data-bs-theme="dark"] .status-indicator.draft {
+    background-color: #6c757d !important;
+}
+
+[data-bs-theme="dark"] .placeholder-image {
+    border-color: rgba(255, 255, 255, 0.3);
+    background-color: rgba(255, 255, 255, 0.05);
+}
+
+[data-bs-theme="dark"] .placeholder-image:hover {
+    border-color: #0d6efd;
+}
+</style>
+{% endblock %}
+
+{% block extra_js %}
+{{ block.super }}
+<!-- CKEditor 5 CDN -->
+<script src="https://cdn.ckeditor.com/ckeditor5/40.0.0/classic/ckeditor.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize CKEditor 5
+    let editorInstance;
+    ClassicEditor
+        .create(document.querySelector('#{{ form.content.id_for_label }}'), {
+            toolbar: [
+                'heading', '|',
+                'bold', 'italic', 'underline', 'strikethrough', '|',
+                'link', '|',
+                'bulletedList', 'numberedList', '|',
+                'outdent', 'indent', '|',
+                'blockQuote', 'insertTable', '|',
+                'imageUpload', '|',
+                'undo', 'redo', '|',
+                'code', 'codeBlock', '|',
+                'sourceEditing'
+            ],
+            heading: {
+                options: [
+                    { model: 'paragraph', title: 'Paragraph', class: 'ck-heading_paragraph' },
+                    { model: 'heading1', view: 'h1', title: 'Heading 1', class: 'ck-heading_heading1' },
+                    { model: 'heading2', view: 'h2', title: 'Heading 2', class: 'ck-heading_heading2' },
+                    { model: 'heading3', view: 'h3', title: 'Heading 3', class: 'ck-heading_heading3' },
+                    { model: 'heading4', view: 'h4', title: 'Heading 4', class: 'ck-heading_heading4' }
+                ]
+            },
+            link: {
+                decorators: {
+                    openInNewTab: {
+                        mode: 'manual',
+                        label: 'Open in a new tab',
+                        attributes: {
+                            target: '_blank',
+                            rel: 'noopener noreferrer'
+                        }
+                    }
+                }
+            },
+            table: {
+                contentToolbar: [ 'tableColumn', 'tableRow', 'mergeTableCells' ]
+            },
+            image: {
+                toolbar: [
+                    'imageTextAlternative',
+                    '|',
+                    'imageStyle:alignLeft',
+                    'imageStyle:full',
+                    'imageStyle:alignRight'
+                ],
+                styles: [
+                    'full',
+                    'alignLeft',
+                    'alignRight'
+                ]
+            },
+            codeBlock: {
+                languages: [
+                    { language: 'plaintext', label: 'Plain text' },
+                    { language: 'javascript', label: 'JavaScript' },
+                    { language: 'python', label: 'Python' },
+                    { language: 'html', label: 'HTML' },
+                    { language: 'css', label: 'CSS' },
+                    { language: 'php', label: 'PHP' },
+                    { language: 'sql', label: 'SQL' },
+                    { language: 'json', label: 'JSON' }
+                ]
+            }
+        })
+        .then(editor => {
+            editorInstance = editor;
+            
+            // Update content length counter when editor content changes
+            editor.model.document.on('change:data', () => {
+                const length = editor.getData().length;
+                const lengthEl = document.getElementById('contentLength');
+                if (lengthEl) {
+                    lengthEl.textContent = length;
+                }
+            });
+            
+            // Ensure editor content is saved to the original textarea on form submission
+            const form = document.getElementById('blogpostForm');
+            form.addEventListener('submit', function() {
+                document.querySelector('#{{ form.content.id_for_label }}').value = editor.getData();
+            });
+        })
+        .catch(error => {
+            console.error('CKEditor initialization failed:', error);
+        });
+
+    // Auto-generate slug from title (similar to projects)
+    const titleField = document.getElementById('{{ form.title.id_for_label }}');
+    if (titleField) {
+        titleField.addEventListener('input', function() {
+            // Update character count or other real-time feedback if needed
+            console.log('Title updated:', this.value);
+        });
+    }
+    
+    // Content length counter is now handled by CKEditor above
+    
+    // Form validation
+    const form = document.getElementById('blogpostForm');
+    form.addEventListener('submit', function(e) {
+        if (!form.checkValidity()) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+        form.classList.add('was-validated');
+    });
+});
+
+// Global functions for buttons
+function saveDraft() {
+    document.getElementById('statusField').value = 'draft';
+    updateStatusIndicator('draft');
+    document.getElementById('blogpostForm').submit();
+}
+
+function publishPost() {
+    document.getElementById('statusField').value = 'published';
+    const publishDateField = document.getElementById('{{ form.published_at.id_for_label }}');
+    if (!publishDateField.value) {
+        publishDateField.value = new Date().toISOString().slice(0, 16);
+    }
+    updateStatusIndicator('published');
+    document.getElementById('blogpostForm').submit();
+}
+
+function autoSave() {
+    // Auto-save functionality could be implemented here
+    console.log('Auto-save triggered');
+}
+
+// Update status indicator
+function updateStatusIndicator(status) {
+    const indicator = document.querySelector('.status-indicator');
+    const statusText = document.querySelector('#postStatus .fw-bold');
+    
+    if (indicator && statusText) {
+        indicator.className = 'status-indicator rounded-circle me-2';
+        indicator.classList.add(status);
+        
+        const statusLabels = {
+            'draft': 'Draft',
+            'published': 'Published',
+            'featured': 'Featured'
+        };
+        
+        statusText.textContent = statusLabels[status] || 'Draft';
+    }
+}
+
+// Handle featured image upload
+function handleFeaturedImageUpload(input) {
+    const file = input.files[0];
+    if (!file) return;
+    
+    // Validate file size (5MB max)
+    if (file.size > 5 * 1024 * 1024) {
+        alert('Image size must be less than 5MB');
+        input.value = '';
+        return;
+    }
+    
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+        alert('Please select a valid image file');
+        input.value = '';
+        return;
+    }
+    
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        const img = new Image();
+        img.onload = function() {
+            // Resize image if needed
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            
+            // Calculate new dimensions (max 800px width)
+            let { width, height } = img;
+            if (width > 800) {
+                height = (height * 800) / width;
+                width = 800;
+            }
+            
+            canvas.width = width;
+            canvas.height = height;
+            
+            // Draw and compress
+            ctx.drawImage(img, 0, 0, width, height);
+            const base64Data = canvas.toDataURL('image/jpeg', 0.85);
+            
+            // Update preview
+            const preview = document.getElementById('featuredImagePreview');
+            preview.innerHTML = `<img src="${base64Data}" alt="Featured Image" class="img-thumbnail w-100">`;
+            
+            // Update hidden field
+            const hiddenField = document.getElementById('{{ form.featured_image_file.id_for_label }}');
+            if (hiddenField) {
+                hiddenField.value = base64Data;
+            }
+        };
+        img.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+}
+</script>
+{% endblock %}

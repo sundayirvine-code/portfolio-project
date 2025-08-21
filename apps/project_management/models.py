@@ -120,6 +120,12 @@ class Project(models.Model):
     client = models.CharField(_("Client/Company"), max_length=100, blank=True)
     team_size = models.PositiveIntegerField(_("Team Size"), default=1)
     
+    # Project Content Details
+    key_features = models.TextField(_("Key Features"), blank=True, help_text="JSON array of key features")
+    challenges = models.TextField(_("Challenges"), blank=True, help_text="Description of challenges faced")
+    solutions = models.TextField(_("Solutions"), blank=True, help_text="How challenges were solved")
+    results = models.TextField(_("Results & Impact"), blank=True, help_text="Project outcomes and impact")
+    
     # SEO
     meta_title = models.CharField(_("Meta Title"), max_length=60, blank=True)
     meta_description = models.CharField(_("Meta Description"), max_length=160, blank=True)
@@ -199,6 +205,17 @@ class Project(models.Model):
             except (json.JSONDecodeError, TypeError):
                 return []
         return []
+    
+    @property
+    def key_features_list(self):
+        """Get list of key features from JSON"""
+        if self.key_features:
+            try:
+                import json
+                return json.loads(self.key_features)
+            except (json.JSONDecodeError, TypeError):
+                return []
+        return []
 
 
 class BlogPost(models.Model):
@@ -212,7 +229,7 @@ class BlogPost(models.Model):
     
     # Basic Information
     title = models.CharField(_("Post Title"), max_length=200)
-    slug = models.SlugField(_("Slug"), unique=True, blank=True)
+    slug = models.SlugField(_("Slug"), unique=True, blank=True, max_length=200)
     excerpt = models.TextField(_("Excerpt"), max_length=300, blank=True)
     content = models.TextField(_("Content"))
     
@@ -231,6 +248,7 @@ class BlogPost(models.Model):
     
     # Statistics
     views_count = models.PositiveIntegerField(_("Views Count"), default=0)
+    reading_time = models.PositiveIntegerField(_("Reading Time (minutes)"), default=0, help_text="Estimated reading time in minutes")
     
     # Timestamps
     published_at = models.DateTimeField(_("Published At"), blank=True, null=True)
@@ -383,6 +401,9 @@ class Service(models.Model):
     # Details
     icon = models.CharField(_("Icon Class"), max_length=50, blank=True)
     technologies = models.ManyToManyField(Technology, blank=True)
+    delivery_time = models.CharField(_("Delivery Time"), max_length=50, blank=True, help_text="e.g., '2-4 weeks'")
+    features = models.TextField(_("Key Features"), blank=True, help_text="JSON array of key features")
+    process_steps = models.TextField(_("Process Steps"), blank=True, help_text="JSON array of process steps")
     
     # Pricing (optional)
     starting_price = models.DecimalField(
@@ -420,6 +441,28 @@ class Service(models.Model):
         if not self.slug:
             self.slug = slugify(self.name)
         super().save(*args, **kwargs)
+    
+    @property
+    def features_list(self):
+        """Get list of features from JSON"""
+        if self.features:
+            try:
+                import json
+                return json.loads(self.features)
+            except (json.JSONDecodeError, TypeError):
+                return []
+        return []
+    
+    @property
+    def process_steps_list(self):
+        """Get list of process steps from JSON"""
+        if self.process_steps:
+            try:
+                import json
+                return json.loads(self.process_steps)
+            except (json.JSONDecodeError, TypeError):
+                return []
+        return []
 
 
 class ContactMessage(models.Model):

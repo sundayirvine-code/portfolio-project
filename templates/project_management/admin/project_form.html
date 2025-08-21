@@ -1,0 +1,987 @@
+{% extends 'parameters/admin/base_admin.html' %}
+{% load static %}
+
+{% block breadcrumb %}
+<li class="breadcrumb-item">
+    <a href="{% url 'portfolio:project_list' %}" class="text-decoration-none">Projects</a>
+</li>
+<li class="breadcrumb-item active" aria-current="page">
+    {% if project %}Edit Project{% else %}Create Project{% endif %}
+</li>
+{% endblock %}
+
+{% block page_actions %}
+<div class="d-flex gap-2">
+    <div class="btn-group">
+        <button type="button" class="btn btn-outline-secondary" onclick="saveDraft()">
+            <i class="bi bi-file-earmark me-1"></i>Save Draft
+        </button>
+        <button type="button" class="btn btn-success" onclick="publishProject()">
+            <i class="bi bi-check-lg me-1"></i>Publish
+        </button>
+        <button type="button" class="btn btn-warning" onclick="featureProject()">
+            <i class="bi bi-star me-1"></i>Feature
+        </button>
+    </div>
+    <a href="{% url 'portfolio:project_list' %}" class="btn btn-outline-secondary">
+        <i class="bi bi-arrow-left me-1"></i>Back to Projects
+    </a>
+</div>
+{% endblock %}
+
+{% block admin_content %}
+<div class="row">
+    <div class="col-lg-8">
+        <form method="post" id="projectForm" class="needs-validation" novalidate>
+            {% csrf_token %}
+            <input type="hidden" name="status" id="statusField" value="draft">
+            
+            <!-- Project Information -->
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="bi bi-info-circle me-2"></i>Project Information
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label for="{{ form.title.id_for_label }}" class="form-label">
+                            Project Title <span class="text-danger">*</span>
+                        </label>
+                        {{ form.title }}
+                        {% if form.title.errors %}
+                            <div class="invalid-feedback d-block">
+                                {% for error in form.title.errors %}{{ error }}{% endfor %}
+                            </div>
+                        {% endif %}
+                        <div class="form-text">The main title of your project</div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="{{ form.slug.id_for_label }}" class="form-label">
+                            URL Slug <span class="text-danger">*</span>
+                        </label>
+                        {{ form.slug }}
+                        {% if form.slug.errors %}
+                            <div class="invalid-feedback d-block">
+                                {% for error in form.slug.errors %}{{ error }}{% endfor %}
+                            </div>
+                        {% endif %}
+                        <div class="form-text">URL-friendly version of the title (auto-generated from title)</div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="{{ form.description.id_for_label }}" class="form-label">
+                            Project Description <span class="text-danger">*</span>
+                        </label>
+                        {{ form.description }}
+                        {% if form.description.errors %}
+                            <div class="invalid-feedback d-block">
+                                {% for error in form.description.errors %}{{ error }}{% endfor %}
+                            </div>
+                        {% endif %}
+                        <div class="form-text">Brief description for project listings</div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="{{ form.detailed_description.id_for_label }}" class="form-label">
+                            Detailed Description
+                        </label>
+                        {{ form.detailed_description }}
+                        {% if form.detailed_description.errors %}
+                            <div class="invalid-feedback d-block">
+                                {% for error in form.detailed_description.errors %}{{ error }}{% endfor %}
+                            </div>
+                        {% endif %}
+                        <div class="form-text">Comprehensive project description with features, challenges, and solutions</div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="{{ form.category.id_for_label }}" class="form-label">Category</label>
+                                {{ form.category }}
+                                {% if form.category.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {% for error in form.category.errors %}{{ error }}{% endfor %}
+                                    </div>
+                                {% endif %}
+                                <div class="form-text">Project category for organization</div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="{{ form.project_type.id_for_label }}" class="form-label">Project Type</label>
+                                {{ form.project_type }}
+                                {% if form.project_type.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {% for error in form.project_type.errors %}{{ error }}{% endfor %}
+                                    </div>
+                                {% endif %}
+                                <div class="form-text">Type of project (web, mobile, desktop, etc.)</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="{{ form.technologies.id_for_label }}" class="form-label">Technologies Used</label>
+                        {{ form.technologies }}
+                        {% if form.technologies.errors %}
+                            <div class="invalid-feedback d-block">
+                                {% for error in form.technologies.errors %}{{ error }}{% endfor %}
+                            </div>
+                        {% endif %}
+                        <div class="form-text">Select all technologies used in this project</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Client & Timeline -->
+            <div class="card mt-4">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="bi bi-building me-2"></i>Client & Timeline
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="{{ form.client.id_for_label }}" class="form-label">Client</label>
+                                {{ form.client }}
+                                {% if form.client.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {% for error in form.client.errors %}{{ error }}{% endfor %}
+                                    </div>
+                                {% endif %}
+                                <div class="form-text">Client or company name</div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="{{ form.team_size.id_for_label }}" class="form-label">Team Size</label>
+                                {{ form.team_size }}
+                                {% if form.team_size.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {% for error in form.team_size.errors %}{{ error }}{% endfor %}
+                                    </div>
+                                {% endif %}
+                                <div class="form-text">Number of team members</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="{{ form.start_date.id_for_label }}" class="form-label">Start Date</label>
+                                {{ form.start_date }}
+                                {% if form.start_date.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {% for error in form.start_date.errors %}{{ error }}{% endfor %}
+                                    </div>
+                                {% endif %}
+                                <div class="form-text">When the project started</div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="{{ form.end_date.id_for_label }}" class="form-label">End Date</label>
+                                {{ form.end_date }}
+                                {% if form.end_date.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {% for error in form.end_date.errors %}{{ error }}{% endfor %}
+                                    </div>
+                                {% endif %}
+                                <div class="form-text">When the project was completed</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Media & Links -->
+            <div class="card mt-4">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="bi bi-link me-2"></i>Media & Links
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <!-- Featured Image Upload -->
+                    <div class="mb-3">
+                        <label for="featuredImageUpload" class="form-label">Featured Image</label>
+                        <div class="row">
+                            <div class="col-md-8">
+                                <input type="file" 
+                                       class="form-control" 
+                                       id="featuredImageUpload" 
+                                       accept="image/*"
+                                       onchange="handleFeaturedImageUpload(this)">
+                                <div class="form-text">Upload project featured image (recommended: 1200x800px, max 5MB)</div>
+                            </div>
+                            <div class="col-md-4">
+                                <div id="featuredImagePreview" class="image-preview">
+                                    {% if project and project.featured_image_url %}
+                                    <img src="{{ project.featured_image_url }}" alt="Featured Image" class="img-thumbnail w-100">
+                                    {% else %}
+                                    <div class="placeholder-image d-flex align-items-center justify-content-center bg-light rounded">
+                                        <i class="bi bi-image text-muted fs-3"></i>
+                                    </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Hidden field to store base64 data -->
+                        {{ form.featured_image_file }}
+                        {% if form.featured_image_file.errors %}
+                            <div class="invalid-feedback d-block">
+                                {% for error in form.featured_image_file.errors %}{{ error }}{% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <!-- Gallery Images Upload -->
+                    <div class="mb-3">
+                        <label for="galleryImagesUpload" class="form-label">Gallery Images</label>
+                        <div class="row">
+                            <div class="col-md-8">
+                                <input type="file" 
+                                       class="form-control" 
+                                       id="galleryImagesUpload" 
+                                       accept="image/*"
+                                       multiple
+                                       onchange="handleGalleryImagesUpload(this)">
+                                <div class="form-text">Upload multiple images for project gallery (max 10 images, 5MB each)</div>
+                                <div class="mt-2">
+                                    <button type="button" class="btn btn-sm btn-outline-danger" onclick="clearGallery()" id="clearGalleryBtn" style="display: none;">
+                                        <i class="bi bi-trash me-1"></i>Clear All
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="small text-muted">
+                                    Gallery: <span id="galleryCount">0</span> images
+                                </div>
+                            </div>
+                        </div>
+                        <div id="galleryImagesPreview" class="row g-2 mt-2">
+                            <!-- Gallery preview will be populated by JavaScript -->
+                        </div>
+                        <!-- Hidden field to store gallery JSON -->
+                        {{ form.gallery_images_json }}
+                        {% if form.gallery_images_json.errors %}
+                            <div class="invalid-feedback d-block">
+                                {% for error in form.gallery_images_json.errors %}{{ error }}{% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <!-- Project Links -->
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label for="{{ form.live_url.id_for_label }}" class="form-label">Live URL</label>
+                                {{ form.live_url }}
+                                {% if form.live_url.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {% for error in form.live_url.errors %}{{ error }}{% endfor %}
+                                    </div>
+                                {% endif %}
+                                <div class="form-text">Link to the live project</div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label for="{{ form.github_url.id_for_label }}" class="form-label">GitHub URL</label>
+                                {{ form.github_url }}
+                                {% if form.github_url.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {% for error in form.github_url.errors %}{{ error }}{% endfor %}
+                                    </div>
+                                {% endif %}
+                                <div class="form-text">Link to the source code repository</div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label for="{{ form.documentation_url.id_for_label }}" class="form-label">Documentation URL</label>
+                                {{ form.documentation_url }}
+                                {% if form.documentation_url.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {% for error in form.documentation_url.errors %}{{ error }}{% endfor %}
+                                    </div>
+                                {% endif %}
+                                <div class="form-text">Link to project documentation</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Project Details -->
+            <div class="card mt-4">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="bi bi-list-check me-2"></i>Project Details
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label for="{{ form.key_features.id_for_label }}" class="form-label">Key Features</label>
+                        {{ form.key_features }}
+                        {% if form.key_features.errors %}
+                            <div class="invalid-feedback d-block">
+                                {% for error in form.key_features.errors %}{{ error }}{% endfor %}
+                            </div>
+                        {% endif %}
+                        <div class="form-text">JSON array of key features (e.g., ["Responsive Design", "API Integration", "Real-time Updates"])</div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="{{ form.challenges.id_for_label }}" class="form-label">Challenges</label>
+                        {{ form.challenges }}
+                        {% if form.challenges.errors %}
+                            <div class="invalid-feedback d-block">
+                                {% for error in form.challenges.errors %}{{ error }}{% endfor %}
+                            </div>
+                        {% endif %}
+                        <div class="form-text">Describe the main challenges faced during this project</div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="{{ form.solutions.id_for_label }}" class="form-label">Solutions</label>
+                        {{ form.solutions }}
+                        {% if form.solutions.errors %}
+                            <div class="invalid-feedback d-block">
+                                {% for error in form.solutions.errors %}{{ error }}{% endfor %}
+                            </div>
+                        {% endif %}
+                        <div class="form-text">Explain how the challenges were solved</div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="{{ form.results.id_for_label }}" class="form-label">Results & Impact</label>
+                        {{ form.results }}
+                        {% if form.results.errors %}
+                            <div class="invalid-feedback d-block">
+                                {% for error in form.results.errors %}{{ error }}{% endfor %}
+                            </div>
+                        {% endif %}
+                        <div class="form-text">Describe the outcomes, impact, and results of this project</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SEO Settings -->
+            <div class="card mt-4">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="bi bi-search me-2"></i>SEO Settings
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label for="{{ form.meta_title.id_for_label }}" class="form-label">Meta Title</label>
+                        {{ form.meta_title }}
+                        {% if form.meta_title.errors %}
+                            <div class="invalid-feedback d-block">
+                                {% for error in form.meta_title.errors %}{{ error }}{% endfor %}
+                            </div>
+                        {% endif %}
+                        <div class="form-text">SEO title for search engines (max 60 characters)</div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="{{ form.meta_description.id_for_label }}" class="form-label">Meta Description</label>
+                        {{ form.meta_description }}
+                        {% if form.meta_description.errors %}
+                            <div class="invalid-feedback d-block">
+                                {% for error in form.meta_description.errors %}{{ error }}{% endfor %}
+                            </div>
+                        {% endif %}
+                        <div class="form-text">SEO description for search engines (max 160 characters)</div>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+    
+    <div class="col-lg-4">
+        <!-- Project Status -->
+        <div class="card sticky-top" style="top: 1rem;">
+            <div class="card-header">
+                <h6 class="mb-0">
+                    <i class="bi bi-flag me-2"></i>Project Status
+                </h6>
+            </div>
+            <div class="card-body">
+                <div id="projectStatus">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="status-indicator bg-secondary rounded-circle me-2" style="width: 12px; height: 12px;"></div>
+                        <span class="fw-bold">Draft</span>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <small class="text-muted d-block mb-1">Last updated:</small>
+                        <span class="small">{% if project %}{{ project.updated_at|date:"M d, Y g:i A" }}{% else %}Not saved yet{% endif %}</span>
+                    </div>
+                    
+                    <div class="d-grid gap-2">
+                        {% if project %}
+                        <a href="{% url 'portfolio:project_detail' project.slug %}" 
+                           class="btn btn-outline-primary btn-sm" target="_blank">
+                            <i class="bi bi-eye me-1"></i>View Live
+                        </a>
+                        {% endif %}
+                        <button type="button" class="btn btn-outline-secondary btn-sm" onclick="previewProject()">
+                            <i class="bi bi-search me-1"></i>Preview
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Project Statistics -->
+        {% if project %}
+        <div class="card mt-3">
+            <div class="card-header">
+                <h6 class="mb-0">
+                    <i class="bi bi-graph-up me-2"></i>Project Statistics
+                </h6>
+            </div>
+            <div class="card-body">
+                <ul class="list-unstyled mb-0">
+                    <li class="d-flex justify-content-between mb-2">
+                        <span>Technologies:</span>
+                        <span class="badge bg-info">{{ project.technologies.count }}</span>
+                    </li>
+                    <li class="d-flex justify-content-between mb-2">
+                        <span>Description length:</span>
+                        <span class="badge bg-info" id="descriptionLength">{{ project.description|length }}</span>
+                    </li>
+                    {% if project.meta_data.views %}
+                    <li class="d-flex justify-content-between mb-2">
+                        <span>Views:</span>
+                        <span class="badge bg-success">{{ project.meta_data.views }}</span>
+                    </li>
+                    {% endif %}
+                    <li class="d-flex justify-content-between mb-2">
+                        <span>Created:</span>
+                        <span class="small text-muted">{{ project.created_at|date:"M d, Y" }}</span>
+                    </li>
+                    <li class="d-flex justify-content-between">
+                        <span>Updated:</span>
+                        <span class="small text-muted">{{ project.updated_at|date:"M d, Y" }}</span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        {% endif %}
+        
+        <!-- Development Tips -->
+        <div class="card mt-3">
+            <div class="card-header">
+                <h6 class="mb-0">
+                    <i class="bi bi-lightbulb me-2"></i>Project Tips
+                </h6>
+            </div>
+            <div class="card-body">
+                <ul class="list-unstyled small mb-0">
+                    <li class="mb-2">
+                        <i class="bi bi-check text-success me-1"></i>
+                        Include detailed descriptions for better SEO
+                    </li>
+                    <li class="mb-2">
+                        <i class="bi bi-check text-success me-1"></i>
+                        Add multiple gallery images to showcase work
+                    </li>
+                    <li class="mb-2">
+                        <i class="bi bi-check text-success me-1"></i>
+                        Feature your best projects for homepage display
+                    </li>
+                    <li class="mb-2">
+                        <i class="bi bi-check text-success me-1"></i>
+                        Document challenges and solutions for credibility
+                    </li>
+                    <li class="mb-0">
+                        <i class="bi bi-check text-success me-1"></i>
+                        Lower order numbers appear first in listings
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+{{ block.super }}
+<style>
+.form-control:focus,
+.form-select:focus {
+    border-color: #0d6efd;
+    box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+}
+
+.status-indicator {
+    transition: background-color 0.3s ease;
+}
+
+.status-indicator.draft {
+    background-color: #6c757d !important;
+}
+
+.status-indicator.published {
+    background-color: #198754 !important;
+}
+
+.status-indicator.featured {
+    background-color: #ffc107 !important;
+}
+
+/* Textarea styling */
+textarea.form-control {
+    min-height: 120px;
+    resize: vertical;
+}
+
+#{{ form.description.id_for_label }},
+#{{ form.challenges.id_for_label }},
+#{{ form.solutions.id_for_label }},
+#{{ form.lessons_learned.id_for_label }} {
+    min-height: 150px;
+}
+
+/* Date inputs */
+input[type="date"],
+input[type="datetime-local"] {
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: textfield;
+}
+
+/* Auto-save indicator */
+.auto-save-indicator {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 1050;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.auto-save-indicator.show {
+    opacity: 1;
+}
+
+/* Image upload styling */
+.image-preview {
+    min-height: 120px;
+    border: 2px dashed #dee2e6;
+    border-radius: 0.375rem;
+    overflow: hidden;
+}
+
+.image-preview img {
+    max-height: 120px;
+    object-fit: cover;
+}
+
+.placeholder-image {
+    height: 120px;
+    border: 2px dashed #dee2e6;
+    cursor: pointer;
+    transition: border-color 0.3s ease;
+}
+
+.placeholder-image:hover {
+    border-color: #0d6efd;
+}
+
+.gallery-item {
+    position: relative;
+    border-radius: 0.375rem;
+    overflow: hidden;
+}
+
+.gallery-item img {
+    width: 100%;
+    height: 80px;
+    object-fit: cover;
+}
+
+.gallery-item .remove-btn {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: rgba(220, 53, 69, 0.9);
+    border: none;
+    color: white;
+    font-size: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.gallery-item .remove-btn:hover {
+    background: rgba(220, 53, 69, 1);
+}
+
+/* Progress bar for uploads */
+.upload-progress {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: rgba(13, 110, 253, 0.2);
+    overflow: hidden;
+}
+
+.upload-progress-bar {
+    height: 100%;
+    background: #0d6efd;
+    transition: width 0.3s ease;
+}
+
+/* Dark mode support */
+[data-bs-theme="dark"] .placeholder-image {
+    border-color: rgba(255, 255, 255, 0.3);
+    background-color: rgba(255, 255, 255, 0.05);
+}
+
+[data-bs-theme="dark"] .placeholder-image:hover {
+    border-color: #0d6efd;
+}
+</style>
+{% endblock %}
+
+{% block extra_js %}
+{{ block.super }}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Auto-generate slug from title
+    const titleField = document.getElementById('{{ form.title.id_for_label }}');
+    const slugField = document.getElementById('{{ form.slug.id_for_label }}');
+    
+    if (titleField && slugField) {
+        titleField.addEventListener('input', function() {
+            if (!slugField.dataset.userModified) {
+                slugField.value = generateSlug(this.value);
+            }
+        });
+        
+        slugField.addEventListener('input', function() {
+            this.dataset.userModified = 'true';
+        });
+    }
+    
+    // Description length counter
+    const descriptionField = document.getElementById('{{ form.description.id_for_label }}');
+    if (descriptionField) {
+        descriptionField.addEventListener('input', function() {
+            const length = this.value.length;
+            const lengthEl = document.getElementById('descriptionLength');
+            if (lengthEl) {
+                lengthEl.textContent = length;
+            }
+        });
+    }
+    
+    // Date validation
+    const startDateField = document.getElementById('{{ form.start_date.id_for_label }}');
+    const endDateField = document.getElementById('{{ form.end_date.id_for_label }}');
+    
+    if (startDateField && endDateField) {
+        function validateDates() {
+            const startDate = new Date(startDateField.value);
+            const endDate = new Date(endDateField.value);
+            
+            if (startDateField.value && endDateField.value && startDate > endDate) {
+                endDateField.setCustomValidity('End date must be after start date');
+            } else {
+                endDateField.setCustomValidity('');
+            }
+        }
+        
+        startDateField.addEventListener('change', validateDates);
+        endDateField.addEventListener('change', validateDates);
+    }
+    
+    // Initialize gallery from existing data
+    initializeGallery();
+    
+    // Form validation
+    const form = document.getElementById('projectForm');
+    form.addEventListener('submit', function(e) {
+        if (!form.checkValidity()) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+        form.classList.add('was-validated');
+    });
+    
+    function generateSlug(text) {
+        return text
+            .toLowerCase()
+            .replace(/[^\w\s-]/g, '')
+            .replace(/[\s_-]+/g, '-')
+            .replace(/^-+|-+$/g, '');
+    }
+    
+    // Update status indicator
+    function updateStatusIndicator(status) {
+        const indicator = document.querySelector('.status-indicator');
+        const statusText = document.querySelector('#projectStatus .fw-bold');
+        
+        if (indicator && statusText) {
+            indicator.className = 'status-indicator rounded-circle me-2';
+            indicator.classList.add(status);
+            
+            const statusLabels = {
+                'draft': 'Draft',
+                'published': 'Published',
+                'featured': 'Featured'
+            };
+            
+            statusText.textContent = statusLabels[status] || 'Draft';
+        }
+    }
+    
+    // Initialize gallery preview from existing data
+    function initializeGallery() {
+        const galleryJsonField = document.getElementById('{{ form.gallery_images_json.id_for_label }}');
+        if (galleryJsonField && galleryJsonField.value) {
+            try {
+                const existingImages = JSON.parse(galleryJsonField.value);
+                galleryImages = existingImages;
+                updateGalleryPreview();
+            } catch (e) {
+                console.error('Error parsing existing gallery images:', e);
+            }
+        }
+    }
+});
+
+// Global variables for gallery management
+let galleryImages = [];
+
+// Handle featured image upload
+function handleFeaturedImageUpload(input) {
+    const file = input.files[0];
+    if (!file) return;
+    
+    // Validate file size (5MB max)
+    if (file.size > 5 * 1024 * 1024) {
+        alert('Image size must be less than 5MB');
+        input.value = '';
+        return;
+    }
+    
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+        alert('Please select a valid image file');
+        input.value = '';
+        return;
+    }
+    
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        const img = new Image();
+        img.onload = function() {
+            // Resize image if needed
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            
+            // Calculate new dimensions (max 1200px width)
+            let { width, height } = img;
+            if (width > 1200) {
+                height = (height * 1200) / width;
+                width = 1200;
+            }
+            
+            canvas.width = width;
+            canvas.height = height;
+            
+            // Draw and compress
+            ctx.drawImage(img, 0, 0, width, height);
+            const base64Data = canvas.toDataURL('image/jpeg', 0.85);
+            
+            // Update preview
+            const preview = document.getElementById('featuredImagePreview');
+            preview.innerHTML = `<img src="${base64Data}" alt="Featured Image" class="img-thumbnail w-100">`;
+            
+            // Update hidden field
+            const hiddenField = document.getElementById('{{ form.featured_image_file.id_for_label }}');
+            if (hiddenField) {
+                hiddenField.value = base64Data;
+            }
+        };
+        img.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+}
+
+// Handle gallery images upload
+function handleGalleryImagesUpload(input) {
+    const files = Array.from(input.files);
+    if (!files.length) return;
+    
+    // Check total gallery limit
+    if (galleryImages.length + files.length > 10) {
+        alert('Maximum 10 gallery images allowed');
+        return;
+    }
+    
+    let processedCount = 0;
+    
+    files.forEach((file, index) => {
+        // Validate file size
+        if (file.size > 5 * 1024 * 1024) {
+            alert(`Image ${file.name} is too large (max 5MB)`);
+            return;
+        }
+        
+        // Validate file type
+        if (!file.type.startsWith('image/')) {
+            alert(`${file.name} is not a valid image file`);
+            return;
+        }
+        
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const img = new Image();
+            img.onload = function() {
+                // Resize image if needed
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
+                
+                // Calculate new dimensions (max 800px width for gallery)
+                let { width, height } = img;
+                if (width > 800) {
+                    height = (height * 800) / width;
+                    width = 800;
+                }
+                
+                canvas.width = width;
+                canvas.height = height;
+                
+                // Draw and compress
+                ctx.drawImage(img, 0, 0, width, height);
+                const base64Data = canvas.toDataURL('image/jpeg', 0.8);
+                
+                // Add to gallery
+                galleryImages.push(base64Data);
+                
+                processedCount++;
+                if (processedCount === files.length) {
+                    updateGalleryPreview();
+                    input.value = ''; // Clear input
+                }
+            };
+            img.src = e.target.result;
+        };
+        reader.readAsDataURL(file);
+    });
+}
+
+// Update gallery preview
+function updateGalleryPreview() {
+    const preview = document.getElementById('galleryImagesPreview');
+    const countEl = document.getElementById('galleryCount');
+    const clearBtn = document.getElementById('clearGalleryBtn');
+    const hiddenField = document.getElementById('{{ form.gallery_images_json.id_for_label }}');
+    
+    // Update count
+    countEl.textContent = galleryImages.length;
+    
+    // Show/hide clear button
+    clearBtn.style.display = galleryImages.length > 0 ? 'inline-block' : 'none';
+    
+    // Update hidden field
+    hiddenField.value = JSON.stringify(galleryImages);
+    
+    // Update preview
+    preview.innerHTML = '';
+    galleryImages.forEach((imageData, index) => {
+        const col = document.createElement('div');
+        col.className = 'col-md-3 col-sm-4 col-6';
+        col.innerHTML = `
+            <div class="gallery-item">
+                <img src="${imageData}" alt="Gallery Image ${index + 1}" class="img-thumbnail">
+                <button type="button" class="remove-btn" onclick="removeGalleryImage(${index})" title="Remove">
+                    <i class="bi bi-x"></i>
+                </button>
+            </div>
+        `;
+        preview.appendChild(col);
+    });
+}
+
+// Remove gallery image
+function removeGalleryImage(index) {
+    galleryImages.splice(index, 1);
+    updateGalleryPreview();
+}
+
+// Clear all gallery images
+function clearGallery() {
+    if (confirm('Are you sure you want to remove all gallery images?')) {
+        galleryImages = [];
+        updateGalleryPreview();
+    }
+}
+
+// Global functions for buttons
+function saveDraft() {
+    document.getElementById('statusField').value = 'draft';
+    updateStatusIndicator('draft');
+    document.getElementById('projectForm').submit();
+}
+
+function publishProject() {
+    document.getElementById('statusField').value = 'published';
+    updateStatusIndicator('published');
+    document.getElementById('projectForm').submit();
+}
+
+function featureProject() {
+    document.getElementById('statusField').value = 'featured';
+    updateStatusIndicator('featured');
+    document.getElementById('projectForm').submit();
+}
+
+function previewProject() {
+    // Create a preview modal or new window
+    const form = document.getElementById('projectForm');
+    const formData = new FormData(form);
+    
+    // You could implement a preview functionality here
+    alert('Preview functionality would be implemented here');
+}
+
+function updateStatusIndicator(status) {
+    const indicator = document.querySelector('.status-indicator');
+    const statusText = document.querySelector('#projectStatus .fw-bold');
+    
+    if (indicator && statusText) {
+        indicator.className = 'status-indicator rounded-circle me-2';
+        indicator.classList.add(status);
+        
+        const statusLabels = {
+            'draft': 'Draft',
+            'published': 'Published', 
+            'featured': 'Featured'
+        };
+        
+        statusText.textContent = statusLabels[status] || 'Draft';
+    }
+}
+</script>
+{% endblock %}
