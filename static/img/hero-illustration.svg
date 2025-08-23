@@ -1,0 +1,161 @@
+<svg width="600" height="500" viewBox="0 0 600 500" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <!-- Gradients -->
+    <linearGradient id="primaryGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#6366f1;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#8b5cf6;stop-opacity:1" />
+    </linearGradient>
+    
+    <linearGradient id="secondaryGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#06b6d4;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#3b82f6;stop-opacity:1" />
+    </linearGradient>
+    
+    <linearGradient id="accentGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#f59e0b;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#ef4444;stop-opacity:1" />
+    </linearGradient>
+    
+    <!-- Shadows -->
+    <filter id="shadow" x="-50%" y="-50%" width="200%" height="200%">
+      <feDropShadow dx="0" dy="4" stdDeviation="8" flood-color="#000000" flood-opacity="0.1"/>
+    </filter>
+    
+    <!-- Glow effect -->
+    <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+      <feMerge> 
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+  
+  <!-- Background elements -->
+  <g opacity="0.1">
+    <!-- Background geometric shapes -->
+    <circle cx="100" cy="80" r="40" fill="url(#primaryGradient)"/>
+    <circle cx="500" cy="120" r="30" fill="url(#secondaryGradient)"/>
+    <circle cx="450" cy="350" r="25" fill="url(#accentGradient)"/>
+    <circle cx="80" cy="400" r="35" fill="url(#secondaryGradient)"/>
+    
+    <!-- Background dots pattern -->
+    <g opacity="0.5">
+      <circle cx="150" cy="150" r="3" fill="#6366f1"/>
+      <circle cx="200" cy="100" r="3" fill="#8b5cf6"/>
+      <circle cx="350" cy="80" r="3" fill="#06b6d4"/>
+      <circle cx="400" cy="200" r="3" fill="#3b82f6"/>
+      <circle cx="120" cy="300" r="3" fill="#f59e0b"/>
+      <circle cx="480" cy="280" r="3" fill="#ef4444"/>
+    </g>
+  </g>
+  
+  <!-- Main laptop/computer illustration -->
+  <g transform="translate(150, 120)">
+    <!-- Laptop base -->
+    <rect x="0" y="200" width="300" height="20" rx="10" fill="#374151" filter="url(#shadow)"/>
+    
+    <!-- Laptop screen -->
+    <rect x="20" y="80" width="260" height="180" rx="8" fill="#1f2937" filter="url(#shadow)"/>
+    <rect x="30" y="90" width="240" height="150" rx="4" fill="#111827"/>
+    
+    <!-- Screen content - Code editor mockup -->
+    <g>
+      <!-- Browser/Editor header -->
+      <rect x="30" y="90" width="240" height="25" fill="#374151"/>
+      <circle cx="45" cy="102.5" r="4" fill="#ef4444"/>
+      <circle cx="60" cy="102.5" r="4" fill="#f59e0b"/>
+      <circle cx="75" cy="102.5" r="4" fill="#10b981"/>
+      
+      <!-- Code lines -->
+      <rect x="40" y="125" width="80" height="3" fill="url(#primaryGradient)"/>
+      <rect x="40" y="135" width="120" height="3" fill="#06b6d4"/>
+      <rect x="50" y="145" width="100" height="3" fill="#8b5cf6"/>
+      <rect x="40" y="155" width="90" height="3" fill="#3b82f6"/>
+      <rect x="50" y="165" width="110" height="3" fill="url(#primaryGradient)"/>
+      <rect x="40" y="175" width="70" height="3" fill="#06b6d4"/>
+      
+      <!-- Sidebar -->
+      <rect x="180" y="125" width="80" height="100" fill="#1f2937" opacity="0.5"/>
+      <rect x="190" y="135" width="60" height="2" fill="#6b7280"/>
+      <rect x="190" y="145" width="40" height="2" fill="#6b7280"/>
+      <rect x="190" y="155" width="50" height="2" fill="#6b7280"/>
+    </g>
+    
+    <!-- Laptop keyboard area -->
+    <rect x="30" y="250" width="240" height="5" fill="#4b5563"/>
+  </g>
+  
+  <!-- Floating code symbols and tech icons -->
+  <g opacity="0.8">
+    <!-- HTML tag -->
+    <g transform="translate(50, 200)">
+      <text x="0" y="0" font-family="monospace" font-size="24" fill="url(#accentGradient)" filter="url(#glow)">&lt;/&gt;</text>
+    </g>
+    
+    <!-- CSS brackets -->
+    <g transform="translate(480, 180)">
+      <text x="0" y="0" font-family="monospace" font-size="20" fill="url(#secondaryGradient)" filter="url(#glow)">{}</text>
+    </g>
+    
+    <!-- JavaScript function -->
+    <g transform="translate(70, 350)">
+      <text x="0" y="0" font-family="monospace" font-size="16" fill="url(#primaryGradient)" filter="url(#glow)">fn()</text>
+    </g>
+    
+    <!-- Python-like syntax -->
+    <g transform="translate(450, 320)">
+      <text x="0" y="0" font-family="monospace" font-size="14" fill="#10b981" filter="url(#glow)">def:</text>
+    </g>
+    
+    <!-- Database icon representation -->
+    <g transform="translate(520, 250)">
+      <ellipse cx="0" cy="0" rx="15" ry="8" fill="none" stroke="url(#primaryGradient)" stroke-width="2"/>
+      <ellipse cx="0" cy="8" rx="15" ry="8" fill="none" stroke="url(#primaryGradient)" stroke-width="2"/>
+      <ellipse cx="0" cy="16" rx="15" ry="8" fill="none" stroke="url(#primaryGradient)" stroke-width="2"/>
+    </g>
+  </g>
+  
+  <!-- Floating geometric elements -->
+  <g opacity="0.6">
+    <!-- Hexagon -->
+    <polygon points="420,100 435,110 435,130 420,140 405,130 405,110" 
+             fill="none" stroke="url(#secondaryGradient)" stroke-width="2"/>
+    
+    <!-- Triangle -->
+    <polygon points="90,250 110,280 70,280" 
+             fill="none" stroke="url(#accentGradient)" stroke-width="2"/>
+    
+    <!-- Square -->
+    <rect x="500" y="380" width="20" height="20" 
+          fill="none" stroke="url(#primaryGradient)" stroke-width="2" transform="rotate(45 510 390)"/>
+  </g>
+  
+  <!-- Connecting lines/network effect -->
+  <g opacity="0.3">
+    <path d="M 100 100 Q 200 50 300 100" stroke="url(#primaryGradient)" stroke-width="1" fill="none"/>
+    <path d="M 400 150 Q 450 200 500 180" stroke="url(#secondaryGradient)" stroke-width="1" fill="none"/>
+    <path d="M 150 350 Q 250 300 350 350" stroke="url(#accentGradient)" stroke-width="1" fill="none"/>
+  </g>
+  
+  <!-- Floating particles/dots -->
+  <g opacity="0.7">
+    <circle cx="380" cy="60" r="2" fill="url(#primaryGradient)">
+      <animate attributeName="cy" values="60;40;60" dur="3s" repeatCount="indefinite"/>
+    </circle>
+    <circle cx="180" cy="400" r="3" fill="url(#secondaryGradient)">
+      <animate attributeName="cy" values="400;380;400" dur="4s" repeatCount="indefinite"/>
+    </circle>
+    <circle cx="550" cy="150" r="2.5" fill="url(#accentGradient)">
+      <animate attributeName="cy" values="150;130;150" dur="5s" repeatCount="indefinite"/>
+    </circle>
+  </g>
+  
+  <!-- Subtle grid pattern in background -->
+  <defs>
+    <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+      <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#6366f1" stroke-width="0.5" opacity="0.1"/>
+    </pattern>
+  </defs>
+  <rect width="100%" height="100%" fill="url(#grid)"/>
+</svg>

@@ -49,6 +49,8 @@ urlpatterns = [
     path('faq/create/', views.faq_create_view, name='faq_create'),
     path('faq/<int:pk>/edit/', views.faq_edit_view, name='faq_edit'),
     path('faq/<int:pk>/delete/', views.faq_delete_view, name='faq_delete'),
+    path('faq/<int:pk>/move-up/', views.faq_move_up_view, name='faq_move_up'),
+    path('faq/<int:pk>/move-down/', views.faq_move_down_view, name='faq_move_down'),
     
     # Quick Answer Management
     path('quick-answers/', views.quick_answer_list_view, name='quick_answer_list'),

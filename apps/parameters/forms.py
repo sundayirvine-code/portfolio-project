@@ -332,7 +332,6 @@ class ExtendedSiteParameterForm(forms.ModelForm):
             # Owner Information
             'owner_name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Your Full Name'}),
             'owner_title': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Your Professional Title'}),
-            'profile_image_base64': forms.Textarea(attrs={'class': 'form-control', 'rows': 3, 'placeholder': 'Base64 encoded image data'}),
             
             # Theme Settings
             'active_theme': forms.Select(attrs={'class': 'form-select'}),
@@ -341,8 +340,19 @@ class ExtendedSiteParameterForm(forms.ModelForm):
             
             # Typography
             'base_font_size': forms.TextInput(attrs={'class': 'form-control', 'placeholder': '16px'}),
-            'heading_font_scale': forms.NumberInput(attrs={'class': 'form-control', 'step': '0.1', 'min': '1.0'}),
-            'small_font_scale': forms.NumberInput(attrs={'class': 'form-control', 'step': '0.1', 'min': '0.5'}),
+            'heading_font_scale': forms.NumberInput(attrs={
+                'class': 'form-control', 
+                'step': '0.01', 
+                'min': '1.0', 
+                'max': '3.0',
+                'placeholder': '1.25'
+            }),
+            'small_font_scale': forms.TextInput(attrs={
+                'class': 'form-control', 
+                'placeholder': '0.875',
+                'pattern': r'[0-9]*\.?[0-9]+',
+                'title': 'Enter a decimal value between 0.1 and 1.0'
+            }),
             
             # Contact Information
             'email': forms.EmailInput(attrs={'class': 'form-control', 'placeholder': 'your.email@example.com'}),
@@ -379,6 +389,60 @@ class ExtendedSiteParameterForm(forms.ModelForm):
             'enable_contact_form': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
             'enable_animations': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
         }
+    
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        
+        # Set initial profile image data if editing
+        if self.instance.pk and self.instance.profile_image_base64:
+            self.fields['profile_image_base64'].initial = self.instance.profile_image_base64
+        
+        # Add help text for typography fields
+        self.fields['heading_font_scale'].help_text = "Scale factor for headings (e.g., 1.25 = 25% larger than base)"
+        self.fields['small_font_scale'].help_text = "Scale factor for small text (e.g., 0.875 = 12.5% smaller than base)"
+    
+    def clean_heading_font_scale(self):
+        """Validate heading font scale"""
+        value = self.cleaned_data.get('heading_font_scale')
+        if value is not None:
+            if value < 1.0:
+                raise forms.ValidationError("Heading scale must be at least 1.0 (100%)")
+            if value > 3.0:
+                raise forms.ValidationError("Heading scale cannot exceed 3.0 (300%)")
+        return value
+    
+    def clean_small_font_scale(self):
+        """Validate small font scale"""
+        value = self.cleaned_data.get('small_font_scale')
+        if value is not None:
+            try:
+                # Convert to float and round to 3 decimal places to avoid floating point precision issues
+                if isinstance(value, str):
+                    value = float(value)
+                value = round(float(value), 3)
+                
+                if value < 0.1:
+                    raise forms.ValidationError(f"Small text scale must be at least 0.1 (10%). You entered: {value}")
+                if value > 1.0:
+                    raise forms.ValidationError(f"Small text scale cannot exceed 1.0 (100%). You entered: {value}")
+                    
+            except (ValueError, TypeError):
+                raise forms.ValidationError("Please enter a valid decimal number (e.g., 0.875)")
+                
+        return value
+    
+    def save(self, commit=True):
+        instance = super().save(commit=False)
+        
+        # Handle profile image
+        profile_image = self.cleaned_data.get('profile_image_base64')
+        if profile_image:
+            instance.profile_image_base64 = profile_image
+        
+        if commit:
+            instance.save()
+        
+        return instance
 
 
 class FontPaletteForm(forms.ModelForm):

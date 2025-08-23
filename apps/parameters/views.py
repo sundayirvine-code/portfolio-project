@@ -720,6 +720,58 @@ def faq_delete_view(request, pk):
     return redirect('parameters:faq_list')
 
 
+@staff_member_required
+@require_POST
+def faq_move_up_view(request, pk):
+    """Move FAQ up in order"""
+    try:
+        faq = get_object_or_404(FAQ, pk=pk)
+        
+        # Find the FAQ with the next lower order in the same category
+        previous_faq = FAQ.objects.filter(
+            category=faq.category,
+            order__lt=faq.order
+        ).order_by('-order').first()
+        
+        if previous_faq:
+            # Swap the orders
+            faq.order, previous_faq.order = previous_faq.order, faq.order
+            faq.save()
+            previous_faq.save()
+            return JsonResponse({'success': True})
+        else:
+            return JsonResponse({'success': False, 'error': 'FAQ is already at the top'})
+    
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)})
+
+
+@staff_member_required
+@require_POST 
+def faq_move_down_view(request, pk):
+    """Move FAQ down in order"""
+    try:
+        faq = get_object_or_404(FAQ, pk=pk)
+        
+        # Find the FAQ with the next higher order in the same category
+        next_faq = FAQ.objects.filter(
+            category=faq.category,
+            order__gt=faq.order
+        ).order_by('order').first()
+        
+        if next_faq:
+            # Swap the orders
+            faq.order, next_faq.order = next_faq.order, faq.order
+            faq.save()
+            next_faq.save()
+            return JsonResponse({'success': True})
+        else:
+            return JsonResponse({'success': False, 'error': 'FAQ is already at the bottom'})
+    
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)})
+
+
 # ===============================================================
 # QUICK ANSWER CRUD VIEWS  
 # ===============================================================

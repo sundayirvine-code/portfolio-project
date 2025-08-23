@@ -143,6 +143,17 @@ class SiteParameter(models.Model):
     def __str__(self):
         return f"{self.site_name} Settings"
     
+    @property
+    def profile_image_url(self):
+        """Generate profile image URL from base64 data"""
+        if self.profile_image_base64:
+            # Check if it's already a data URL
+            if self.profile_image_base64.startswith('data:image'):
+                return self.profile_image_base64
+            # If it's raw base64, add the data URL prefix
+            return f"data:image/jpeg;base64,{self.profile_image_base64}"
+        return None
+    
     @classmethod
     def get_settings(cls):
         """Get or create site settings"""

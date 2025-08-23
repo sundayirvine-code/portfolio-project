@@ -18,6 +18,48 @@
 {% endblock %}
 
 {% block admin_content %}
+<!-- Quick Stats -->
+{% if page_obj.paginator.count > 0 %}
+<div class="row mb-4">
+    <div class="col-md-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <i class="bi bi-question-circle text-info fs-3"></i>
+                <h4 class="mt-2 mb-0">{{ page_obj.paginator.count }}</h4>
+                <small class="text-muted">Total FAQs</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <i class="bi bi-check-circle text-success fs-3"></i>
+                <h4 class="mt-2 mb-0">{{ active_count|default:0 }}</h4>
+                <small class="text-muted">Active</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <i class="bi bi-star text-warning fs-3"></i>
+                <h4 class="mt-2 mb-0">{{ featured_count|default:0 }}</h4>
+                <small class="text-muted">Featured</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <i class="bi bi-tags text-primary fs-3"></i>
+                <h4 class="mt-2 mb-0">{{ category_count|default:0 }}</h4>
+                <small class="text-muted">Categories</small>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
 <!-- Filter and Search -->
 <div class="card mb-4">
     <div class="card-body">
@@ -112,21 +154,23 @@
                            class="btn btn-sm btn-outline-primary" title="Edit">
                             <i class="bi bi-pencil"></i>
                         </a>
-                        <button type="button" class="btn btn-sm btn-outline-info" 
+                        <button type="button" class="btn btn-sm btn-outline-secondary" 
                                 onclick="moveUp({{ faq.pk }})" title="Move Up">
                             <i class="bi bi-arrow-up"></i>
                         </button>
-                        <button type="button" class="btn btn-sm btn-outline-info" 
+                        <button type="button" class="btn btn-sm btn-outline-secondary" 
                                 onclick="moveDown({{ faq.pk }})" title="Move Down">
                             <i class="bi bi-arrow-down"></i>
                         </button>
-                        <form method="post" action="{% url 'parameters:faq_delete' faq.pk %}" 
-                              class="d-inline" onsubmit="return confirm('Are you sure you want to delete this FAQ?')">
-                            {% csrf_token %}
-                            <button type="submit" class="btn btn-sm btn-outline-danger" title="Delete">
-                                <i class="bi bi-trash"></i>
-                            </button>
-                        </form>
+                        <button type="button" class="btn btn-sm btn-outline-danger" 
+                                title="Delete FAQ"
+                                data-bs-toggle="modal" 
+                                data-bs-target="#deleteModal"
+                                data-faq-id="{{ faq.pk }}"
+                                data-faq-question="{{ faq.question|truncatechars:50 }}"
+                                data-delete-url="{% url 'parameters:faq_delete' faq.pk %}">
+                            <i class="bi bi-trash"></i>
+                        </button>
                     </div>
                 </div>
             </h2>
@@ -229,47 +273,43 @@
     {% endif %}
 </div>
 
-<!-- Quick Stats -->
-{% if page_obj.paginator.count > 0 %}
-<div class="row mt-4">
-    <div class="col-md-3">
-        <div class="card text-center">
-            <div class="card-body">
-                <i class="bi bi-question-circle text-info fs-3"></i>
-                <h4 class="mt-2 mb-0">{{ page_obj.paginator.count }}</h4>
-                <small class="text-muted">Total FAQs</small>
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteModalLabel">
+                    <i class="bi bi-exclamation-triangle text-danger me-2"></i>Confirm Deletion
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-        </div>
-    </div>
-    <div class="col-md-3">
-        <div class="card text-center">
-            <div class="card-body">
-                <i class="bi bi-check-circle text-success fs-3"></i>
-                <h4 class="mt-2 mb-0">{{ active_count|default:0 }}</h4>
-                <small class="text-muted">Active</small>
+            <div class="modal-body">
+                <p class="mb-3">Are you sure you want to delete this FAQ?</p>
+                <div class="alert alert-warning d-flex align-items-center">
+                    <i class="bi bi-info-circle me-2"></i>
+                    <div>
+                        <strong>Question:</strong> <span id="faqQuestionDisplay"></span>
+                    </div>
+                </div>
+                <p class="text-muted small mb-0">
+                    <i class="bi bi-exclamation-triangle me-1"></i>
+                    This action cannot be undone. The FAQ will be permanently deleted.
+                </p>
             </div>
-        </div>
-    </div>
-    <div class="col-md-3">
-        <div class="card text-center">
-            <div class="card-body">
-                <i class="bi bi-star text-warning fs-3"></i>
-                <h4 class="mt-2 mb-0">{{ featured_count|default:0 }}</h4>
-                <small class="text-muted">Featured</small>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-3">
-        <div class="card text-center">
-            <div class="card-body">
-                <i class="bi bi-tags text-primary fs-3"></i>
-                <h4 class="mt-2 mb-0">{{ category_count|default:0 }}</h4>
-                <small class="text-muted">Categories</small>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="bi bi-x me-1"></i>Cancel
+                </button>
+                <form id="deleteForm" method="POST" class="d-inline">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger">
+                        <i class="bi bi-trash me-1"></i>Delete FAQ
+                    </button>
+                </form>
             </div>
         </div>
     </div>
 </div>
-{% endif %}
 
 <!-- Bulk Actions Modal -->
 <div class="modal fade" id="bulkActionsModal" tabindex="-1">
@@ -345,18 +385,110 @@ document.addEventListener('DOMContentLoaded', function() {
     searchInput.addEventListener('input', filterFAQs);
     categoryFilter.addEventListener('change', filterFAQs);
     statusFilter.addEventListener('change', filterFAQs);
+    
+    // Handle delete modal
+    const deleteModal = document.getElementById('deleteModal');
+    const faqQuestionDisplay = document.getElementById('faqQuestionDisplay');
+    const deleteForm = document.getElementById('deleteForm');
+    
+    deleteModal.addEventListener('show.bs.modal', function(event) {
+        const button = event.relatedTarget;
+        const faqQuestion = button.getAttribute('data-faq-question');
+        const deleteUrl = button.getAttribute('data-delete-url');
+        
+        faqQuestionDisplay.textContent = faqQuestion;
+        deleteForm.action = deleteUrl;
+    });
+    
+    // Initialize button states on page load
+    updateButtonStates();
 });
 
 function moveUp(faqId) {
-    // This would typically send an AJAX request to reorder FAQs
-    console.log('Moving FAQ up:', faqId);
-    // Implementation would involve calling a backend endpoint to reorder
+    // Find the current FAQ item
+    const currentItem = document.querySelector(`[data-faq-id="${faqId}"]`).closest('.accordion-item');
+    const previousItem = currentItem.previousElementSibling;
+    
+    if (!previousItem) return; // Already at top
+    
+    // Immediately update UI - move current item before previous
+    currentItem.parentNode.insertBefore(currentItem, previousItem);
+    
+    // Send request to backend
+    fetch('{% url "parameters:faq_move_up" 0 %}'.replace('0', faqId), {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (!data.success) {
+            // Revert UI change if backend failed
+            previousItem.parentNode.insertBefore(previousItem, currentItem);
+            console.error('Failed to move FAQ up:', data.error);
+        }
+        // Update button states
+        updateButtonStates();
+    })
+    .catch(error => {
+        // Revert UI change if request failed
+        previousItem.parentNode.insertBefore(previousItem, currentItem);
+        console.error('Error moving FAQ up:', error);
+        updateButtonStates();
+    });
 }
 
 function moveDown(faqId) {
-    // This would typically send an AJAX request to reorder FAQs
-    console.log('Moving FAQ down:', faqId);
-    // Implementation would involve calling a backend endpoint to reorder
+    // Find the current FAQ item
+    const currentItem = document.querySelector(`[data-faq-id="${faqId}"]`).closest('.accordion-item');
+    const nextItem = currentItem.nextElementSibling;
+    
+    if (!nextItem) return; // Already at bottom
+    
+    // Immediately update UI - move current item after next
+    currentItem.parentNode.insertBefore(currentItem, nextItem.nextElementSibling);
+    
+    // Send request to backend
+    fetch('{% url "parameters:faq_move_down" 0 %}'.replace('0', faqId), {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (!data.success) {
+            // Revert UI change if backend failed
+            nextItem.parentNode.insertBefore(nextItem, currentItem);
+            console.error('Failed to move FAQ down:', data.error);
+        }
+        // Update button states
+        updateButtonStates();
+    })
+    .catch(error => {
+        // Revert UI change if request failed
+        nextItem.parentNode.insertBefore(nextItem, currentItem);
+        console.error('Error moving FAQ down:', error);
+        updateButtonStates();
+    });
+}
+
+function updateButtonStates() {
+    const items = document.querySelectorAll('.accordion-item');
+    items.forEach((item, index) => {
+        const moveUpBtn = item.querySelector('[title="Move Up"]');
+        const moveDownBtn = item.querySelector('[title="Move Down"]');
+        
+        if (moveUpBtn) {
+            moveUpBtn.disabled = index === 0;
+        }
+        if (moveDownBtn) {
+            moveDownBtn.disabled = index === items.length - 1;
+        }
+    });
 }
 
 function bulkActivate() {

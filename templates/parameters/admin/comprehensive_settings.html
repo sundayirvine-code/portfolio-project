@@ -2,311 +2,554 @@
 {% load static %}
 
 {% block breadcrumb %}
-<li class="breadcrumb-item active" aria-current="page">General Settings</li>
+<li class="breadcrumb-item active" aria-current="page">Comprehensive Settings</li>
 {% endblock %}
 
 {% block page_description %}
-<p class="text-muted mb-0">Configure all site parameters, owner information, and general settings</p>
+<p class="text-muted mb-0">Configure all site parameters, owner information, and general settings for your portfolio</p>
+{% endblock %}
+
+{% block page_actions %}
+<div class="d-flex gap-2">
+    <button type="submit" form="settingsForm" class="btn btn-primary">
+        <i class="bi bi-check-lg me-1"></i>Save All Settings
+    </button>
+    <a href="{% url 'parameters:dashboard' %}" class="btn btn-outline-secondary">
+        <i class="bi bi-arrow-left me-1"></i>Back to Dashboard
+    </a>
+</div>
 {% endblock %}
 
 {% block admin_content %}
-<div class="card">
-    <form method="post" class="needs-validation" novalidate>
-        {% csrf_token %}
-        
-        <!-- Settings Tabs -->
-        <div class="card-header">
-            <ul class="nav nav-tabs card-header-tabs" id="settingsTabs" role="tablist">
-                <li class="nav-item" role="presentation">
-                    <button class="nav-link active" id="basic-tab" data-bs-toggle="tab" data-bs-target="#basic" type="button" role="tab">
-                        <i class="bi bi-info-circle me-2"></i>Basic Info
-                    </button>
-                </li>
-                <li class="nav-item" role="presentation">
-                    <button class="nav-link" id="owner-tab" data-bs-toggle="tab" data-bs-target="#owner" type="button" role="tab">
-                        <i class="bi bi-person me-2"></i>Owner Details
-                    </button>
-                </li>
-                <li class="nav-item" role="presentation">
-                    <button class="nav-link" id="theme-tab" data-bs-toggle="tab" data-bs-target="#theme" type="button" role="tab">
-                        <i class="bi bi-palette me-2"></i>Theme & Typography
-                    </button>
-                </li>
-                <li class="nav-item" role="presentation">
-                    <button class="nav-link" id="content-tab" data-bs-toggle="tab" data-bs-target="#content" type="button" role="tab">
-                        <i class="bi bi-file-text me-2"></i>Dynamic Content
-                    </button>
-                </li>
-                <li class="nav-item" role="presentation">
-                    <button class="nav-link" id="contact-tab" data-bs-toggle="tab" data-bs-target="#contact" type="button" role="tab">
-                        <i class="bi bi-envelope me-2"></i>Contact & Social
-                    </button>
-                </li>
-                <li class="nav-item" role="presentation">
-                    <button class="nav-link" id="seo-tab" data-bs-toggle="tab" data-bs-target="#seo" type="button" role="tab">
-                        <i class="bi bi-search me-2"></i>SEO & Analytics
-                    </button>
-                </li>
-                <li class="nav-item" role="presentation">
-                    <button class="nav-link" id="features-tab" data-bs-toggle="tab" data-bs-target="#features" type="button" role="tab">
-                        <i class="bi bi-toggles me-2"></i>Features
-                    </button>
-                </li>
-            </ul>
-        </div>
-
-        <div class="card-body">
-            <div class="tab-content" id="settingsTabContent">
-                <!-- Basic Information Tab -->
-                <div class="tab-pane fade show active" id="basic" role="tabpanel" aria-labelledby="basic-tab">
-                    <div class="row g-3">
+<div class="row">
+    <div class="col-lg-8">
+        <form method="post" id="settingsForm" class="needs-validation" novalidate>
+            {% csrf_token %}
+            
+            <!-- Basic Site Information -->
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="bi bi-info-circle me-2"></i>Basic Site Information
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
                         <div class="col-md-6">
-                            <div class="form-floating">
+                            <div class="mb-3">
+                                <label for="{{ form.site_name.id_for_label }}" class="form-label">
+                                    Site Name <span class="text-danger">*</span>
+                                </label>
                                 {{ form.site_name }}
-                                <label for="{{ form.site_name.id_for_label }}">Site Name</label>
+                                {% if form.site_name.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {% for error in form.site_name.errors %}{{ error }}{% endfor %}
+                                    </div>
+                                {% endif %}
+                                <div class="form-text">The main name of your portfolio website</div>
                             </div>
                         </div>
                         <div class="col-md-6">
-                            <div class="form-floating">
+                            <div class="mb-3">
+                                <label for="{{ form.site_tagline.id_for_label }}" class="form-label">Site Tagline</label>
                                 {{ form.site_tagline }}
-                                <label for="{{ form.site_tagline.id_for_label }}">Site Tagline</label>
-                            </div>
-                        </div>
-                        <div class="col-12">
-                            <div class="form-floating">
-                                {{ form.site_description }}
-                                <label for="{{ form.site_description.id_for_label }}">Site Description</label>
-                            </div>
-                        </div>
-                        <div class="col-12">
-                            <div class="form-floating">
-                                {{ form.site_url }}
-                                <label for="{{ form.site_url.id_for_label }}">Site URL</label>
+                                {% if form.site_tagline.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {% for error in form.site_tagline.errors %}{{ error }}{% endfor %}
+                                    </div>
+                                {% endif %}
+                                <div class="form-text">Brief tagline that appears with your site name</div>
                             </div>
                         </div>
                     </div>
+                    
+                    <div class="mb-3">
+                        <label for="{{ form.site_description.id_for_label }}" class="form-label">Site Description</label>
+                        {{ form.site_description }}
+                        {% if form.site_description.errors %}
+                            <div class="invalid-feedback d-block">
+                                {% for error in form.site_description.errors %}{{ error }}{% endfor %}
+                            </div>
+                        {% endif %}
+                        <div class="form-text">Describe what your portfolio showcases</div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="{{ form.site_url.id_for_label }}" class="form-label">Site URL</label>
+                        {{ form.site_url }}
+                        {% if form.site_url.errors %}
+                            <div class="invalid-feedback d-block">
+                                {% for error in form.site_url.errors %}{{ error }}{% endfor %}
+                            </div>
+                        {% endif %}
+                        <div class="form-text">Your portfolio's public URL</div>
+                    </div>
                 </div>
+            </div>
 
-                <!-- Owner Information Tab -->
-                <div class="tab-pane fade" id="owner" role="tabpanel" aria-labelledby="owner-tab">
-                    <div class="row g-3">
+            <!-- Owner Information -->
+            <div class="card mt-4">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="bi bi-person me-2"></i>Owner Information
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
                         <div class="col-md-6">
-                            <div class="form-floating">
+                            <div class="mb-3">
+                                <label for="{{ form.owner_name.id_for_label }}" class="form-label">
+                                    Full Name <span class="text-danger">*</span>
+                                </label>
                                 {{ form.owner_name }}
-                                <label for="{{ form.owner_name.id_for_label }}">Full Name</label>
+                                {% if form.owner_name.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {% for error in form.owner_name.errors %}{{ error }}{% endfor %}
+                                    </div>
+                                {% endif %}
+                                <div class="form-text">Your full professional name</div>
                             </div>
                         </div>
                         <div class="col-md-6">
-                            <div class="form-floating">
+                            <div class="mb-3">
+                                <label for="{{ form.owner_title.id_for_label }}" class="form-label">Professional Title</label>
                                 {{ form.owner_title }}
-                                <label for="{{ form.owner_title.id_for_label }}">Professional Title</label>
-                            </div>
-                        </div>
-                        <div class="col-12">
-                            <label for="{{ form.profile_image_base64.id_for_label }}" class="form-label">Profile Image (Base64)</label>
-                            {{ form.profile_image_base64 }}
-                            <div class="form-text">Paste base64 encoded image data here or upload an image and convert it.</div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Theme & Typography Tab -->
-                <div class="tab-pane fade" id="theme" role="tabpanel" aria-labelledby="theme-tab">
-                    <div class="row g-3">
-                        <div class="col-md-4">
-                            <div class="form-floating">
-                                {{ form.active_theme }}
-                                <label for="{{ form.active_theme.id_for_label }}">Active Theme</label>
-                            </div>
-                        </div>
-                        <div class="col-md-4">
-                            <div class="form-floating">
-                                {{ form.default_mode }}
-                                <label for="{{ form.default_mode.id_for_label }}">Default Mode</label>
-                            </div>
-                        </div>
-                        <div class="col-md-4">
-                            <div class="form-floating">
-                                {{ form.active_font_palette }}
-                                <label for="{{ form.active_font_palette.id_for_label }}">Font Palette</label>
-                            </div>
-                        </div>
-                        <div class="col-md-4">
-                            <div class="form-floating">
-                                {{ form.base_font_size }}
-                                <label for="{{ form.base_font_size.id_for_label }}">Base Font Size</label>
-                            </div>
-                        </div>
-                        <div class="col-md-4">
-                            <div class="form-floating">
-                                {{ form.heading_font_scale }}
-                                <label for="{{ form.heading_font_scale.id_for_label }}">Heading Scale</label>
-                            </div>
-                        </div>
-                        <div class="col-md-4">
-                            <div class="form-floating">
-                                {{ form.small_font_scale }}
-                                <label for="{{ form.small_font_scale.id_for_label }}">Small Text Scale</label>
+                                {% if form.owner_title.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {% for error in form.owner_title.errors %}{{ error }}{% endfor %}
+                                    </div>
+                                {% endif %}
+                                <div class="form-text">Your job title or professional designation</div>
                             </div>
                         </div>
                     </div>
+                    
+                    <!-- Profile Image Upload -->
+                    <div class="mb-3">
+                        <label for="profileImageUpload" class="form-label">Profile Image</label>
+                        <div class="row">
+                            <div class="col-md-8">
+                                <input type="file" 
+                                       class="form-control" 
+                                       id="profileImageUpload" 
+                                       accept="image/*"
+                                       onchange="handleProfileImageUpload(this)">
+                                <div class="form-text">Upload your profile picture (recommended: 400x400px, max 5MB)</div>
+                            </div>
+                            <div class="col-md-4">
+                                <div id="profileImagePreview" class="profile-image-preview">
+                                    {% if site_settings and site_settings.profile_image_url %}
+                                    <img src="{{ site_settings.profile_image_url }}" alt="Profile Image" class="img-thumbnail w-100 rounded-circle profile-img-preview">
+                                    {% else %}
+                                    <div class="placeholder-image d-flex align-items-center justify-content-center bg-light rounded-circle profile-img-placeholder">
+                                        <i class="bi bi-person text-muted fs-3"></i>
+                                    </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Hidden field to store base64 data -->
+                        {{ form.profile_image_base64 }}
+                        {% if form.profile_image_base64.errors %}
+                            <div class="invalid-feedback d-block">
+                                {% for error in form.profile_image_base64.errors %}{{ error }}{% endfor %}
+                            </div>
+                        {% endif %}
+                    </div>
                 </div>
+            </div>
 
-                <!-- Dynamic Content Tab -->
-                <div class="tab-pane fade" id="content" role="tabpanel" aria-labelledby="content-tab">
-                    <div class="row g-3">
-                        <div class="col-12">
-                            <label for="{{ form.about_me_text.id_for_label }}" class="form-label">About Me Text</label>
-                            {{ form.about_me_text }}
-                            <div class="form-text">Main about section content that appears on your about page.</div>
-                        </div>
-                        <div class="col-12">
-                            <label for="{{ form.my_story_text.id_for_label }}" class="form-label">My Story Text</label>
-                            {{ form.my_story_text }}
-                            <div class="form-text">Personal/professional story content for detailed narrative.</div>
-                        </div>
-                        <div class="col-12">
-                            <label for="{{ form.bio.id_for_label }}" class="form-label">Short Biography</label>
-                            {{ form.bio }}
-                            <div class="form-text">Brief bio that can be used in various sections.</div>
+            <!-- Contact Information -->
+            <div class="card mt-4">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="bi bi-envelope me-2"></i>Contact Information
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label for="{{ form.email.id_for_label }}" class="form-label">Email Address</label>
+                                {{ form.email }}
+                                {% if form.email.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {% for error in form.email.errors %}{{ error }}{% endfor %}
+                                    </div>
+                                {% endif %}
+                                <div class="form-text">Your professional email</div>
+                            </div>
                         </div>
                         <div class="col-md-4">
-                            <div class="form-floating">
+                            <div class="mb-3">
+                                <label for="{{ form.phone.id_for_label }}" class="form-label">Phone Number</label>
+                                {{ form.phone }}
+                                {% if form.phone.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {% for error in form.phone.errors %}{{ error }}{% endfor %}
+                                    </div>
+                                {% endif %}
+                                <div class="form-text">Optional contact number</div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label for="{{ form.location.id_for_label }}" class="form-label">Location</label>
+                                {{ form.location }}
+                                {% if form.location.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {% for error in form.location.errors %}{{ error }}{% endfor %}
+                                    </div>
+                                {% endif %}
+                                <div class="form-text">Your city/country</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Social Media Links -->
+            <div class="card mt-4">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="bi bi-share me-2"></i>Social Media Links
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="{{ form.github_url.id_for_label }}" class="form-label">
+                                    <i class="bi bi-github me-1"></i>GitHub URL
+                                </label>
+                                {{ form.github_url }}
+                                {% if form.github_url.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {% for error in form.github_url.errors %}{{ error }}{% endfor %}
+                                    </div>
+                                {% endif %}
+                                <div class="form-text">Your GitHub profile URL</div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="{{ form.linkedin_url.id_for_label }}" class="form-label">
+                                    <i class="bi bi-linkedin me-1"></i>LinkedIn URL
+                                </label>
+                                {{ form.linkedin_url }}
+                                {% if form.linkedin_url.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {% for error in form.linkedin_url.errors %}{{ error }}{% endfor %}
+                                    </div>
+                                {% endif %}
+                                <div class="form-text">Your LinkedIn profile URL</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="{{ form.twitter_url.id_for_label }}" class="form-label">
+                                    <i class="bi bi-twitter me-1"></i>Twitter URL
+                                </label>
+                                {{ form.twitter_url }}
+                                {% if form.twitter_url.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {% for error in form.twitter_url.errors %}{{ error }}{% endfor %}
+                                    </div>
+                                {% endif %}
+                                <div class="form-text">Your Twitter profile URL</div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="{{ form.instagram_url.id_for_label }}" class="form-label">
+                                    <i class="bi bi-instagram me-1"></i>Instagram URL
+                                </label>
+                                {{ form.instagram_url }}
+                                {% if form.instagram_url.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {% for error in form.instagram_url.errors %}{{ error }}{% endfor %}
+                                    </div>
+                                {% endif %}
+                                <div class="form-text">Your Instagram profile URL</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Dynamic Content -->
+            <div class="card mt-4">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="bi bi-file-text me-2"></i>Dynamic Content
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label for="{{ form.about_me_text.id_for_label }}" class="form-label">About Me Text</label>
+                        {{ form.about_me_text }}
+                        {% if form.about_me_text.errors %}
+                            <div class="invalid-feedback d-block">
+                                {% for error in form.about_me_text.errors %}{{ error }}{% endfor %}
+                            </div>
+                        {% endif %}
+                        <div class="form-text">Main about section content for your about page</div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="{{ form.my_story_text.id_for_label }}" class="form-label">My Story Text</label>
+                        {{ form.my_story_text }}
+                        {% if form.my_story_text.errors %}
+                            <div class="invalid-feedback d-block">
+                                {% for error in form.my_story_text.errors %}{{ error }}{% endfor %}
+                            </div>
+                        {% endif %}
+                        <div class="form-text">Personal/professional story content for detailed narrative</div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="{{ form.bio.id_for_label }}" class="form-label">Short Biography</label>
+                        {{ form.bio }}
+                        {% if form.bio.errors %}
+                            <div class="invalid-feedback d-block">
+                                {% for error in form.bio.errors %}{{ error }}{% endfor %}
+                            </div>
+                        {% endif %}
+                        <div class="form-text">Brief bio that can be used in various sections</div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label for="{{ form.availability_status.id_for_label }}" class="form-label">Availability Status</label>
                                 {{ form.availability_status }}
-                                <label for="{{ form.availability_status.id_for_label }}">Availability Status</label>
+                                {% if form.availability_status.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {% for error in form.availability_status.errors %}{{ error }}{% endfor %}
+                                    </div>
+                                {% endif %}
+                                <div class="form-text">Current work availability</div>
                             </div>
                         </div>
                         <div class="col-md-8">
-                            <div class="form-floating">
+                            <div class="mb-3">
+                                <label for="{{ form.response_time.id_for_label }}" class="form-label">Response Time</label>
                                 {{ form.response_time }}
-                                <label for="{{ form.response_time.id_for_label }}">Response Time</label>
-                            </div>
-                        </div>
-                        <div class="col-12">
-                            <label for="{{ form.availability_message.id_for_label }}" class="form-label">Availability Message</label>
-                            {{ form.availability_message }}
-                            <div class="form-text">Custom message about your current availability.</div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Contact & Social Tab -->
-                <div class="tab-pane fade" id="contact" role="tabpanel" aria-labelledby="contact-tab">
-                    <div class="row g-3">
-                        <div class="col-md-4">
-                            <div class="form-floating">
-                                {{ form.email }}
-                                <label for="{{ form.email.id_for_label }}">Email Address</label>
-                            </div>
-                        </div>
-                        <div class="col-md-4">
-                            <div class="form-floating">
-                                {{ form.phone }}
-                                <label for="{{ form.phone.id_for_label }}">Phone Number</label>
-                            </div>
-                        </div>
-                        <div class="col-md-4">
-                            <div class="form-floating">
-                                {{ form.location }}
-                                <label for="{{ form.location.id_for_label }}">Location</label>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="form-floating">
-                                {{ form.github_url }}
-                                <label for="{{ form.github_url.id_for_label }}">GitHub URL</label>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="form-floating">
-                                {{ form.linkedin_url }}
-                                <label for="{{ form.linkedin_url.id_for_label }}">LinkedIn URL</label>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="form-floating">
-                                {{ form.twitter_url }}
-                                <label for="{{ form.twitter_url.id_for_label }}">Twitter URL</label>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="form-floating">
-                                {{ form.instagram_url }}
-                                <label for="{{ form.instagram_url.id_for_label }}">Instagram URL</label>
+                                {% if form.response_time.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {% for error in form.response_time.errors %}{{ error }}{% endfor %}
+                                    </div>
+                                {% endif %}
+                                <div class="form-text">Expected response time for inquiries</div>
                             </div>
                         </div>
                     </div>
+                    
+                    <div class="mb-3">
+                        <label for="{{ form.availability_message.id_for_label }}" class="form-label">Availability Message</label>
+                        {{ form.availability_message }}
+                        {% if form.availability_message.errors %}
+                            <div class="invalid-feedback d-block">
+                                {% for error in form.availability_message.errors %}{{ error }}{% endfor %}
+                            </div>
+                        {% endif %}
+                        <div class="form-text">Custom message about your current availability</div>
+                    </div>
                 </div>
+            </div>
 
-                <!-- SEO & Analytics Tab -->
-                <div class="tab-pane fade" id="seo" role="tabpanel" aria-labelledby="seo-tab">
-                    <div class="row g-3">
+            <!-- Theme & Typography -->
+            <div class="card mt-4">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="bi bi-palette me-2"></i>Theme & Typography
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label for="{{ form.active_theme.id_for_label }}" class="form-label">Active Theme</label>
+                                {{ form.active_theme }}
+                                {% if form.active_theme.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {% for error in form.active_theme.errors %}{{ error }}{% endfor %}
+                                    </div>
+                                {% endif %}
+                                <div class="form-text">Color theme for your portfolio</div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label for="{{ form.default_mode.id_for_label }}" class="form-label">Default Mode</label>
+                                {{ form.default_mode }}
+                                {% if form.default_mode.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {% for error in form.default_mode.errors %}{{ error }}{% endfor %}
+                                    </div>
+                                {% endif %}
+                                <div class="form-text">Default light/dark mode</div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label for="{{ form.active_font_palette.id_for_label }}" class="form-label">Font Palette</label>
+                                {{ form.active_font_palette }}
+                                {% if form.active_font_palette.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {% for error in form.active_font_palette.errors %}{{ error }}{% endfor %}
+                                    </div>
+                                {% endif %}
+                                <div class="form-text">Font family selection</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label for="{{ form.base_font_size.id_for_label }}" class="form-label">Base Font Size</label>
+                                {{ form.base_font_size }}
+                                {% if form.base_font_size.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {% for error in form.base_font_size.errors %}{{ error }}{% endfor %}
+                                    </div>
+                                {% endif %}
+                                <div class="form-text">Base font size (e.g., 16px)</div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label for="{{ form.heading_font_scale.id_for_label }}" class="form-label">Heading Scale</label>
+                                {{ form.heading_font_scale }}
+                                {% if form.heading_font_scale.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {% for error in form.heading_font_scale.errors %}{{ error }}{% endfor %}
+                                    </div>
+                                {% endif %}
+                                <div class="form-text">{{ form.heading_font_scale.help_text|default:"Heading size multiplier (1.0-3.0)" }}</div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label for="{{ form.small_font_scale.id_for_label }}" class="form-label">Small Text Scale</label>
+                                {{ form.small_font_scale }}
+                                {% if form.small_font_scale.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {% for error in form.small_font_scale.errors %}{{ error }}{% endfor %}
+                                    </div>
+                                {% endif %}
+                                <div class="form-text">{{ form.small_font_scale.help_text|default:"Small text size multiplier (0.1-1.0)" }}</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SEO & Analytics -->
+            <div class="card mt-4">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="bi bi-search me-2"></i>SEO & Analytics
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
                         <div class="col-md-6">
-                            <div class="form-floating">
+                            <div class="mb-3">
+                                <label for="{{ form.meta_title.id_for_label }}" class="form-label">Meta Title</label>
                                 {{ form.meta_title }}
-                                <label for="{{ form.meta_title.id_for_label }}">Meta Title</label>
+                                {% if form.meta_title.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {% for error in form.meta_title.errors %}{{ error }}{% endfor %}
+                                    </div>
+                                {% endif %}
+                                <div class="form-text">SEO title (optimal: 50-60 characters)</div>
                             </div>
-                            <div class="form-text">Optimal length: 50-60 characters</div>
                         </div>
                         <div class="col-md-6">
-                            <div class="form-floating">
+                            <div class="mb-3">
+                                <label for="{{ form.google_analytics_id.id_for_label }}" class="form-label">Google Analytics ID</label>
                                 {{ form.google_analytics_id }}
-                                <label for="{{ form.google_analytics_id.id_for_label }}">Google Analytics ID</label>
+                                {% if form.google_analytics_id.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {% for error in form.google_analytics_id.errors %}{{ error }}{% endfor %}
+                                    </div>
+                                {% endif %}
+                                <div class="form-text">Format: G-XXXXXXXXXX</div>
                             </div>
-                            <div class="form-text">Format: G-XXXXXXXXXX</div>
-                        </div>
-                        <div class="col-12">
-                            <div class="form-floating">
-                                {{ form.meta_description }}
-                                <label for="{{ form.meta_description.id_for_label }}">Meta Description</label>
-                            </div>
-                            <div class="form-text">Optimal length: 150-160 characters</div>
-                        </div>
-                        <div class="col-12">
-                            <div class="form-floating">
-                                {{ form.meta_keywords }}
-                                <label for="{{ form.meta_keywords.id_for_label }}">Meta Keywords</label>
-                            </div>
-                            <div class="form-text">Comma-separated keywords (optional, modern SEO relies more on content)</div>
                         </div>
                     </div>
+                    
+                    <div class="mb-3">
+                        <label for="{{ form.meta_description.id_for_label }}" class="form-label">Meta Description</label>
+                        {{ form.meta_description }}
+                        {% if form.meta_description.errors %}
+                            <div class="invalid-feedback d-block">
+                                {% for error in form.meta_description.errors %}{{ error }}{% endfor %}
+                            </div>
+                        {% endif %}
+                        <div class="form-text">SEO description (optimal: 150-160 characters)</div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="{{ form.meta_keywords.id_for_label }}" class="form-label">Meta Keywords</label>
+                        {{ form.meta_keywords }}
+                        {% if form.meta_keywords.errors %}
+                            <div class="invalid-feedback d-block">
+                                {% for error in form.meta_keywords.errors %}{{ error }}{% endfor %}
+                            </div>
+                        {% endif %}
+                        <div class="form-text">Comma-separated keywords (optional for modern SEO)</div>
+                    </div>
                 </div>
+            </div>
 
-                <!-- Features Tab -->
-                <div class="tab-pane fade" id="features" role="tabpanel" aria-labelledby="features-tab">
-                    <div class="row g-3">
+            <!-- Feature Toggles -->
+            <div class="card mt-4">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="bi bi-toggles me-2"></i>Feature Toggles
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
                         <div class="col-md-6">
-                            <div class="form-check form-switch">
+                            <div class="form-check form-switch mb-3">
                                 {{ form.enable_blog }}
                                 <label class="form-check-label" for="{{ form.enable_blog.id_for_label }}">
-                                    Enable Blog Section
+                                    <i class="bi bi-journal-text me-2"></i>Enable Blog Section
                                 </label>
                                 <div class="form-text">Show/hide the blog section on your portfolio</div>
                             </div>
                         </div>
                         <div class="col-md-6">
-                            <div class="form-check form-switch">
+                            <div class="form-check form-switch mb-3">
                                 {{ form.enable_testimonials }}
                                 <label class="form-check-label" for="{{ form.enable_testimonials.id_for_label }}">
-                                    Enable Testimonials
+                                    <i class="bi bi-chat-quote me-2"></i>Enable Testimonials
                                 </label>
                                 <div class="form-text">Show/hide testimonials throughout the site</div>
                             </div>
                         </div>
+                    </div>
+                    <div class="row">
                         <div class="col-md-6">
-                            <div class="form-check form-switch">
+                            <div class="form-check form-switch mb-3">
                                 {{ form.enable_contact_form }}
                                 <label class="form-check-label" for="{{ form.enable_contact_form.id_for_label }}">
-                                    Enable Contact Form
+                                    <i class="bi bi-envelope me-2"></i>Enable Contact Form
                                 </label>
                                 <div class="form-text">Allow visitors to send messages through contact form</div>
                             </div>
                         </div>
                         <div class="col-md-6">
-                            <div class="form-check form-switch">
+                            <div class="form-check form-switch mb-3">
                                 {{ form.enable_animations }}
                                 <label class="form-check-label" for="{{ form.enable_animations.id_for_label }}">
-                                    Enable Animations
+                                    <i class="bi bi-stars me-2"></i>Enable Animations
                                 </label>
                                 <div class="form-text">Use scroll animations and visual effects</div>
                             </div>
@@ -314,110 +557,477 @@
                     </div>
                 </div>
             </div>
-        </div>
-
-        <!-- Form Actions -->
-        <div class="card-footer">
-            <div class="d-flex justify-content-between align-items-center">
-                <a href="{% url 'parameters:dashboard' %}" class="btn btn-outline-secondary">
-                    <i class="bi bi-arrow-left me-2"></i>Back to Dashboard
-                </a>
-                <div>
-                    <button type="submit" class="btn btn-primary">
-                        <i class="bi bi-check-lg me-2"></i>Save Settings
-                    </button>
+        </form>
+    </div>
+    
+    <div class="col-lg-4">
+        <!-- Live Preview -->
+        <div class="card sticky-top" style="top: 1rem;">
+            <div class="card-header">
+                <h6 class="mb-0">
+                    <i class="bi bi-eye me-2"></i>Settings Preview
+                </h6>
+            </div>
+            <div class="card-body">
+                <div id="settingsPreview">
+                    <div class="text-center mb-3">
+                        <div id="profilePreviewContainer">
+                            {% if site_settings and site_settings.profile_image_url %}
+                            <img src="{{ site_settings.profile_image_url }}" alt="Profile" class="rounded-circle mb-2" style="width: 80px; height: 80px; object-fit: cover;">
+                            {% else %}
+                            <div class="bg-light rounded-circle d-inline-flex align-items-center justify-content-center mb-2" style="width: 80px; height: 80px;">
+                                <i class="bi bi-person fs-3 text-muted"></i>
+                            </div>
+                            {% endif %}
+                        </div>
+                        <h6 id="previewOwnerName">{{ site_settings.owner_name|default:"Your Name" }}</h6>
+                        <p class="text-muted small mb-0" id="previewOwnerTitle">{{ site_settings.owner_title|default:"Your Title" }}</p>
+                    </div>
+                    
+                    <div class="border-top pt-3">
+                        <h6 class="small text-uppercase text-muted mb-2">Site Information</h6>
+                        <div class="small">
+                            <div class="d-flex justify-content-between mb-1">
+                                <span>Site Name:</span>
+                                <span id="previewSiteName">{{ site_settings.site_name|default:"Portfolio" }}</span>
+                            </div>
+                            <div class="d-flex justify-content-between mb-1">
+                                <span>Tagline:</span>
+                                <span id="previewSiteTagline" class="text-truncate" style="max-width: 100px;">{{ site_settings.site_tagline|default:"N/A" }}</span>
+                            </div>
+                            <div class="d-flex justify-content-between mb-1">
+                                <span>Email:</span>
+                                <span id="previewEmail">{{ site_settings.email|default:"N/A" }}</span>
+                            </div>
+                            <div class="d-flex justify-content-between">
+                                <span>Location:</span>
+                                <span id="previewLocation">{{ site_settings.location|default:"N/A" }}</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="border-top pt-3 mt-3">
+                        <h6 class="small text-uppercase text-muted mb-2">Features Status</h6>
+                        <div class="d-flex flex-wrap gap-1">
+                            <span class="badge bg-{% if site_settings.enable_blog %}success{% else %}secondary{% endif %}" id="previewBlogStatus">
+                                <i class="bi bi-journal-text me-1"></i>Blog
+                            </span>
+                            <span class="badge bg-{% if site_settings.enable_testimonials %}success{% else %}secondary{% endif %}" id="previewTestimonialsStatus">
+                                <i class="bi bi-chat-quote me-1"></i>Testimonials
+                            </span>
+                            <span class="badge bg-{% if site_settings.enable_contact_form %}success{% else %}secondary{% endif %}" id="previewContactStatus">
+                                <i class="bi bi-envelope me-1"></i>Contact
+                            </span>
+                            <span class="badge bg-{% if site_settings.enable_animations %}success{% else %}secondary{% endif %}" id="previewAnimationsStatus">
+                                <i class="bi bi-stars me-1"></i>Animations
+                            </span>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
-    </form>
-</div>
-
-<!-- Quick Actions Sidebar -->
-<div class="mt-4">
-    <div class="card">
-        <div class="card-header">
-            <h6 class="mb-0"><i class="bi bi-lightning me-2"></i>Quick Actions</h6>
+        
+        <!-- Quick Actions -->
+        <div class="card mt-3">
+            <div class="card-header">
+                <h6 class="mb-0">
+                    <i class="bi bi-lightning me-2"></i>Quick Actions
+                </h6>
+            </div>
+            <div class="card-body">
+                <div class="d-grid gap-2">
+                    <a href="{% url 'parameters:fun_facts_management' %}" class="btn btn-outline-primary btn-sm">
+                        <i class="bi bi-bar-chart me-2"></i>Manage Fun Facts
+                    </a>
+                    <a href="{% url 'parameters:values_interests_management' %}" class="btn btn-outline-primary btn-sm">
+                        <i class="bi bi-heart me-2"></i>Manage Values & Interests
+                    </a>
+                    <a href="{% url 'parameters:skills_expertise_management' %}" class="btn btn-outline-primary btn-sm">
+                        <i class="bi bi-gear me-2"></i>Manage Skills
+                    </a>
+                    <hr class="my-2">
+                    <a href="{% url 'portfolio:home' %}" class="btn btn-outline-success btn-sm" target="_blank">
+                        <i class="bi bi-eye me-2"></i>Preview Home Page
+                    </a>
+                    <a href="{% url 'portfolio:about' %}" class="btn btn-outline-success btn-sm" target="_blank">
+                        <i class="bi bi-person me-2"></i>Preview About Page
+                    </a>
+                </div>
+            </div>
         </div>
-        <div class="card-body">
-            <div class="d-grid gap-2">
-                <a href="{% url 'parameters:fun_facts_management' %}" class="btn btn-outline-primary btn-sm">
-                    <i class="bi bi-bar-chart me-2"></i>Manage Fun Facts
-                </a>
-                <a href="{% url 'parameters:values_interests_management' %}" class="btn btn-outline-primary btn-sm">
-                    <i class="bi bi-heart me-2"></i>Manage Values & Interests
-                </a>
-                <a href="{% url 'portfolio:about' %}" class="btn btn-outline-success btn-sm" target="_blank">
-                    <i class="bi bi-eye me-2"></i>Preview About Page
-                </a>
+        
+        <!-- Tips & Guidelines -->
+        <div class="card mt-3">
+            <div class="card-header">
+                <h6 class="mb-0">
+                    <i class="bi bi-lightbulb me-2"></i>Tips & Guidelines
+                </h6>
+            </div>
+            <div class="card-body">
+                <ul class="list-unstyled small mb-0">
+                    <li class="mb-2">
+                        <i class="bi bi-check text-success me-1"></i>
+                        Keep meta descriptions under 160 characters
+                    </li>
+                    <li class="mb-2">
+                        <i class="bi bi-check text-success me-1"></i>
+                        Use high-quality profile images (400x400px+)
+                    </li>
+                    <li class="mb-2">
+                        <i class="bi bi-check text-success me-1"></i>
+                        Update availability status regularly
+                    </li>
+                    <li class="mb-0">
+                        <i class="bi bi-check text-success me-1"></i>
+                        Test changes with light and dark themes
+                    </li>
+                </ul>
             </div>
         </div>
     </div>
 </div>
 {% endblock %}
 
+{% block extra_css %}
+{{ block.super }}
+<style>
+.form-control:focus,
+.form-select:focus {
+    border-color: #0d6efd;
+    box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+}
+
+/* Profile image styling */
+.profile-image-preview {
+    min-height: 120px;
+    border: 2px dashed #dee2e6;
+    border-radius: 50%;
+    overflow: hidden;
+    width: 120px;
+    height: 120px;
+    margin: 0 auto;
+}
+
+.profile-img-preview {
+    width: 120px;
+    height: 120px;
+    object-fit: cover;
+}
+
+.profile-img-placeholder {
+    width: 120px;
+    height: 120px;
+    border: 2px dashed #dee2e6;
+    cursor: pointer;
+    transition: border-color 0.3s ease;
+    margin: 0 auto;
+}
+
+.profile-img-placeholder:hover {
+    border-color: #0d6efd;
+}
+
+/* Form sections styling */
+.card {
+    transition: all 0.3s ease;
+}
+
+.card:hover {
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+/* Switch styling improvements */
+.form-check-input:checked {
+    background-color: #198754;
+    border-color: #198754;
+}
+
+.form-switch .form-check-input {
+    width: 2.5em;
+}
+
+/* Character counter styling */
+.char-counter {
+    font-size: 0.875rem;
+    text-align: right;
+}
+
+.char-counter.text-warning {
+    color: #f39c12 !important;
+}
+
+.char-counter.text-danger {
+    color: #e74c3c !important;
+}
+
+/* Preview panel styling */
+.settings-preview-card {
+    background: #f8f9fa;
+    border-radius: 0.5rem;
+    padding: 1rem;
+}
+
+/* Dark mode adjustments */
+[data-bs-theme="dark"] .card {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.1);
+}
+
+[data-bs-theme="dark"] .form-control,
+[data-bs-theme="dark"] .form-select {
+    background-color: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.2);
+    color: white;
+}
+
+[data-bs-theme="dark"] .form-control:focus,
+[data-bs-theme="dark"] .form-select:focus {
+    background-color: rgba(255, 255, 255, 0.1);
+    border-color: #0d6efd;
+    color: white;
+}
+
+[data-bs-theme="dark"] .profile-img-placeholder {
+    border-color: rgba(255, 255, 255, 0.3);
+    background-color: rgba(255, 255, 255, 0.05);
+}
+
+[data-bs-theme="dark"] .profile-img-placeholder:hover {
+    border-color: #0d6efd;
+}
+
+[data-bs-theme="dark"] .settings-preview-card {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .profile-image-preview,
+    .profile-img-preview,
+    .profile-img-placeholder {
+        width: 100px;
+        height: 100px;
+    }
+}
+</style>
+{% endblock %}
+
 {% block extra_js %}
 {{ block.super }}
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    // Character counter for meta fields
-    const metaTitle = document.getElementById('id_meta_title');
-    const metaDescription = document.getElementById('id_meta_description');
+    // Character counters for meta fields
+    addCharacterCounter('{{ form.meta_title.id_for_label }}', 60);
+    addCharacterCounter('{{ form.meta_description.id_for_label }}', 160);
     
-    if (metaTitle) {
-        addCharacterCounter(metaTitle, 60);
-    }
+    // Live preview updates
+    const formFields = document.querySelectorAll('#settingsForm input, #settingsForm textarea, #settingsForm select');
+    formFields.forEach(field => {
+        field.addEventListener('input', updatePreview);
+        field.addEventListener('change', updatePreview);
+    });
     
-    if (metaDescription) {
-        addCharacterCounter(metaDescription, 160);
-    }
+    // Initial preview update
+    updatePreview();
     
-    function addCharacterCounter(element, maxLength) {
-        const counter = document.createElement('div');
-        counter.className = 'form-text text-end';
-        element.parentElement.appendChild(counter);
-        
-        function updateCounter() {
-            const length = element.value.length;
-            const remaining = maxLength - length;
-            counter.textContent = `${length}/${maxLength} characters`;
-            
-            if (remaining < 10) {
-                counter.className = 'form-text text-end text-warning';
-            } else if (remaining < 0) {
-                counter.className = 'form-text text-end text-danger';
-            } else {
-                counter.className = 'form-text text-end text-muted';
+    // Form validation
+    const form = document.getElementById('settingsForm');
+    form.addEventListener('submit', function(e) {
+        if (!form.checkValidity()) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+        form.classList.add('was-validated');
+    });
+    
+    // Fix decimal number inputs for typography fields
+    const headingScaleField = document.getElementById('{{ form.heading_font_scale.id_for_label }}');
+    const smallScaleField = document.getElementById('{{ form.small_font_scale.id_for_label }}');
+    
+    // Ensure decimal values are properly handled
+    if (headingScaleField) {
+        headingScaleField.addEventListener('blur', function() {
+            let value = parseFloat(this.value);
+            if (!isNaN(value)) {
+                // Round to 2 decimal places and ensure within range
+                value = Math.round(value * 100) / 100;
+                if (value >= 1.0 && value <= 3.0) {
+                    this.value = value.toString();
+                    this.setCustomValidity('');
+                } else {
+                    this.setCustomValidity('Value must be between 1.0 and 3.0');
+                }
             }
-        }
-        
-        element.addEventListener('input', updateCounter);
-        updateCounter();
+        });
     }
     
-    // Save form state to localStorage on change
-    const form = document.querySelector('form');
-    const inputs = form.querySelectorAll('input, textarea, select');
-    
-    inputs.forEach(input => {
-        input.addEventListener('change', function() {
-            localStorage.setItem(`form_${this.name}`, this.value);
+    if (smallScaleField) {
+        smallScaleField.addEventListener('blur', function() {
+            let value = parseFloat(this.value);
+            if (!isNaN(value)) {
+                // Round to 3 decimal places and ensure within range  
+                value = Math.round(value * 1000) / 1000;
+                if (value >= 0.1 && value <= 1.0) {
+                    this.value = value.toString();
+                    this.setCustomValidity('');
+                    this.classList.remove('is-invalid');
+                    this.classList.add('is-valid');
+                } else {
+                    this.setCustomValidity('Value must be between 0.1 and 1.0');
+                    this.classList.add('is-invalid');
+                    this.classList.remove('is-valid');
+                }
+            } else if (this.value.trim() !== '') {
+                this.setCustomValidity('Please enter a valid decimal number');
+                this.classList.add('is-invalid');
+                this.classList.remove('is-valid');
+            }
         });
-    });
+        
+        // Clear validation on focus
+        smallScaleField.addEventListener('focus', function() {
+            this.setCustomValidity('');
+            this.classList.remove('is-invalid', 'is-valid');
+        });
+        
+        // Real-time validation on input
+        smallScaleField.addEventListener('input', function() {
+            let value = parseFloat(this.value);
+            if (!isNaN(value) && value >= 0.1 && value <= 1.0) {
+                this.setCustomValidity('');
+                this.classList.remove('is-invalid');
+            }
+        });
+    }
     
-    // Restore form state from localStorage
-    inputs.forEach(input => {
-        const saved = localStorage.getItem(`form_${input.name}`);
-        if (saved && !input.value) {
-            input.value = saved;
-        }
-    });
-    
-    // Clear localStorage on successful submit
-    form.addEventListener('submit', function() {
-        inputs.forEach(input => {
-            localStorage.removeItem(`form_${input.name}`);
+    // Auto-save to localStorage (optional)
+    formFields.forEach(field => {
+        field.addEventListener('change', function() {
+            localStorage.setItem(`settings_${this.id}`, this.value);
         });
     });
 });
+
+function addCharacterCounter(elementId, maxLength) {
+    const element = document.getElementById(elementId);
+    if (!element) return;
+    
+    const counter = document.createElement('div');
+    counter.className = 'form-text text-end char-counter';
+    element.parentElement.appendChild(counter);
+    
+    function updateCounter() {
+        const length = element.value.length;
+        const remaining = maxLength - length;
+        counter.textContent = `${length}/${maxLength} characters`;
+        
+        counter.className = 'form-text text-end char-counter';
+        if (remaining < 10) {
+            counter.classList.add('text-warning');
+        } else if (remaining < 0) {
+            counter.classList.add('text-danger');
+        } else {
+            counter.classList.add('text-muted');
+        }
+    }
+    
+    element.addEventListener('input', updateCounter);
+    updateCounter();
+}
+
+function updatePreview() {
+    // Update preview fields
+    const ownerName = document.getElementById('{{ form.owner_name.id_for_label }}')?.value || 'Your Name';
+    const ownerTitle = document.getElementById('{{ form.owner_title.id_for_label }}')?.value || 'Your Title';
+    const siteName = document.getElementById('{{ form.site_name.id_for_label }}')?.value || 'Portfolio';
+    const siteTagline = document.getElementById('{{ form.site_tagline.id_for_label }}')?.value || 'N/A';
+    const email = document.getElementById('{{ form.email.id_for_label }}')?.value || 'N/A';
+    const location = document.getElementById('{{ form.location.id_for_label }}')?.value || 'N/A';
+    
+    // Feature toggles
+    const blogEnabled = document.getElementById('{{ form.enable_blog.id_for_label }}')?.checked || false;
+    const testimonialsEnabled = document.getElementById('{{ form.enable_testimonials.id_for_label }}')?.checked || false;
+    const contactEnabled = document.getElementById('{{ form.enable_contact_form.id_for_label }}')?.checked || false;
+    const animationsEnabled = document.getElementById('{{ form.enable_animations.id_for_label }}')?.checked || false;
+    
+    // Update preview elements
+    document.getElementById('previewOwnerName').textContent = ownerName;
+    document.getElementById('previewOwnerTitle').textContent = ownerTitle;
+    document.getElementById('previewSiteName').textContent = siteName;
+    document.getElementById('previewSiteTagline').textContent = siteTagline;
+    document.getElementById('previewEmail').textContent = email;
+    document.getElementById('previewLocation').textContent = location;
+    
+    // Update feature badges
+    updateFeatureBadge('previewBlogStatus', blogEnabled, 'bi-journal-text', 'Blog');
+    updateFeatureBadge('previewTestimonialsStatus', testimonialsEnabled, 'bi-chat-quote', 'Testimonials');
+    updateFeatureBadge('previewContactStatus', contactEnabled, 'bi-envelope', 'Contact');
+    updateFeatureBadge('previewAnimationsStatus', animationsEnabled, 'bi-stars', 'Animations');
+}
+
+function updateFeatureBadge(elementId, enabled, icon, text) {
+    const element = document.getElementById(elementId);
+    if (element) {
+        element.className = `badge bg-${enabled ? 'success' : 'secondary'}`;
+        element.innerHTML = `<i class="${icon} me-1"></i>${text}`;
+    }
+}
+
+// Handle profile image upload
+function handleProfileImageUpload(input) {
+    const file = input.files[0];
+    if (!file) return;
+    
+    // Validate file size (5MB max)
+    if (file.size > 5 * 1024 * 1024) {
+        alert('Image size must be less than 5MB');
+        input.value = '';
+        return;
+    }
+    
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+        alert('Please select a valid image file');
+        input.value = '';
+        return;
+    }
+    
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        const img = new Image();
+        img.onload = function() {
+            // Resize image to 400x400
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            
+            canvas.width = 400;
+            canvas.height = 400;
+            
+            // Draw and compress - crop to square
+            const size = Math.min(img.width, img.height);
+            const x = (img.width - size) / 2;
+            const y = (img.height - size) / 2;
+            
+            ctx.drawImage(img, x, y, size, size, 0, 0, 400, 400);
+            const base64Data = canvas.toDataURL('image/jpeg', 0.85);
+            
+            // Update preview
+            const preview = document.getElementById('profileImagePreview');
+            preview.innerHTML = `<img src="${base64Data}" alt="Profile Image" class="img-thumbnail w-100 rounded-circle profile-img-preview">`;
+            
+            // Update main preview
+            const mainPreview = document.getElementById('profilePreviewContainer');
+            mainPreview.innerHTML = `<img src="${base64Data}" alt="Profile" class="rounded-circle mb-2" style="width: 80px; height: 80px; object-fit: cover;">`;
+            
+            // Update hidden field
+            const hiddenField = document.getElementById('{{ form.profile_image_base64.id_for_label }}');
+            if (hiddenField) {
+                hiddenField.value = base64Data;
+            }
+        };
+        img.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+}
 </script>
 {% endblock %}

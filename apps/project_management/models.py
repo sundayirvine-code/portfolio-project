@@ -331,6 +331,7 @@ class Testimonial(models.Model):
         default=5, 
         help_text="Rating from 1 to 5 stars"
     )
+    date_given = models.DateField(_("Date Given"), blank=True, null=True, help_text="When the testimonial was provided")
     
     # Related Project
     project = models.ForeignKey(
@@ -344,6 +345,7 @@ class Testimonial(models.Model):
     # Settings
     is_featured = models.BooleanField(_("Is Featured"), default=False)
     is_approved = models.BooleanField(_("Is Approved"), default=True)
+    display_order = models.PositiveIntegerField(_("Display Order"), default=0, help_text="Order in which testimonial appears (lower = first)")
     
     # Timestamps
     created_at = models.DateTimeField(auto_now_add=True)
@@ -352,7 +354,7 @@ class Testimonial(models.Model):
     class Meta:
         verbose_name = _("Testimonial")
         verbose_name_plural = _("Testimonials")
-        ordering = ['-created_at']
+        ordering = ['display_order', '-created_at']
     
     def __str__(self):
         return f"Testimonial from {self.client_name}"

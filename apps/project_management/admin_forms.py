@@ -319,7 +319,8 @@ class TestimonialForm(forms.ModelForm):
         model = Testimonial
         fields = [
             'client_name', 'client_position', 'client_company', 'client_email',
-            'content', 'rating', 'project', 'is_featured', 'is_approved'
+            'content', 'rating', 'date_given', 'project', 'display_order',
+            'is_featured', 'is_approved'
         ]
         widgets = {
             'client_name': forms.TextInput(attrs={
@@ -348,7 +349,17 @@ class TestimonialForm(forms.ModelForm):
                 'min': 1,
                 'max': 5
             }),
+            'date_given': forms.DateInput(attrs={
+                'class': 'form-control',
+                'type': 'date',
+                'placeholder': 'Date testimonial was given'
+            }),
             'project': forms.Select(attrs={'class': 'form-select'}),
+            'display_order': forms.NumberInput(attrs={
+                'class': 'form-control',
+                'min': 0,
+                'placeholder': 'Display order (0 = first)'
+            }),
             'is_featured': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
             'is_approved': forms.CheckboxInput(attrs={'class': 'form-check-input'})
         }

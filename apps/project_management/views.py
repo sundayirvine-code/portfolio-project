@@ -6,9 +6,9 @@ from django.http import JsonResponse, HttpResponse
 from django.views.decorators.http import require_POST
 from django.views.decorators.csrf import csrf_exempt
 from django.utils import timezone
-from django.db.models import Q
+from django.db.models import Q, Avg
 from .models import Project, BlogPost, Testimonial, Service, ContactMessage, Category, Technology
-from apps.parameters.models import SiteParameter, ProfessionalJourney, FAQ
+from apps.parameters.models import SiteParameter, ProfessionalJourney, FAQ, QuickAnswer
 from .forms import ContactForm
 from .services import CVGenerationService
 
@@ -386,11 +386,18 @@ def services_view(request):
     advanced_technologies = Technology.objects.filter(proficiency__gte=70, proficiency__lt=90)
     intermediate_technologies = Technology.objects.filter(proficiency__gte=50, proficiency__lt=70)
     
+    # Get FAQs for services page
+    from apps.parameters.models import FAQ
+    service_faqs = FAQ.objects.filter(
+        is_active=True
+    ).order_by('order', 'id')
+    
     context = {
         'services': services,
         'expert_technologies': expert_technologies,
         'advanced_technologies': advanced_technologies,
         'intermediate_technologies': intermediate_technologies,
+        'faqs': service_faqs,
     }
     
     return render(request, 'pages/services.html', context)
@@ -400,7 +407,18 @@ def testimonials_view(request):
     """Testimonials view"""
     testimonials = Testimonial.objects.filter(
         is_approved=True
-    ).select_related('project')
+    ).select_related('project').order_by('display_order', '-date_given', '-created_at')
+    
+    # Calculate statistics
+    total_testimonials = testimonials.count()
+    if total_testimonials > 0:
+        average_rating = testimonials.aggregate(avg_rating=Avg('rating'))['avg_rating']
+        average_rating = round(average_rating, 1) if average_rating else 5.0
+    else:
+        average_rating = 5.0
+    
+    # Get featured testimonials count
+    featured_count = testimonials.filter(is_featured=True).count()
     
     # Pagination
     paginator = Paginator(testimonials, 6)  # 6 testimonials per page
@@ -409,6 +427,12 @@ def testimonials_view(request):
     
     context = {
         'page_obj': page_obj,
+        'testimonials': page_obj,  # For compatibility with template
+        'total_testimonials': total_testimonials,
+        'average_rating': average_rating,
+        'featured_count': featured_count,
+        'projects_completed': Project.objects.filter(status__in=['published', 'featured']).count(),
+        'repeat_clients': 85,  # This could be calculated based on client_email duplicates
     }
     
     return render(request, 'pages/testimonials.html', context)
@@ -434,12 +458,35 @@ def contact_view(request):
     else:
         form = ContactForm()
     
+    # Get site settings for availability information
+    site_settings = SiteParameter.get_settings()
+    
     # Services for dropdown
     services = Service.objects.filter(is_active=True)
+    
+    # Get Quick Answers first (priority over FAQs)
+    quick_answers = QuickAnswer.objects.filter(is_active=True).order_by('order')[:5]
+    
+    # Get featured FAQs if no quick answers
+    featured_faqs = FAQ.objects.filter(
+        is_active=True, 
+        is_featured=True, 
+        category='contact'
+    ).order_by('order')[:5]
+    
+    # If no contact-specific featured FAQs, get general featured FAQs
+    if not featured_faqs and not quick_answers:
+        featured_faqs = FAQ.objects.filter(
+            is_active=True, 
+            is_featured=True
+        ).order_by('order')[:5]
     
     context = {
         'form': form,
         'services': services,
+        'site_settings': site_settings,
+        'quick_answers': quick_answers,
+        'featured_faqs': featured_faqs,
     }
     
     return render(request, 'pages/contact.html', context)

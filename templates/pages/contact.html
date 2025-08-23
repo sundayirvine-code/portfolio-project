@@ -259,6 +259,45 @@
                     {% endif %}
                     
                     <!-- Availability Status -->
+                    {% if site_settings and site_settings.availability_status %}
+                    <div class="availability-status mt-4 p-3 rounded" 
+                         style="background-color: {% if site_settings.availability_status == 'available' %}var(--bs-success-bg-subtle){% elif site_settings.availability_status == 'busy' %}var(--bs-warning-bg-subtle){% else %}var(--bs-danger-bg-subtle){% endif %};">
+                        <div class="d-flex align-items-center">
+                            <div class="status-indicator me-3">
+                                <span class="badge {% if site_settings.availability_status == 'available' %}bg-success{% elif site_settings.availability_status == 'busy' %}bg-warning{% else %}bg-danger{% endif %} rounded-pill">
+                                    <i class="bi bi-circle-fill"></i> 
+                                    {% if site_settings.availability_status == 'available' %}Available
+                                    {% elif site_settings.availability_status == 'busy' %}Busy
+                                    {% else %}Unavailable{% endif %}
+                                </span>
+                            </div>
+                            <div class="status-content">
+                                <h6 class="mb-1">
+                                    {% if site_settings.availability_status == 'available' %}Currently Available
+                                    {% elif site_settings.availability_status == 'busy' %}Currently Busy
+                                    {% else %}Currently Unavailable{% endif %}
+                                </h6>
+                                <small class="text-muted">
+                                    {% if site_settings.availability_message %}
+                                        {{ site_settings.availability_message }}
+                                    {% else %}
+                                        {% if site_settings.availability_status == 'available' %}Open for new projects and collaborations
+                                        {% elif site_settings.availability_status == 'busy' %}Limited availability for new projects
+                                        {% else %}Not taking new projects at this time{% endif %}
+                                    {% endif %}
+                                </small>
+                            </div>
+                        </div>
+                        {% if site_settings.response_time %}
+                        <div class="mt-2">
+                            <small class="text-muted">
+                                <i class="bi bi-clock me-1"></i>Response time: {{ site_settings.response_time }}
+                            </small>
+                        </div>
+                        {% endif %}
+                    </div>
+                    {% else %}
+                    <!-- Fallback availability status -->
                     <div class="availability-status mt-4 p-3 rounded" style="background-color: var(--bs-success-bg-subtle);">
                         <div class="d-flex align-items-center">
                             <div class="status-indicator me-3">
@@ -273,7 +312,13 @@
                                 </small>
                             </div>
                         </div>
+                        <div class="mt-2">
+                            <small class="text-muted">
+                                <i class="bi bi-clock me-1"></i>Response time: Usually within 24 hours
+                            </small>
+                        </div>
                     </div>
+                    {% endif %}
                     
                     <!-- FAQ Section -->
                     <div class="faq-section mt-4">
