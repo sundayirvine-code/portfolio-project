@@ -129,7 +129,7 @@
 
 <!-- Featured Projects Section -->
 {% if featured_projects %}
-<section id="featured-projects" class="py-5 bg-light">
+<section id="featured-projects" class="py-5 section-primary-bg">
     <div class="container">
         <div class="text-center mb-5" data-aos="fade-up">
             <h2 class="display-5 fw-bold mb-3">Featured Projects</h2>
@@ -255,7 +255,7 @@
 
 <!-- Testimonials Section -->
 {% if featured_testimonials %}
-<section class="py-5 bg-light">
+<section class="py-5 section-tertiary-bg">
     <div class="container">
         <div class="text-center mb-5" data-aos="fade-up">
             <h2 class="display-5 fw-bold mb-3">What Clients Say</h2>
@@ -483,9 +483,11 @@
     color: #adb5bd !important;
 }
 
-/* Light Mode Section Improvements */
-[data-bs-theme="light"] .bg-light {
-    background: #f8f9fa !important;
+/* Light Mode Section Improvements - Updated for new section backgrounds */
+[data-bs-theme="light"] .section-primary-bg,
+[data-bs-theme="light"] .section-secondary-bg,
+[data-bs-theme="light"] .section-tertiary-bg {
+    /* Handled by section-backgrounds.css */
 }
 
 [data-bs-theme="light"] .project-card,

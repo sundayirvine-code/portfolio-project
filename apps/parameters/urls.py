@@ -37,6 +37,10 @@ urlpatterns = [
     path('font-palettes/create/', views.font_palette_create_view, name='font_palette_create'),
     path('font-palettes/<int:pk>/edit/', views.font_palette_edit_view, name='font_palette_edit'),
     path('font-palettes/<int:pk>/delete/', views.font_palette_delete_view, name='font_palette_delete'),
+    path('font-palettes/<int:pk>/set-default/', views.font_palette_set_default, name='font_palette_set_default'),
+    path('font-palettes/<int:pk>/apply/', views.apply_font_palette, name='apply_font_palette'),
+    path('font-palettes/<int:pk>/preview/', views.preview_font_palette, name='preview_font_palette'),
+    path('font-palettes/<int:pk>/duplicate/', views.duplicate_font_palette, name='duplicate_font_palette'),
     
     # Professional Journey Management
     path('professional-journey/', views.professional_journey_list_view, name='professional_journey_list'),

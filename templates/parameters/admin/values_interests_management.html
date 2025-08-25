@@ -83,7 +83,7 @@
     <!-- Right Column: Live Preview -->
     <div class="col-lg-4 col-xl-3">
         <div class="card h-100 sticky-top" style="top: 1rem;">
-            <div class="card-header bg-light">
+            <div class="card-header">
                 <h6 class="mb-0 text-muted">
                     <i class="bi bi-eye me-2"></i>Live Preview
                 </h6>
@@ -96,7 +96,7 @@
                     </div>
                 </div>
             </div>
-            <div class="card-footer bg-light">
+            <div class="card-footer">
                 <small class="text-muted">
                     <i class="bi bi-info-circle me-1"></i>
                     Real-time preview of how entries will appear on your About page
@@ -142,20 +142,9 @@
 }
 
 [data-bs-theme="dark"] .card-header {
-    background: #ffffff !important;
-    border-bottom: 1px solid var(--bs-border-color) !important;
-    color: var(--bs-dark) !important;
-}
-
-/* Ensure card header text is always dark for white background */
-.card-header h6,
-.card-header .text-muted {
-    color: var(--bs-dark) !important;
-}
-
-[data-bs-theme="dark"] .card-header h6,
-[data-bs-theme="dark"] .card-header .text-muted {
-    color: var(--bs-dark) !important;
+    background: rgba(255, 255, 255, 0.08) !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+    color: #e9ecef !important;
 }
 
 /* Card footers */
@@ -176,82 +165,84 @@
     min-height: 200px;
 }
 
-/* Value items with enhanced contrast - maintain light mode colors */
+/* Value items with theme-adaptive backgrounds */
 .value-item {
     transition: all 0.2s ease;
-    border: 1px solid #dee2e6 !important;
-    background: #ffffff !important;
-    color: #212529 !important;
+    border: 1px solid var(--bs-border-color) !important;
+    background: rgba(255, 255, 255, 0.9) !important;
+    color: var(--bs-dark) !important;
 }
 
 .value-item:hover {
     transform: translateY(-1px);
     box-shadow: 0 4px 12px rgba(0,0,0,0.1) !important;
-    border-color: #0d6efd !important;
+    border-color: var(--bs-primary) !important;
 }
 
 [data-bs-theme="dark"] .value-item {
-    background: #ffffff !important;
-    border: 1px solid #dee2e6 !important;
-    color: #212529 !important;
+    background: rgba(255, 255, 255, 0.08) !important;
+    border: 1px solid rgba(255, 255, 255, 0.15) !important;
+    color: #e9ecef !important;
 }
 
 [data-bs-theme="dark"] .value-item:hover {
-    background: #ffffff !important;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.2) !important;
-    border-color: #0d6efd !important;
+    background: rgba(255, 255, 255, 0.12) !important;
+    box-shadow: 0 4px 12px rgba(255,255,255,0.15) !important;
+    border-color: var(--bs-primary) !important;
 }
 
-/* Value item titles and text - use light mode colors */
+/* Value item titles and text - theme adaptive */
 .value-item h6,
 .value-item .fw-semibold {
-    color: #212529 !important;
+    color: var(--bs-dark) !important;
 }
 
 [data-bs-theme="dark"] .value-item h6,
 [data-bs-theme="dark"] .value-item .fw-semibold {
-    color: #212529 !important;
+    color: #ffffff !important;
 }
 
-/* Form labels and text - use light mode colors */
+/* Form labels and text - theme adaptive */
 .value-item .form-label {
-    color: #212529 !important;
+    color: var(--bs-dark) !important;
     font-weight: 500;
 }
 
 [data-bs-theme="dark"] .value-item .form-label {
-    color: #212529 !important;
+    color: #e9ecef !important;
 }
 
-/* Form controls - maintain light mode styling */
+/* Form controls - theme adaptive */
 .value-item .form-control,
 .value-item .form-select {
-    background: #ffffff !important;
-    border: 1px solid #dee2e6 !important;
-    color: #212529 !important;
+    background: rgba(255, 255, 255, 0.9) !important;
+    border: 1px solid var(--bs-border-color) !important;
+    color: var(--bs-dark) !important;
 }
 
 .value-item .form-control:focus,
 .value-item .form-select:focus {
-    border-color: #0d6efd !important;
-    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25) !important;
-    background: #ffffff !important;
-    color: #212529 !important;
+    border-color: var(--bs-primary) !important;
+    box-shadow: 0 0 0 0.25rem rgba(var(--bs-primary-rgb), 0.25) !important;
+    background: rgba(255, 255, 255, 0.95) !important;
 }
 
 [data-bs-theme="dark"] .value-item .form-control,
 [data-bs-theme="dark"] .value-item .form-select {
-    background: #ffffff !important;
-    border: 1px solid #dee2e6 !important;
-    color: #212529 !important;
+    background: rgba(255, 255, 255, 0.1) !important;
+    border: 1px solid rgba(255, 255, 255, 0.2) !important;
+    color: #ffffff !important;
 }
 
 [data-bs-theme="dark"] .value-item .form-control:focus,
 [data-bs-theme="dark"] .value-item .form-select:focus {
-    background: #ffffff !important;
-    border-color: #0d6efd !important;
-    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25) !important;
-    color: #212529 !important;
+    background: rgba(255, 255, 255, 0.15) !important;
+    border-color: var(--bs-primary) !important;
+    box-shadow: 0 0 0 0.25rem rgba(var(--bs-primary-rgb), 0.25) !important;
+}
+
+[data-bs-theme="dark"] .value-item .form-control::placeholder {
+    color: #adb5bd !important;
 }
 
 /* Form text helper - use light mode color */

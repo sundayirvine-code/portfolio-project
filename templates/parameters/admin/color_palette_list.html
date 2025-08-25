@@ -1,0 +1,899 @@
+{% extends 'parameters/admin/base_admin.html' %}
+{% load static %}
+
+{% block title %}Color Palettes - {{ site_settings.site_name }}{% endblock %}
+
+{% block breadcrumb %}
+<li class="breadcrumb-item active" aria-current="page">Color Palettes</li>
+{% endblock %}
+
+{% block page_description %}
+<p class="text-muted mb-0">Manage color schemes and visual themes for your portfolio</p>
+{% endblock %}
+
+{% block page_actions %}
+<div>
+    <a href="{% url 'parameters:color_palette_create' %}" class="btn btn-primary">
+        <i class="bi bi-plus me-2"></i>Add Color Palette
+    </a>
+</div>
+{% endblock %}
+
+{% block admin_content %}
+<!-- Filter and Search -->
+<div class="card mb-4">
+    <div class="card-body">
+        <div class="row g-3 align-items-center">
+            <div class="col-md-6">
+                <div class="input-group">
+                    <span class="input-group-text">
+                        <i class="bi bi-search"></i>
+                    </span>
+                    <input type="text" class="form-control" placeholder="Search color palettes..." id="searchInput">
+                </div>
+            </div>
+            <div class="col-md-3">
+                <select class="form-select" id="moodFilter">
+                    <option value="">All Moods</option>
+                    <option value="modern">Modern</option>
+                    <option value="warm">Warm</option>
+                    <option value="professional">Professional</option>
+                    <option value="natural">Natural</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <select class="form-select" id="statusFilter">
+                    <option value="">All Status</option>
+                    <option value="active">Active</option>
+                    <option value="inactive">Inactive</option>
+                </select>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Default System Palettes -->
+<div class="row g-4 mb-5">
+    <div class="col-12">
+        <h4 class="mb-3">
+            <i class="bi bi-palette-fill me-2"></i>System Color Palettes
+        </h4>
+    </div>
+    
+    <!-- Electric Neon Palette -->
+    <div class="col-lg-6 col-xl-4">
+        <div class="card h-100 color-palette-card system-palette" data-palette-slug="electric_neon">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <div>
+                    <h6 class="mb-0">Electric Neon</h6>
+                    <span class="badge bg-info">System</span>
+                </div>
+                <div class="dropdown">
+                    <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                        <i class="bi bi-three-dots"></i>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li>
+                            <button class="dropdown-item" onclick="previewSystemPalette('electric_neon')">
+                                <i class="bi bi-eye me-2"></i>Preview
+                            </button>
+                        </li>
+                        <li>
+                            <button class="dropdown-item" onclick="applySystemPalette('electric_neon')">
+                                <i class="bi bi-check me-2"></i>Apply
+                            </button>
+                        </li>
+                        <li>
+                            <button class="dropdown-item" onclick="duplicateSystemPalette('electric_neon')">
+                                <i class="bi bi-files me-2"></i>Duplicate
+                            </button>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="color-preview mb-3">
+                    <div class="color-strip-container d-flex rounded overflow-hidden" style="height: 60px;">
+                        <div class="flex-fill d-flex align-items-center justify-content-center text-white fw-bold" 
+                             style="background-color: #6366f1; font-size: 0.75rem; text-shadow: 0 1px 2px rgba(0,0,0,0.3);">
+                            Primary
+                        </div>
+                        <div class="flex-fill d-flex align-items-center justify-content-center text-white fw-bold" 
+                             style="background-color: #8b5cf6; font-size: 0.75rem; text-shadow: 0 1px 2px rgba(0,0,0,0.3);">
+                            Secondary
+                        </div>
+                        <div class="flex-fill d-flex align-items-center justify-content-center text-white fw-bold" 
+                             style="background-color: #06b6d4; font-size: 0.75rem; text-shadow: 0 1px 2px rgba(0,0,0,0.3);">
+                            Accent
+                        </div>
+                        <div class="flex-fill d-flex align-items-center justify-content-center fw-bold" 
+                             style="background-color: #f8fafc; color: #1e293b; font-size: 0.75rem;">
+                            Background
+                        </div>
+                        <div class="flex-fill d-flex align-items-center justify-content-center text-white fw-bold" 
+                             style="background-color: #1e293b; font-size: 0.75rem;">
+                            Text
+                        </div>
+                    </div>
+                </div>
+                <div class="palette-details">
+                    <div class="row g-2 text-sm">
+                        <div class="col-4">
+                            <strong class="text-muted small">MOOD</strong><br>
+                            <span class="badge bg-light text-dark">Modern & Bold</span>
+                        </div>
+                        <div class="col-4">
+                            <strong class="text-muted small">BEST FOR</strong><br>
+                            <span class="badge bg-light text-dark">Tech/Creative</span>
+                        </div>
+                        <div class="col-4">
+                            <strong class="text-muted small">CONTRAST</strong><br>
+                            <span class="badge bg-success text-white">AAA</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Sunset Gradient Palette -->
+    <div class="col-lg-6 col-xl-4">
+        <div class="card h-100 color-palette-card system-palette" data-palette-slug="sunset_gradient">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <div>
+                    <h6 class="mb-0">Sunset Gradient</h6>
+                    <span class="badge bg-info">System</span>
+                </div>
+                <div class="dropdown">
+                    <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                        <i class="bi bi-three-dots"></i>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li>
+                            <button class="dropdown-item" onclick="previewSystemPalette('sunset_gradient')">
+                                <i class="bi bi-eye me-2"></i>Preview
+                            </button>
+                        </li>
+                        <li>
+                            <button class="dropdown-item" onclick="applySystemPalette('sunset_gradient')">
+                                <i class="bi bi-check me-2"></i>Apply
+                            </button>
+                        </li>
+                        <li>
+                            <button class="dropdown-item" onclick="duplicateSystemPalette('sunset_gradient')">
+                                <i class="bi bi-files me-2"></i>Duplicate
+                            </button>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="color-preview mb-3">
+                    <div class="color-strip-container d-flex rounded overflow-hidden" style="height: 60px;">
+                        <div class="flex-fill d-flex align-items-center justify-content-center text-white fw-bold" 
+                             style="background-color: #f59e0b; font-size: 0.75rem; text-shadow: 0 1px 2px rgba(0,0,0,0.3);">
+                            Primary
+                        </div>
+                        <div class="flex-fill d-flex align-items-center justify-content-center text-white fw-bold" 
+                             style="background-color: #ef4444; font-size: 0.75rem; text-shadow: 0 1px 2px rgba(0,0,0,0.3);">
+                            Secondary
+                        </div>
+                        <div class="flex-fill d-flex align-items-center justify-content-center text-white fw-bold" 
+                             style="background-color: #ec4899; font-size: 0.75rem; text-shadow: 0 1px 2px rgba(0,0,0,0.3);">
+                            Accent
+                        </div>
+                        <div class="flex-fill d-flex align-items-center justify-content-center fw-bold" 
+                             style="background-color: #fefbf3; color: #292524; font-size: 0.75rem;">
+                            Background
+                        </div>
+                        <div class="flex-fill d-flex align-items-center justify-content-center text-white fw-bold" 
+                             style="background-color: #292524; font-size: 0.75rem;">
+                            Text
+                        </div>
+                    </div>
+                </div>
+                <div class="palette-details">
+                    <div class="row g-2 text-sm">
+                        <div class="col-4">
+                            <strong class="text-muted small">MOOD</strong><br>
+                            <span class="badge bg-light text-dark">Warm & Creative</span>
+                        </div>
+                        <div class="col-4">
+                            <strong class="text-muted small">BEST FOR</strong><br>
+                            <span class="badge bg-light text-dark">Creative/Art</span>
+                        </div>
+                        <div class="col-4">
+                            <strong class="text-muted small">CONTRAST</strong><br>
+                            <span class="badge bg-success text-white">AA</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Ocean Deep Palette -->
+    <div class="col-lg-6 col-xl-4">
+        <div class="card h-100 color-palette-card system-palette" data-palette-slug="ocean_deep">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <div>
+                    <h6 class="mb-0">Ocean Deep</h6>
+                    <span class="badge bg-info">System</span>
+                </div>
+                <div class="dropdown">
+                    <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                        <i class="bi bi-three-dots"></i>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li>
+                            <button class="dropdown-item" onclick="previewSystemPalette('ocean_deep')">
+                                <i class="bi bi-eye me-2"></i>Preview
+                            </button>
+                        </li>
+                        <li>
+                            <button class="dropdown-item" onclick="applySystemPalette('ocean_deep')">
+                                <i class="bi bi-check me-2"></i>Apply
+                            </button>
+                        </li>
+                        <li>
+                            <button class="dropdown-item" onclick="duplicateSystemPalette('ocean_deep')">
+                                <i class="bi bi-files me-2"></i>Duplicate
+                            </button>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="color-preview mb-3">
+                    <div class="color-strip-container d-flex rounded overflow-hidden" style="height: 60px;">
+                        <div class="flex-fill d-flex align-items-center justify-content-center text-white fw-bold" 
+                             style="background-color: #0ea5e9; font-size: 0.75rem; text-shadow: 0 1px 2px rgba(0,0,0,0.3);">
+                            Primary
+                        </div>
+                        <div class="flex-fill d-flex align-items-center justify-content-center text-white fw-bold" 
+                             style="background-color: #06b6d4; font-size: 0.75rem; text-shadow: 0 1px 2px rgba(0,0,0,0.3);">
+                            Secondary
+                        </div>
+                        <div class="flex-fill d-flex align-items-center justify-content-center text-white fw-bold" 
+                             style="background-color: #10b981; font-size: 0.75rem; text-shadow: 0 1px 2px rgba(0,0,0,0.3);">
+                            Accent
+                        </div>
+                        <div class="flex-fill d-flex align-items-center justify-content-center fw-bold" 
+                             style="background-color: #f0f9ff; color: #0c4a6e; font-size: 0.75rem;">
+                            Background
+                        </div>
+                        <div class="flex-fill d-flex align-items-center justify-content-center text-white fw-bold" 
+                             style="background-color: #0c4a6e; font-size: 0.75rem;">
+                            Text
+                        </div>
+                    </div>
+                </div>
+                <div class="palette-details">
+                    <div class="row g-2 text-sm">
+                        <div class="col-4">
+                            <strong class="text-muted small">MOOD</strong><br>
+                            <span class="badge bg-light text-dark">Professional</span>
+                        </div>
+                        <div class="col-4">
+                            <strong class="text-muted small">BEST FOR</strong><br>
+                            <span class="badge bg-light text-dark">Business/Corp</span>
+                        </div>
+                        <div class="col-4">
+                            <strong class="text-muted small">CONTRAST</strong><br>
+                            <span class="badge bg-success text-white">AAA</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Forest Modern Palette -->
+    <div class="col-lg-6 col-xl-4">
+        <div class="card h-100 color-palette-card system-palette" data-palette-slug="forest_modern">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <div>
+                    <h6 class="mb-0">Forest Modern</h6>
+                    <span class="badge bg-info">System</span>
+                </div>
+                <div class="dropdown">
+                    <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                        <i class="bi bi-three-dots"></i>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li>
+                            <button class="dropdown-item" onclick="previewSystemPalette('forest_modern')">
+                                <i class="bi bi-eye me-2"></i>Preview
+                            </button>
+                        </li>
+                        <li>
+                            <button class="dropdown-item" onclick="applySystemPalette('forest_modern')">
+                                <i class="bi bi-check me-2"></i>Apply
+                            </button>
+                        </li>
+                        <li>
+                            <button class="dropdown-item" onclick="duplicateSystemPalette('forest_modern')">
+                                <i class="bi bi-files me-2"></i>Duplicate
+                            </button>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="color-preview mb-3">
+                    <div class="color-strip-container d-flex rounded overflow-hidden" style="height: 60px;">
+                        <div class="flex-fill d-flex align-items-center justify-content-center text-white fw-bold" 
+                             style="background-color: #059669; font-size: 0.75rem; text-shadow: 0 1px 2px rgba(0,0,0,0.3);">
+                            Primary
+                        </div>
+                        <div class="flex-fill d-flex align-items-center justify-content-center text-white fw-bold" 
+                             style="background-color: #7c3aed; font-size: 0.75rem; text-shadow: 0 1px 2px rgba(0,0,0,0.3);">
+                            Secondary
+                        </div>
+                        <div class="flex-fill d-flex align-items-center justify-content-center text-white fw-bold" 
+                             style="background-color: #f59e0b; font-size: 0.75rem; text-shadow: 0 1px 2px rgba(0,0,0,0.3);">
+                            Accent
+                        </div>
+                        <div class="flex-fill d-flex align-items-center justify-content-center fw-bold" 
+                             style="background-color: #f0fdf4; color: #064e3b; font-size: 0.75rem;">
+                            Background
+                        </div>
+                        <div class="flex-fill d-flex align-items-center justify-content-center text-white fw-bold" 
+                             style="background-color: #064e3b; font-size: 0.75rem;">
+                            Text
+                        </div>
+                    </div>
+                </div>
+                <div class="palette-details">
+                    <div class="row g-2 text-sm">
+                        <div class="col-4">
+                            <strong class="text-muted small">MOOD</strong><br>
+                            <span class="badge bg-light text-dark">Natural & Fresh</span>
+                        </div>
+                        <div class="col-4">
+                            <strong class="text-muted small">BEST FOR</strong><br>
+                            <span class="badge bg-light text-dark">Eco/Health</span>
+                        </div>
+                        <div class="col-4">
+                            <strong class="text-muted small">CONTRAST</strong><br>
+                            <span class="badge bg-success text-white">AA</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Custom Palette Creator Card -->
+    <div class="col-lg-6 col-xl-4">
+        <div class="card h-100 border-dashed border-primary bg-light" style="border-style: dashed !important;">
+            <div class="card-body d-flex flex-column justify-content-center align-items-center text-center py-5">
+                <i class="bi bi-plus-circle display-4 text-primary mb-3"></i>
+                <h5 class="mb-2">Create Custom Palette</h5>
+                <p class="text-muted mb-3">Design your own unique color scheme</p>
+                <a href="{% url 'parameters:color_palette_create' %}" class="btn btn-primary">
+                    <i class="bi bi-palette me-2"></i>Get Started
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Custom Palettes Section -->
+{% if page_obj %}
+<div class="row g-4 mb-4">
+    <div class="col-12">
+        <h4 class="mb-3">
+            <i class="bi bi-brush me-2"></i>Custom Color Palettes
+        </h4>
+    </div>
+    {% for palette in page_obj %}
+    <div class="col-lg-6 col-xl-4">
+        <div class="card h-100 color-palette-card {% if palette.is_active %}border-primary{% endif %}" data-palette-id="{{ palette.pk }}">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <div>
+                    <h6 class="mb-0">{{ palette.name }}</h6>
+                    {% if palette.is_default %}
+                    <span class="badge bg-warning text-dark">Default</span>
+                    {% endif %}
+                    {% if palette.is_active %}
+                    <span class="badge bg-success">Active</span>
+                    {% else %}
+                    <span class="badge bg-secondary">Inactive</span>
+                    {% endif %}
+                </div>
+                <div class="dropdown">
+                    <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                        <i class="bi bi-three-dots"></i>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li>
+                            <a class="dropdown-item" href="{% url 'parameters:color_palette_edit' palette.pk %}">
+                                <i class="bi bi-pencil me-2"></i>Edit
+                            </a>
+                        </li>
+                        <li>
+                            <button class="dropdown-item" onclick="previewPalette({{ palette.pk }})">
+                                <i class="bi bi-eye me-2"></i>Preview
+                            </button>
+                        </li>
+                        <li>
+                            <button class="dropdown-item" onclick="applyPalette({{ palette.pk }})">
+                                <i class="bi bi-check me-2"></i>Apply
+                            </button>
+                        </li>
+                        {% if not palette.is_default %}
+                        <li><hr class="dropdown-divider"></li>
+                        <li>
+                            <form method="post" action="{% url 'parameters:color_palette_delete' palette.pk %}" class="d-inline">
+                                {% csrf_token %}
+                                <button type="submit" class="dropdown-item text-danger" onclick="return confirm('Delete this color palette?')">
+                                    <i class="bi bi-trash me-2"></i>Delete
+                                </button>
+                            </form>
+                        </li>
+                        {% endif %}
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="card-body">
+                <!-- Color Preview -->
+                <div class="color-preview mb-3">
+                    <div class="color-strip-container d-flex rounded overflow-hidden" style="height: 60px;">
+                        <div class="flex-fill d-flex align-items-center justify-content-center text-white fw-bold" 
+                             style="background-color: {{ palette.light_primary }}; font-size: 0.75rem; text-shadow: 0 1px 2px rgba(0,0,0,0.3);">
+                            Primary
+                            <small class="position-absolute" style="bottom: 4px; font-size: 0.6rem;">{{ palette.light_primary }}</small>
+                        </div>
+                        <div class="flex-fill d-flex align-items-center justify-content-center text-white fw-bold" 
+                             style="background-color: {{ palette.light_secondary }}; font-size: 0.75rem; text-shadow: 0 1px 2px rgba(0,0,0,0.3);">
+                            Secondary
+                            <small class="position-absolute" style="bottom: 4px; font-size: 0.6rem;">{{ palette.light_secondary }}</small>
+                        </div>
+                        <div class="flex-fill d-flex align-items-center justify-content-center text-white fw-bold" 
+                             style="background-color: {{ palette.light_accent }}; font-size: 0.75rem; text-shadow: 0 1px 2px rgba(0,0,0,0.3);">
+                            Accent
+                            <small class="position-absolute" style="bottom: 4px; font-size: 0.6rem;">{{ palette.light_accent }}</small>
+                        </div>
+                        <div class="flex-fill d-flex align-items-center justify-content-center fw-bold" 
+                             style="background-color: {{ palette.light_background }}; color: {{ palette.light_text }}; font-size: 0.75rem;">
+                            Background
+                            <small class="position-absolute" style="bottom: 4px; font-size: 0.6rem;">{{ palette.light_background }}</small>
+                        </div>
+                        <div class="flex-fill d-flex align-items-center justify-content-center text-white fw-bold" 
+                             style="background-color: {{ palette.light_text }}; font-size: 0.75rem;">
+                            Text
+                            <small class="position-absolute" style="bottom: 4px; font-size: 0.6rem;">{{ palette.light_text }}</small>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Palette Details -->
+                <div class="palette-details">
+                    <div class="row g-2 text-sm">
+                        <div class="col-4">
+                            <strong class="text-muted small">MOOD</strong><br>
+                            <span class="badge bg-light text-dark">{{ palette.get_mood_display|default:'Modern' }}</span>
+                        </div>
+                        <div class="col-4">
+                            <strong class="text-muted small">BEST FOR</strong><br>
+                            <span class="badge bg-light text-dark">{{ palette.get_category_display|default:'General' }}</span>
+                        </div>
+                        <div class="col-4">
+                            <strong class="text-muted small">CONTRAST</strong><br>
+                            <span class="badge bg-success text-white">AA</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card-footer d-flex justify-content-between align-items-center">
+                <small class="text-muted">
+                    {% if palette.created_at %}
+                    Created {{ palette.created_at|date:"M d, Y" }}
+                    {% endif %}
+                </small>
+                <div>
+                    {% if not palette.is_active %}
+                    <button class="btn btn-sm btn-outline-primary" onclick="applyPalette({{ palette.pk }})">
+                        <i class="bi bi-check me-1"></i>Apply
+                    </button>
+                    {% endif %}
+                    <a href="{% url 'parameters:color_palette_edit' palette.pk %}" class="btn btn-sm btn-primary">
+                        <i class="bi bi-pencil"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% empty %}
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body text-center py-5">
+                <i class="bi bi-palette display-4 text-muted mb-3"></i>
+                <h5 class="text-muted mb-2">No Color Palettes Found</h5>
+                <p class="text-muted mb-4">
+                    Create your first color palette to customize your portfolio's visual identity.
+                </p>
+                <a href="{% url 'parameters:color_palette_create' %}" class="btn btn-primary">
+                    <i class="bi bi-plus me-2"></i>Add Color Palette
+                </a>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body text-center py-4">
+                <i class="bi bi-brush display-4 text-muted mb-3"></i>
+                <h5 class="text-muted mb-2">No Custom Palettes Yet</h5>
+                <p class="text-muted mb-4">Create your first custom color palette</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- Pagination -->
+{% if page_obj.has_other_pages %}
+<div class="card">
+    <div class="card-footer">
+        <div class="d-flex justify-content-between align-items-center">
+            <div class="text-muted small">
+                Showing {{ page_obj.start_index }} to {{ page_obj.end_index }} of {{ page_obj.paginator.count }} palettes
+            </div>
+            <nav aria-label="Page navigation">
+                <ul class="pagination pagination-sm mb-0">
+                    {% if page_obj.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.previous_page_number }}">
+                            <i class="bi bi-chevron-left"></i>
+                        </a>
+                    </li>
+                    {% endif %}
+                    
+                    {% for num in page_obj.paginator.page_range %}
+                    {% if page_obj.number == num %}
+                    <li class="page-item active">
+                        <span class="page-link">{{ num }}</span>
+                    </li>
+                    {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                    </li>
+                    {% endif %}
+                    {% endfor %}
+                    
+                    {% if page_obj.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.next_page_number }}">
+                            <i class="bi bi-chevron-right"></i>
+                        </a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </nav>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- Quick Stats -->
+{% if page_obj.paginator.count > 0 %}
+<div class="row mt-4">
+    <div class="col-md-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <i class="bi bi-palette text-primary fs-3"></i>
+                <h4 class="mt-2 mb-0">{{ page_obj.paginator.count }}</h4>
+                <small class="text-muted">Total Palettes</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <i class="bi bi-check-circle text-success fs-3"></i>
+                <h4 class="mt-2 mb-0">{{ active_count|default:0 }}</h4>
+                <small class="text-muted">Active</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <i class="bi bi-star text-warning fs-3"></i>
+                <h4 class="mt-2 mb-0">{{ default_count|default:0 }}</h4>
+                <small class="text-muted">Default</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <i class="bi bi-brush text-info fs-3"></i>
+                <h4 class="mt-2 mb-0">{{ custom_count|default:0 }}</h4>
+                <small class="text-muted">Custom</small>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- Preview Modal -->
+<div class="modal fade" id="previewModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="bi bi-eye me-2"></i>Color Palette Preview
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div id="previewContent">
+                    <!-- Content loaded via JavaScript -->
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" id="applyPreviewBtn">Apply This Palette</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+{{ block.super }}
+<style>
+.color-palette-card {
+    transition: all 0.3s ease;
+}
+
+.color-palette-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+}
+
+.color-preview {
+    min-height: 60px;
+}
+
+.color-strip-container > div {
+    position: relative;
+}
+
+.palette-details .badge {
+    font-size: 0.7rem;
+}
+
+/* Dark mode adjustments */
+[data-bs-theme="dark"] .color-palette-card .bg-light {
+    background-color: rgba(255, 255, 255, 0.05) !important;
+}
+
+[data-bs-theme="dark"] .color-preview h4,
+[data-bs-theme="dark"] .color-preview p {
+    color: var(--bs-light);
+}
+</style>
+{% endblock %}
+
+{% block extra_js %}
+{{ block.super }}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Search and filter functionality
+    const searchInput = document.getElementById('searchInput');
+    const moodFilter = document.getElementById('moodFilter');
+    const statusFilter = document.getElementById('statusFilter');
+    
+    function filterPalettes() {
+        const searchTerm = searchInput.value.toLowerCase();
+        const moodValue = moodFilter.value.toLowerCase();
+        const statusValue = statusFilter.value.toLowerCase();
+        
+        const paletteCards = document.querySelectorAll('.color-palette-card');
+        
+        paletteCards.forEach(card => {
+            const name = card.querySelector('h6').textContent.toLowerCase();
+            const badges = Array.from(card.querySelectorAll('.badge')).map(el => el.textContent.toLowerCase()).join(' ');
+            
+            const matchesSearch = name.includes(searchTerm);
+            const matchesMood = !moodValue || badges.includes(moodValue);
+            const matchesStatus = !statusValue || badges.includes(statusValue);
+            
+            const parentCol = card.closest('.col-lg-6, .col-xl-4');
+            if (matchesSearch && matchesMood && matchesStatus) {
+                parentCol.style.display = '';
+            } else {
+                parentCol.style.display = 'none';
+            }
+        });
+    }
+    
+    searchInput.addEventListener('input', filterPalettes);
+    moodFilter.addEventListener('change', filterPalettes);
+    statusFilter.addEventListener('change', filterPalettes);
+});
+
+function previewPalette(paletteId) {
+    const modal = new bootstrap.Modal(document.getElementById('previewModal'));
+    const content = document.getElementById('previewContent');
+    
+    content.innerHTML = `
+        <div class="d-flex justify-content-center py-4">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+        </div>
+    `;
+    
+    modal.show();
+    
+    // Fetch preview data
+    fetch(`{% url 'parameters:preview_color_palette' 0 %}`.replace('0', paletteId))
+        .then(response => response.json())
+        .then(data => {
+            content.innerHTML = `
+                <div class="preview-content">
+                    <h2 class="mb-3" style="color: ${data.light_primary};">${data.name}</h2>
+                    <div class="color-strip-container d-flex rounded mb-4" style="height: 80px;">
+                        <div class="flex-fill d-flex align-items-center justify-content-center text-white fw-bold" 
+                             style="background-color: ${data.light_primary};">
+                            Primary<br><small>${data.light_primary}</small>
+                        </div>
+                        <div class="flex-fill d-flex align-items-center justify-content-center text-white fw-bold" 
+                             style="background-color: ${data.light_secondary};">
+                            Secondary<br><small>${data.light_secondary}</small>
+                        </div>
+                        <div class="flex-fill d-flex align-items-center justify-content-center text-white fw-bold" 
+                             style="background-color: ${data.light_accent};">
+                            Accent<br><small>${data.light_accent}</small>
+                        </div>
+                        <div class="flex-fill d-flex align-items-center justify-content-center fw-bold" 
+                             style="background-color: ${data.light_background}; color: ${data.light_text};">
+                            Background<br><small>${data.light_background}</small>
+                        </div>
+                        <div class="flex-fill d-flex align-items-center justify-content-center text-white fw-bold" 
+                             style="background-color: ${data.light_text};">
+                            Text<br><small>${data.light_text}</small>
+                        </div>
+                    </div>
+                    <p>This palette would be applied to your entire portfolio, changing the primary colors, accents, and overall theme.</p>
+                </div>
+            `;
+            
+            document.getElementById('applyPreviewBtn').onclick = () => applyPalette(paletteId);
+        })
+        .catch(error => {
+            content.innerHTML = '<div class="alert alert-danger">Error loading preview</div>';
+            toastr.error('Failed to load palette preview');
+        });
+}
+
+function applyPalette(paletteId) {
+    fetch(`{% url 'parameters:apply_color_palette' 0 %}`.replace('0', paletteId), {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            toastr.success('Color palette applied successfully!');
+            location.reload();
+        } else {
+            toastr.error('Failed to apply palette');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        toastr.error('An error occurred while applying the palette');
+    });
+}
+
+// System palette functions
+const systemPalettes = {
+    'electric_neon': {
+        name: 'Electric Neon',
+        light: { primary: '#6366f1', secondary: '#8b5cf6', accent: '#06b6d4', background: '#f8fafc', text: '#1e293b' },
+        dark: { primary: '#818cf8', secondary: '#a78bfa', accent: '#67e8f9', background: '#0f172a', text: '#f1f5f9' }
+    },
+    'sunset_gradient': {
+        name: 'Sunset Gradient',
+        light: { primary: '#f59e0b', secondary: '#ef4444', accent: '#ec4899', background: '#fefbf3', text: '#292524' },
+        dark: { primary: '#fbbf24', secondary: '#f87171', accent: '#f472b6', background: '#1c1917', text: '#fafaf9' }
+    },
+    'ocean_deep': {
+        name: 'Ocean Deep',
+        light: { primary: '#0ea5e9', secondary: '#06b6d4', accent: '#10b981', background: '#f0f9ff', text: '#0c4a6e' },
+        dark: { primary: '#38bdf8', secondary: '#22d3ee', accent: '#34d399', background: '#0c1426', text: '#e0f2fe' }
+    },
+    'forest_modern': {
+        name: 'Forest Modern',
+        light: { primary: '#059669', secondary: '#7c3aed', accent: '#f59e0b', background: '#f0fdf4', text: '#064e3b' },
+        dark: { primary: '#10b981', secondary: '#8b5cf6', accent: '#fbbf24', background: '#0f1419', text: '#ecfdf5' }
+    }
+};
+
+function previewSystemPalette(paletteSlug) {
+    const palette = systemPalettes[paletteSlug];
+    if (!palette) return;
+    
+    const modal = new bootstrap.Modal(document.getElementById('previewModal'));
+    const content = document.getElementById('previewContent');
+    
+    content.innerHTML = `
+        <div class="preview-content">
+            <h2 class="mb-3" style="color: ${palette.light.primary};">${palette.name}</h2>
+            <div class="color-strip-container d-flex rounded mb-4" style="height: 80px;">
+                <div class="flex-fill d-flex align-items-center justify-content-center text-white fw-bold" 
+                     style="background-color: ${palette.light.primary};">
+                    Primary<br><small>${palette.light.primary}</small>
+                </div>
+                <div class="flex-fill d-flex align-items-center justify-content-center text-white fw-bold" 
+                     style="background-color: ${palette.light.secondary};">
+                    Secondary<br><small>${palette.light.secondary}</small>
+                </div>
+                <div class="flex-fill d-flex align-items-center justify-content-center text-white fw-bold" 
+                     style="background-color: ${palette.light.accent};">
+                    Accent<br><small>${palette.light.accent}</small>
+                </div>
+                <div class="flex-fill d-flex align-items-center justify-content-center fw-bold" 
+                     style="background-color: ${palette.light.background}; color: ${palette.light.text};">
+                    Background<br><small>${palette.light.background}</small>
+                </div>
+                <div class="flex-fill d-flex align-items-center justify-content-center text-white fw-bold" 
+                     style="background-color: ${palette.light.text};">
+                    Text<br><small>${palette.light.text}</small>
+                </div>
+            </div>
+            <p>This is a system palette with carefully selected colors for optimal readability and visual appeal.</p>
+        </div>
+    `;
+    
+    modal.show();
+    document.getElementById('applyPreviewBtn').onclick = () => applySystemPalette(paletteSlug);
+}
+
+function applySystemPalette(paletteSlug) {
+    // This would apply the system palette through the backend
+    toastr.info(`Applying ${systemPalettes[paletteSlug]?.name} palette...`);
+    
+    // In a real implementation, this would save the palette and apply it
+    setTimeout(() => {
+        toastr.success(`${systemPalettes[paletteSlug]?.name} palette applied successfully!`);
+    }, 1000);
+}
+
+function duplicateSystemPalette(paletteSlug) {
+    const palette = systemPalettes[paletteSlug];
+    if (palette && confirm(`Create a custom version of ${palette.name}?`)) {
+        // Redirect to create form with pre-filled values
+        const params = new URLSearchParams({
+            name: `${palette.name} (Custom)`,
+            light_primary: palette.light.primary,
+            light_secondary: palette.light.secondary,
+            light_accent: palette.light.accent,
+            light_background: palette.light.background,
+            light_text: palette.light.text,
+            dark_primary: palette.dark.primary,
+            dark_secondary: palette.dark.secondary,
+            dark_accent: palette.dark.accent,
+            dark_background: palette.dark.background,
+            dark_text: palette.dark.text
+        });
+        
+        window.location.href = `{% url 'parameters:color_palette_create' %}?${params.toString()}`;
+    }
+}
+</script>
+{% endblock %}

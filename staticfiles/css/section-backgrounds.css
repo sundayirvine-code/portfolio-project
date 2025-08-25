@@ -1,0 +1,299 @@
+/* =============================================================
+   THEME-ADAPTIVE SECTION BACKGROUNDS
+   Sophisticated alternating sections that adapt to light/dark themes
+   ============================================================= */
+
+/* Primary Section Background (replaces bg-light) */
+.section-primary-bg {
+    background: #f8f9fa;
+    transition: background-color 0.3s ease, border-color 0.3s ease;
+    position: relative;
+}
+
+/* Secondary Section Background (alternative to primary) */
+.section-secondary-bg {
+    background: #e9ecef;
+    transition: background-color 0.3s ease, border-color 0.3s ease;
+    position: relative;
+}
+
+/* Tertiary Section Background (subtle gradient) */
+.section-tertiary-bg {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    transition: background-color 0.3s ease, border-color 0.3s ease;
+    position: relative;
+}
+
+/* Light Theme Colors */
+[data-bs-theme="light"] .section-primary-bg {
+    background: #f8f9fa;
+    border-top: 1px solid rgba(0, 0, 0, 0.05);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+[data-bs-theme="light"] .section-secondary-bg {
+    background: #e9ecef;
+    border-top: 1px solid rgba(0, 0, 0, 0.08);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+[data-bs-theme="light"] .section-tertiary-bg {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border-top: 1px solid rgba(0, 0, 0, 0.06);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+/* Dark Theme Colors - Sophisticated and Easy on Eyes */
+[data-bs-theme="dark"] .section-primary-bg {
+    background: rgba(255, 255, 255, 0.03);
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+[data-bs-theme="dark"] .section-secondary-bg {
+    background: rgba(255, 255, 255, 0.05);
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+[data-bs-theme="dark"] .section-tertiary-bg {
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.03) 0%, rgba(255, 255, 255, 0.06) 100%);
+    border-top: 1px solid rgba(255, 255, 255, 0.09);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.09);
+}
+
+/* Enhanced Section Backgrounds with Theme Colors */
+.section-theme-primary-bg {
+    background: rgba(var(--bs-primary-rgb), 0.05);
+    border-top: 1px solid rgba(var(--bs-primary-rgb), 0.1);
+    border-bottom: 1px solid rgba(var(--bs-primary-rgb), 0.1);
+    transition: all 0.3s ease;
+}
+
+.section-theme-secondary-bg {
+    background: rgba(var(--bs-secondary-rgb), 0.05);
+    border-top: 1px solid rgba(var(--bs-secondary-rgb), 0.1);
+    border-bottom: 1px solid rgba(var(--bs-secondary-rgb), 0.1);
+    transition: all 0.3s ease;
+}
+
+/* Dark theme adjustments for theme-based sections */
+[data-bs-theme="dark"] .section-theme-primary-bg {
+    background: rgba(var(--bs-primary-rgb), 0.08);
+    border-top: 1px solid rgba(var(--bs-primary-rgb), 0.15);
+    border-bottom: 1px solid rgba(var(--bs-primary-rgb), 0.15);
+}
+
+[data-bs-theme="dark"] .section-theme-secondary-bg {
+    background: rgba(var(--bs-secondary-rgb), 0.08);
+    border-top: 1px solid rgba(var(--bs-secondary-rgb), 0.15);
+    border-bottom: 1px solid rgba(var(--bs-secondary-rgb), 0.15);
+}
+
+/* Card Backgrounds that adapt to section backgrounds */
+.section-primary-bg .card,
+.section-secondary-bg .card,
+.section-tertiary-bg .card {
+    background: rgba(255, 255, 255, 0.7);
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    backdrop-filter: blur(10px);
+    transition: all 0.3s ease;
+}
+
+[data-bs-theme="dark"] .section-primary-bg .card,
+[data-bs-theme="dark"] .section-secondary-bg .card,
+[data-bs-theme="dark"] .section-tertiary-bg .card {
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    color: #e9ecef;
+    backdrop-filter: blur(10px);
+}
+
+/* Card hover effects in new sections */
+.section-primary-bg .card:hover,
+.section-secondary-bg .card:hover,
+.section-tertiary-bg .card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+}
+
+[data-bs-theme="dark"] .section-primary-bg .card:hover,
+[data-bs-theme="dark"] .section-secondary-bg .card:hover,
+[data-bs-theme="dark"] .section-tertiary-bg .card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    background: rgba(255, 255, 255, 0.12);
+}
+
+/* Text contrast improvements */
+.section-primary-bg .text-muted,
+.section-secondary-bg .text-muted,
+.section-tertiary-bg .text-muted {
+    color: #6c757d !important;
+}
+
+[data-bs-theme="dark"] .section-primary-bg .text-muted,
+[data-bs-theme="dark"] .section-secondary-bg .text-muted,
+[data-bs-theme="dark"] .section-tertiary-bg .text-muted {
+    color: #adb5bd !important;
+}
+
+/* Section headings */
+.section-primary-bg h1,
+.section-primary-bg h2,
+.section-primary-bg h3,
+.section-primary-bg h4,
+.section-primary-bg h5,
+.section-primary-bg h6,
+.section-secondary-bg h1,
+.section-secondary-bg h2,
+.section-secondary-bg h3,
+.section-secondary-bg h4,
+.section-secondary-bg h5,
+.section-secondary-bg h6,
+.section-tertiary-bg h1,
+.section-tertiary-bg h2,
+.section-tertiary-bg h3,
+.section-tertiary-bg h4,
+.section-tertiary-bg h5,
+.section-tertiary-bg h6 {
+    color: inherit;
+}
+
+[data-bs-theme="dark"] .section-primary-bg h1,
+[data-bs-theme="dark"] .section-primary-bg h2,
+[data-bs-theme="dark"] .section-primary-bg h3,
+[data-bs-theme="dark"] .section-primary-bg h4,
+[data-bs-theme="dark"] .section-primary-bg h5,
+[data-bs-theme="dark"] .section-primary-bg h6,
+[data-bs-theme="dark"] .section-secondary-bg h1,
+[data-bs-theme="dark"] .section-secondary-bg h2,
+[data-bs-theme="dark"] .section-secondary-bg h3,
+[data-bs-theme="dark"] .section-secondary-bg h4,
+[data-bs-theme="dark"] .section-secondary-bg h5,
+[data-bs-theme="dark"] .section-secondary-bg h6,
+[data-bs-theme="dark"] .section-tertiary-bg h1,
+[data-bs-theme="dark"] .section-tertiary-bg h2,
+[data-bs-theme="dark"] .section-tertiary-bg h3,
+[data-bs-theme="dark"] .section-tertiary-bg h4,
+[data-bs-theme="dark"] .section-tertiary-bg h5,
+[data-bs-theme="dark"] .section-tertiary-bg h6 {
+    color: #ffffff;
+}
+
+/* Badge and button adjustments in new sections */
+.section-primary-bg .badge.bg-light,
+.section-secondary-bg .badge.bg-light,
+.section-tertiary-bg .badge.bg-light {
+    background: rgba(0, 0, 0, 0.08) !important;
+    color: #495057 !important;
+}
+
+[data-bs-theme="dark"] .section-primary-bg .badge.bg-light,
+[data-bs-theme="dark"] .section-secondary-bg .badge.bg-light,
+[data-bs-theme="dark"] .section-tertiary-bg .badge.bg-light {
+    background: rgba(255, 255, 255, 0.15) !important;
+    color: #e9ecef !important;
+}
+
+/* Statistics section improvements */
+.section-primary-bg .stat-number,
+.section-secondary-bg .stat-number,
+.section-tertiary-bg .stat-number {
+    background: var(--theme-gradient-primary, linear-gradient(135deg, #6366f1, #8b5cf6));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+/* Form elements in new sections */
+.section-primary-bg .form-control,
+.section-secondary-bg .form-control,
+.section-tertiary-bg .form-control {
+    background: rgba(255, 255, 255, 0.9);
+    border-color: rgba(0, 0, 0, 0.15);
+}
+
+[data-bs-theme="dark"] .section-primary-bg .form-control,
+[data-bs-theme="dark"] .section-secondary-bg .form-control,
+[data-bs-theme="dark"] .section-tertiary-bg .form-control {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.2);
+    color: #ffffff;
+}
+
+[data-bs-theme="dark"] .section-primary-bg .form-control::placeholder,
+[data-bs-theme="dark"] .section-secondary-bg .form-control::placeholder,
+[data-bs-theme="dark"] .section-tertiary-bg .form-control::placeholder {
+    color: #adb5bd;
+}
+
+/* Sidebar elements */
+.section-primary-bg .sidebar-section,
+.section-secondary-bg .sidebar-section,
+.section-tertiary-bg .sidebar-section {
+    background: rgba(255, 255, 255, 0.8) !important;
+    border: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+[data-bs-theme="dark"] .section-primary-bg .sidebar-section,
+[data-bs-theme="dark"] .section-secondary-bg .sidebar-section,
+[data-bs-theme="dark"] .section-tertiary-bg .sidebar-section {
+    background: rgba(255, 255, 255, 0.08) !important;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    color: #e9ecef;
+}
+
+/* Testimonial cards in new sections */
+.section-primary-bg .testimonial-card,
+.section-secondary-bg .testimonial-card,
+.section-tertiary-bg .testimonial-card {
+    background: rgba(255, 255, 255, 0.8);
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    backdrop-filter: blur(10px);
+}
+
+[data-bs-theme="dark"] .section-primary-bg .testimonial-card,
+[data-bs-theme="dark"] .section-secondary-bg .testimonial-card,
+[data-bs-theme="dark"] .section-tertiary-bg .testimonial-card {
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    color: #e9ecef;
+    backdrop-filter: blur(10px);
+}
+
+/* Timeline elements in new sections */
+[data-bs-theme="dark"] .section-primary-bg .timeline-content,
+[data-bs-theme="dark"] .section-secondary-bg .timeline-content,
+[data-bs-theme="dark"] .section-tertiary-bg .timeline-content {
+    background: rgba(255, 255, 255, 0.08);
+    border-left-color: var(--theme-primary, var(--bs-primary));
+    color: #e9ecef;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .section-primary-bg,
+    .section-secondary-bg,
+    .section-tertiary-bg {
+        padding-left: 1rem;
+        padding-right: 1rem;
+    }
+}
+
+/* Print styles */
+@media print {
+    .section-primary-bg,
+    .section-secondary-bg,
+    .section-tertiary-bg {
+        background: white !important;
+        border: none !important;
+    }
+    
+    .section-primary-bg .card,
+    .section-secondary-bg .card,
+    .section-tertiary-bg .card {
+        background: white !important;
+        border: 1px solid #dee2e6 !important;
+    }
+}

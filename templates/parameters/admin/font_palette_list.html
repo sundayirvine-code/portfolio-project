@@ -106,7 +106,7 @@
             <div class="card-body">
                 <!-- Font Preview -->
                 <div class="font-preview mb-3">
-                    <div class="text-center p-3 bg-light rounded">
+                    <div class="text-center p-3 section-primary-bg rounded">
                         <h4 class="mb-2" style="font-family: '{{ palette.heading_font|default:'Inter' }}', sans-serif; font-weight: {{ palette.heading_weight|default:'700' }};">
                             Sample Heading
                         </h4>
@@ -419,8 +419,7 @@ function previewPalette(paletteId) {
 }
 
 function activatePalette(paletteId) {
-    // This would typically send an AJAX request to activate the palette
-    fetch(`/admin/font-palettes/${paletteId}/activate/`, {
+    fetch(`{% url 'parameters:apply_font_palette' 0 %}`.replace('0', paletteId), {
         method: 'POST',
         headers: {
             'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
@@ -430,22 +429,40 @@ function activatePalette(paletteId) {
     .then(response => response.json())
     .then(data => {
         if (data.success) {
+            toastr.success('Font palette activated successfully!');
             location.reload();
         } else {
-            alert('Failed to activate palette');
+            toastr.error('Failed to activate palette');
         }
     })
     .catch(error => {
         console.error('Error:', error);
-        alert('An error occurred while activating the palette');
+        toastr.error('An error occurred while activating the palette');
     });
 }
 
 function duplicatePalette(paletteId) {
     if (confirm('Create a copy of this font palette?')) {
-        // This would typically send an AJAX request to duplicate the palette
-        console.log('Duplicating palette:', paletteId);
-        // Implementation would involve calling a backend endpoint
+        fetch(`{% url 'parameters:duplicate_font_palette' 0 %}`.replace('0', paletteId), {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                toastr.success('Font palette duplicated successfully!');
+                location.reload();
+            } else {
+                toastr.error('Failed to duplicate palette');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            toastr.error('An error occurred while duplicating the palette');
+        });
     }
 }
 </script>

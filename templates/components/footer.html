@@ -26,28 +26,28 @@
                     <div class="d-flex gap-3">
                         {% if site_settings.github_url %}
                         <a href="{{ site_settings.github_url }}" class="text-light fs-4 social-link" target="_blank" rel="noopener noreferrer"
-                           data-bs-toggle="tooltip" title="GitHub">
+                           title="GitHub">
                             <i class="bi bi-github"></i>
                         </a>
                         {% endif %}
                         
                         {% if site_settings.linkedin_url %}
                         <a href="{{ site_settings.linkedin_url }}" class="text-light fs-4 social-link" target="_blank" rel="noopener noreferrer"
-                           data-bs-toggle="tooltip" title="LinkedIn">
+                           title="LinkedIn">
                             <i class="bi bi-linkedin"></i>
                         </a>
                         {% endif %}
                         
                         {% if site_settings.twitter_url %}
                         <a href="{{ site_settings.twitter_url }}" class="text-light fs-4 social-link" target="_blank" rel="noopener noreferrer"
-                           data-bs-toggle="tooltip" title="Twitter">
+                           title="Twitter">
                             <i class="bi bi-twitter"></i>
                         </a>
                         {% endif %}
                         
                         {% if site_settings.instagram_url %}
                         <a href="{{ site_settings.instagram_url }}" class="text-light fs-4 social-link" target="_blank" rel="noopener noreferrer"
-                           data-bs-toggle="tooltip" title="Instagram">
+                           title="Instagram">
                             <i class="bi bi-instagram"></i>
                         </a>
                         {% endif %}
@@ -88,22 +88,22 @@
                 <h6 class="fw-semibold mb-3">Services</h6>
                 <ul class="list-unstyled">
                     <li class="mb-2">
-                        <span class="text-muted">
+                        <span class="footer-services-text">
                             <i class="bi bi-code-slash me-2 text-primary"></i>Web Development
                         </span>
                     </li>
                     <li class="mb-2">
-                        <span class="text-muted">
+                        <span class="footer-services-text">
                             <i class="bi bi-phone me-2 text-primary"></i>Mobile Apps
                         </span>
                     </li>
                     <li class="mb-2">
-                        <span class="text-muted">
+                        <span class="footer-services-text">
                             <i class="bi bi-palette me-2 text-primary"></i>UI/UX Design
                         </span>
                     </li>
                     <li class="mb-2">
-                        <span class="text-muted">
+                        <span class="footer-services-text">
                             <i class="bi bi-cloud me-2 text-primary"></i>Cloud Solutions
                         </span>
                     </li>
@@ -135,7 +135,7 @@
                 {% if site_settings.location %}
                 <div class="mb-2">
                     <i class="bi bi-geo-alt me-2 text-primary"></i>
-                    <span class="text-muted">{{ site_settings.location }}</span>
+                    <span class="footer-location-text">{{ site_settings.location }}</span>
                 </div>
                 {% endif %}
                 
@@ -237,11 +237,23 @@
 
 .social-link {
     transition: all 0.2s ease;
+    cursor: pointer;
+    text-decoration: none !important;
 }
 
 .social-link:hover {
     color: var(--bs-primary, #0d6efd) !important;
     transform: translateY(-2px);
+}
+
+/* Services text visibility improvement */
+.footer-services-text {
+    color: #adb5bd;
+}
+
+/* Location text visibility improvement */
+.footer-location-text {
+    color: #adb5bd;
 }
 
 /* Dark mode improvements */
@@ -261,6 +273,14 @@
     color: #ffffff !important;
 }
 
+[data-bs-theme="dark"] .footer-services-text {
+    color: #adb5bd;
+}
+
+[data-bs-theme="dark"] .footer-location-text {
+    color: #adb5bd;
+}
+
 /* Light mode improvements */
 [data-bs-theme="light"] .footer-link {
     color: #6c757d;
@@ -277,4 +297,101 @@
 [data-bs-theme="light"] .social-link:hover {
     color: var(--bs-primary, #0d6efd) !important;
 }
+
+[data-bs-theme="light"] .footer-services-text {
+    color: #495057 !important; /* Darker color for better visibility in light mode */
+}
+
+[data-bs-theme="light"] .footer-location-text {
+    color: #495057 !important; /* Darker color for better visibility in light mode */
+}
+
+/* Ensure footer is consistent with dark background */
+footer {
+    background-color: #212529 !important;
+}
+
+/* Additional contrast improvements for light mode against dark footer */
+[data-bs-theme="light"] footer .fw-semibold,
+[data-bs-theme="light"] footer h5,
+[data-bs-theme="light"] footer h6 {
+    color: #ffffff !important;
+}
+
+[data-bs-theme="light"] footer .text-muted {
+    color: #adb5bd !important;
+}
 </style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Ensure social links only redirect on click, not hover
+    const socialLinks = document.querySelectorAll('.social-link');
+    
+    socialLinks.forEach(link => {
+        // Prevent default behavior on mouseover/mouseenter
+        link.addEventListener('mouseover', function(e) {
+            e.preventDefault();
+        });
+        
+        link.addEventListener('mouseenter', function(e) {
+            e.preventDefault();
+        });
+        
+        // Only allow navigation on actual click
+        link.addEventListener('click', function(e) {
+            // Let the normal click behavior proceed
+            // The href attribute will handle the navigation
+        });
+    });
+    
+    // Cookie consent functionality
+    const cookieBanner = document.getElementById('cookie-banner');
+    const cookieAccept = document.getElementById('cookie-accept');
+    const cookieDecline = document.getElementById('cookie-decline');
+    
+    // Check if user has already made a choice
+    if (!localStorage.getItem('cookieConsent')) {
+        // Show cookie banner after 2 seconds
+        setTimeout(() => {
+            if (cookieBanner) {
+                cookieBanner.style.display = 'block';
+            }
+        }, 2000);
+    }
+    
+    // Handle cookie acceptance
+    if (cookieAccept) {
+        cookieAccept.addEventListener('click', function() {
+            localStorage.setItem('cookieConsent', 'accepted');
+            cookieBanner.style.display = 'none';
+        });
+    }
+    
+    // Handle cookie decline
+    if (cookieDecline) {
+        cookieDecline.addEventListener('click', function() {
+            localStorage.setItem('cookieConsent', 'declined');
+            cookieBanner.style.display = 'none';
+        });
+    }
+    
+    // Newsletter form submission
+    const newsletterForm = document.getElementById('newsletter-form');
+    if (newsletterForm) {
+        newsletterForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const email = this.querySelector('input[type="email"]').value;
+            
+            // Simple validation
+            if (email) {
+                // Here you would typically send the email to your backend
+                alert('Thank you for subscribing to our newsletter!');
+                this.reset();
+            } else {
+                alert('Please enter a valid email address.');
+            }
+        });
+    }
+});
+</script>

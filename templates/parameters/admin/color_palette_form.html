@@ -1,0 +1,576 @@
+{% extends 'parameters/admin/base_admin.html' %}
+{% load static %}
+
+{% block breadcrumb %}
+<li class="breadcrumb-item">
+    <a href="{% url 'parameters:color_palette_list' %}">Color Palettes</a>
+</li>
+<li class="breadcrumb-item active" aria-current="page">
+    {% if object %}Edit Color Palette{% else %}Add Color Palette{% endif %}
+</li>
+{% endblock %}
+
+{% block page_description %}
+<p class="text-muted mb-0">
+    {% if object %}
+        Edit color palette: {{ object.name }}
+    {% else %}
+        Create a new color palette for your portfolio theme
+    {% endif %}
+</p>
+{% endblock %}
+
+{% block page_actions %}
+<div>
+    <a href="{% url 'parameters:color_palette_list' %}" class="btn btn-secondary">
+        <i class="bi bi-arrow-left me-2"></i>Back to List
+    </a>
+</div>
+{% endblock %}
+
+{% block admin_content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">
+                    <i class="bi bi-{% if object %}pencil{% else %}plus-circle{% endif %} me-2"></i>
+                    {% if object %}Edit{% else %}Add{% endif %} Color Palette
+                </h5>
+                {% if object %}
+                <div>
+                    <span class="badge bg-{% if object.is_active %}success{% else %}secondary{% endif %}">
+                        {{ object.is_active|yesno:"Active,Inactive" }}
+                    </span>
+                    {% if object.is_default %}
+                    <span class="badge bg-warning text-dark">Default</span>
+                    {% endif %}
+                </div>
+                {% endif %}
+            </div>
+            <div class="card-body">
+                <form method="post" novalidate>
+                    {% csrf_token %}
+                    
+                    <div class="row g-3">
+                        <!-- Name and Slug -->
+                        <div class="col-md-6">
+                            <label for="{{ form.name.id_for_label }}" class="form-label">
+                                Palette Name <span class="text-danger">*</span>
+                            </label>
+                            {{ form.name }}
+                            {% if form.name.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.name.errors.0 }}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <label for="{{ form.slug.id_for_label }}" class="form-label">Slug</label>
+                            {{ form.slug }}
+                            {% if form.slug.errors %}
+                                <div class="invalid-feedback d-block">
+                                    {{ form.slug.errors.0 }}
+                                </div>
+                            {% endif %}
+                            <div class="form-text">URL-friendly version (auto-generated if empty)</div>
+                        </div>
+                        
+                        <!-- Light Mode Colors -->
+                        <div class="col-12 mt-4">
+                            <h6 class="mb-3 pb-2 border-bottom">
+                                <i class="bi bi-sun me-2"></i>Light Mode Colors
+                            </h6>
+                            <div class="row g-3">
+                                <div class="col-md-6 col-lg-4">
+                                    <label for="{{ form.light_primary.id_for_label }}" class="form-label">Primary</label>
+                                    {{ form.light_primary }}
+                                    {% if form.light_primary.errors %}
+                                        <div class="invalid-feedback d-block">
+                                            {{ form.light_primary.errors.0 }}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                
+                                <div class="col-md-6 col-lg-4">
+                                    <label for="{{ form.light_secondary.id_for_label }}" class="form-label">Secondary</label>
+                                    {{ form.light_secondary }}
+                                    {% if form.light_secondary.errors %}
+                                        <div class="invalid-feedback d-block">
+                                            {{ form.light_secondary.errors.0 }}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                
+                                <div class="col-md-6 col-lg-4">
+                                    <label for="{{ form.light_accent.id_for_label }}" class="form-label">Accent</label>
+                                    {{ form.light_accent }}
+                                    {% if form.light_accent.errors %}
+                                        <div class="invalid-feedback d-block">
+                                            {{ form.light_accent.errors.0 }}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                
+                                <div class="col-md-6 col-lg-4">
+                                    <label for="{{ form.light_background.id_for_label }}" class="form-label">Background</label>
+                                    {{ form.light_background }}
+                                    {% if form.light_background.errors %}
+                                        <div class="invalid-feedback d-block">
+                                            {{ form.light_background.errors.0 }}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                
+                                <div class="col-md-6 col-lg-4">
+                                    <label for="{{ form.light_text.id_for_label }}" class="form-label">Text</label>
+                                    {{ form.light_text }}
+                                    {% if form.light_text.errors %}
+                                        <div class="invalid-feedback d-block">
+                                            {{ form.light_text.errors.0 }}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Dark Mode Colors -->
+                        <div class="col-12 mt-4">
+                            <h6 class="mb-3 pb-2 border-bottom">
+                                <i class="bi bi-moon me-2"></i>Dark Mode Colors
+                            </h6>
+                            <div class="row g-3">
+                                <div class="col-md-6 col-lg-4">
+                                    <label for="{{ form.dark_primary.id_for_label }}" class="form-label">Primary</label>
+                                    {{ form.dark_primary }}
+                                    {% if form.dark_primary.errors %}
+                                        <div class="invalid-feedback d-block">
+                                            {{ form.dark_primary.errors.0 }}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                
+                                <div class="col-md-6 col-lg-4">
+                                    <label for="{{ form.dark_secondary.id_for_label }}" class="form-label">Secondary</label>
+                                    {{ form.dark_secondary }}
+                                    {% if form.dark_secondary.errors %}
+                                        <div class="invalid-feedback d-block">
+                                            {{ form.dark_secondary.errors.0 }}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                
+                                <div class="col-md-6 col-lg-4">
+                                    <label for="{{ form.dark_accent.id_for_label }}" class="form-label">Accent</label>
+                                    {{ form.dark_accent }}
+                                    {% if form.dark_accent.errors %}
+                                        <div class="invalid-feedback d-block">
+                                            {{ form.dark_accent.errors.0 }}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                
+                                <div class="col-md-6 col-lg-4">
+                                    <label for="{{ form.dark_background.id_for_label }}" class="form-label">Background</label>
+                                    {{ form.dark_background }}
+                                    {% if form.dark_background.errors %}
+                                        <div class="invalid-feedback d-block">
+                                            {{ form.dark_background.errors.0 }}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                
+                                <div class="col-md-6 col-lg-4">
+                                    <label for="{{ form.dark_text.id_for_label }}" class="form-label">Text</label>
+                                    {{ form.dark_text }}
+                                    {% if form.dark_text.errors %}
+                                        <div class="invalid-feedback d-block">
+                                            {{ form.dark_text.errors.0 }}
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Suggestions Section -->
+                        <div class="col-12 mt-4">
+                            <h6 class="mb-3 pb-2 border-bottom">
+                                <i class="bi bi-lightbulb me-2"></i>Color Suggestions
+                            </h6>
+                            <div class="d-flex flex-wrap gap-2 mb-3">
+                                <button type="button" class="btn btn-outline-primary btn-sm" onclick="loadSystemPalette('electric_neon')">
+                                    <i class="bi bi-lightning me-1"></i>Electric Neon
+                                </button>
+                                <button type="button" class="btn btn-outline-warning btn-sm" onclick="loadSystemPalette('sunset_gradient')">
+                                    <i class="bi bi-sunset me-1"></i>Sunset Gradient
+                                </button>
+                                <button type="button" class="btn btn-outline-info btn-sm" onclick="loadSystemPalette('ocean_deep')">
+                                    <i class="bi bi-droplet me-1"></i>Ocean Deep
+                                </button>
+                                <button type="button" class="btn btn-outline-success btn-sm" onclick="loadSystemPalette('forest_modern')">
+                                    <i class="bi bi-tree me-1"></i>Forest Modern
+                                </button>
+                                <button type="button" class="btn btn-outline-secondary btn-sm" onclick="generateRandomPalette()">
+                                    <i class="bi bi-shuffle me-1"></i>Random Colors
+                                </button>
+                                <button type="button" class="btn btn-outline-dark btn-sm" onclick="generateComplementaryColors()">
+                                    <i class="bi bi-palette2 me-1"></i>Complementary
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <!-- Options -->
+                        <div class="col-12 mt-4">
+                            <h6 class="mb-3 pb-2 border-bottom">Options</h6>
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <div class="form-check">
+                                        {{ form.is_active }}
+                                        <label class="form-check-label" for="{{ form.is_active.id_for_label }}">
+                                            Active
+                                        </label>
+                                    </div>
+                                    <div class="form-text">Available for use</div>
+                                </div>
+                                
+                                <div class="col-md-6">
+                                    <div class="form-check">
+                                        {{ form.is_default }}
+                                        <label class="form-check-label" for="{{ form.is_default.id_for_label }}">
+                                            Default Palette
+                                        </label>
+                                    </div>
+                                    <div class="form-text">Use as the default color palette</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="d-flex justify-content-between mt-4 pt-3 border-top">
+                        <div>
+                            <a href="{% url 'parameters:color_palette_list' %}" class="btn btn-outline-secondary">
+                                <i class="bi bi-x-circle me-2"></i>Cancel
+                            </a>
+                            {% if object and not object.is_default %}
+                            <form method="post" action="{% url 'parameters:color_palette_delete' object.pk %}" class="d-inline ms-2">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-outline-danger" onclick="return confirm('Are you sure you want to delete this color palette?')">
+                                    <i class="bi bi-trash me-2"></i>Delete
+                                </button>
+                            </form>
+                            {% endif %}
+                        </div>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-check-circle me-2"></i>
+                            {% if object %}Update{% else %}Add{% endif %} Color Palette
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        <!-- Preview Card -->
+        <div class="card mt-4" id="preview-card">
+            <div class="card-header">
+                <h6 class="mb-0">
+                    <i class="bi bi-eye me-2"></i>Live Color Preview
+                </h6>
+            </div>
+            <div class="card-body">
+                <div class="text-center">
+                    <!-- Light Mode Preview -->
+                    <div class="mb-4">
+                        <h6 class="text-muted mb-2">Light Mode</h6>
+                        <div class="color-strip-container d-flex rounded overflow-hidden" style="height: 60px;" id="light-preview">
+                            <div class="flex-fill d-flex align-items-center justify-content-center text-white fw-bold" 
+                                 id="light-primary-preview" style="font-size: 0.75rem; text-shadow: 0 1px 2px rgba(0,0,0,0.3);">
+                                Primary
+                            </div>
+                            <div class="flex-fill d-flex align-items-center justify-content-center text-white fw-bold" 
+                                 id="light-secondary-preview" style="font-size: 0.75rem; text-shadow: 0 1px 2px rgba(0,0,0,0.3);">
+                                Secondary
+                            </div>
+                            <div class="flex-fill d-flex align-items-center justify-content-center text-white fw-bold" 
+                                 id="light-accent-preview" style="font-size: 0.75rem; text-shadow: 0 1px 2px rgba(0,0,0,0.3);">
+                                Accent
+                            </div>
+                            <div class="flex-fill d-flex align-items-center justify-content-center fw-bold" 
+                                 id="light-background-preview" style="font-size: 0.75rem;">
+                                Background
+                            </div>
+                            <div class="flex-fill d-flex align-items-center justify-content-center text-white fw-bold" 
+                                 id="light-text-preview" style="font-size: 0.75rem;">
+                                Text
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Dark Mode Preview -->
+                    <div>
+                        <h6 class="text-muted mb-2">Dark Mode</h6>
+                        <div class="color-strip-container d-flex rounded overflow-hidden" style="height: 60px;" id="dark-preview">
+                            <div class="flex-fill d-flex align-items-center justify-content-center text-white fw-bold" 
+                                 id="dark-primary-preview" style="font-size: 0.75rem; text-shadow: 0 1px 2px rgba(0,0,0,0.3);">
+                                Primary
+                            </div>
+                            <div class="flex-fill d-flex align-items-center justify-content-center text-white fw-bold" 
+                                 id="dark-secondary-preview" style="font-size: 0.75rem; text-shadow: 0 1px 2px rgba(0,0,0,0.3);">
+                                Secondary
+                            </div>
+                            <div class="flex-fill d-flex align-items-center justify-content-center text-white fw-bold" 
+                                 id="dark-accent-preview" style="font-size: 0.75rem; text-shadow: 0 1px 2px rgba(0,0,0,0.3);">
+                                Accent
+                            </div>
+                            <div class="flex-fill d-flex align-items-center justify-content-center fw-bold" 
+                                 id="dark-background-preview" style="font-size: 0.75rem;">
+                                Background
+                            </div>
+                            <div class="flex-fill d-flex align-items-center justify-content-center text-white fw-bold" 
+                                 id="dark-text-preview" style="font-size: 0.75rem;">
+                                Text
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+{{ block.super }}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const nameField = document.getElementById('{{ form.name.id_for_label }}');
+    const slugField = document.getElementById('{{ form.slug.id_for_label }}');
+    
+    // Auto-generate slug from name
+    nameField.addEventListener('input', function() {
+        if (!slugField.value || slugField.dataset.autoGenerated) {
+            const slug = this.value.toLowerCase()
+                .replace(/[^a-z0-9\s-]/g, '')
+                .replace(/\s+/g, '-')
+                .replace(/-+/g, '-')
+                .trim('-');
+            slugField.value = slug;
+            slugField.dataset.autoGenerated = 'true';
+        }
+    });
+    
+    slugField.addEventListener('input', function() {
+        this.dataset.autoGenerated = 'false';
+    });
+    
+    // Color preview functionality
+    function updatePreview() {
+        // Light mode colors
+        const lightPrimary = document.getElementById('{{ form.light_primary.id_for_label }}').value;
+        const lightSecondary = document.getElementById('{{ form.light_secondary.id_for_label }}').value;
+        const lightAccent = document.getElementById('{{ form.light_accent.id_for_label }}').value;
+        const lightBackground = document.getElementById('{{ form.light_background.id_for_label }}').value;
+        const lightText = document.getElementById('{{ form.light_text.id_for_label }}').value;
+        
+        // Dark mode colors
+        const darkPrimary = document.getElementById('{{ form.dark_primary.id_for_label }}').value;
+        const darkSecondary = document.getElementById('{{ form.dark_secondary.id_for_label }}').value;
+        const darkAccent = document.getElementById('{{ form.dark_accent.id_for_label }}').value;
+        const darkBackground = document.getElementById('{{ form.dark_background.id_for_label }}').value;
+        const darkText = document.getElementById('{{ form.dark_text.id_for_label }}').value;
+        
+        // Update light mode preview
+        document.getElementById('light-primary-preview').style.backgroundColor = lightPrimary;
+        document.getElementById('light-secondary-preview').style.backgroundColor = lightSecondary;
+        document.getElementById('light-accent-preview').style.backgroundColor = lightAccent;
+        document.getElementById('light-background-preview').style.backgroundColor = lightBackground;
+        document.getElementById('light-background-preview').style.color = lightText;
+        document.getElementById('light-text-preview').style.backgroundColor = lightText;
+        
+        // Update dark mode preview
+        document.getElementById('dark-primary-preview').style.backgroundColor = darkPrimary;
+        document.getElementById('dark-secondary-preview').style.backgroundColor = darkSecondary;
+        document.getElementById('dark-accent-preview').style.backgroundColor = darkAccent;
+        document.getElementById('dark-background-preview').style.backgroundColor = darkBackground;
+        document.getElementById('dark-background-preview').style.color = darkText;
+        document.getElementById('dark-text-preview').style.backgroundColor = darkText;
+    }
+    
+    // Add event listeners to color inputs
+    const colorFields = [
+        '{{ form.light_primary.id_for_label }}',
+        '{{ form.light_secondary.id_for_label }}',
+        '{{ form.light_accent.id_for_label }}',
+        '{{ form.light_background.id_for_label }}',
+        '{{ form.light_text.id_for_label }}',
+        '{{ form.dark_primary.id_for_label }}',
+        '{{ form.dark_secondary.id_for_label }}',
+        '{{ form.dark_accent.id_for_label }}',
+        '{{ form.dark_background.id_for_label }}',
+        '{{ form.dark_text.id_for_label }}'
+    ];
+    
+    colorFields.forEach(fieldId => {
+        const field = document.getElementById(fieldId);
+        if (field) {
+            field.addEventListener('change', updatePreview);
+        }
+    });
+    
+    // Initialize preview
+    updatePreview();
+    
+    // Check for URL parameters to pre-fill form (from system palette duplication)
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('name')) {
+        document.getElementById('{{ form.name.id_for_label }}').value = urlParams.get('name');
+        
+        // Fill color fields if provided
+        const colorFields = [
+            'light_primary', 'light_secondary', 'light_accent', 'light_background', 'light_text',
+            'dark_primary', 'dark_secondary', 'dark_accent', 'dark_background', 'dark_text'
+        ];
+        
+        colorFields.forEach(field => {
+            if (urlParams.get(field)) {
+                const fieldId = document.getElementById(`id_${field}`);
+                if (fieldId) {
+                    fieldId.value = urlParams.get(field);
+                }
+            }
+        });
+        
+        updatePreview();
+        
+        // Clean URL
+        window.history.replaceState({}, document.title, window.location.pathname);
+    }
+});
+
+// System palette suggestions
+const systemPalettes = {
+    'electric_neon': {
+        name: 'Electric Neon',
+        light: { primary: '#6366f1', secondary: '#8b5cf6', accent: '#06b6d4', background: '#f8fafc', text: '#1e293b' },
+        dark: { primary: '#818cf8', secondary: '#a78bfa', accent: '#67e8f9', background: '#0f172a', text: '#f1f5f9' }
+    },
+    'sunset_gradient': {
+        name: 'Sunset Gradient',
+        light: { primary: '#f59e0b', secondary: '#ef4444', accent: '#ec4899', background: '#fefbf3', text: '#292524' },
+        dark: { primary: '#fbbf24', secondary: '#f87171', accent: '#f472b6', background: '#1c1917', text: '#fafaf9' }
+    },
+    'ocean_deep': {
+        name: 'Ocean Deep',
+        light: { primary: '#0ea5e9', secondary: '#06b6d4', accent: '#10b981', background: '#f0f9ff', text: '#0c4a6e' },
+        dark: { primary: '#38bdf8', secondary: '#22d3ee', accent: '#34d399', background: '#0c1426', text: '#e0f2fe' }
+    },
+    'forest_modern': {
+        name: 'Forest Modern',
+        light: { primary: '#059669', secondary: '#7c3aed', accent: '#f59e0b', background: '#f0fdf4', text: '#064e3b' },
+        dark: { primary: '#10b981', secondary: '#8b5cf6', accent: '#fbbf24', background: '#0f1419', text: '#ecfdf5' }
+    }
+};
+
+function loadSystemPalette(paletteSlug) {
+    const palette = systemPalettes[paletteSlug];
+    if (!palette) return;
+    
+    // Set name if field is empty
+    const nameField = document.getElementById('{{ form.name.id_for_label }}');
+    if (!nameField.value) {
+        nameField.value = `${palette.name} (Custom)`;
+    }
+    
+    // Fill in colors
+    fillColorFields(palette);
+    updatePreview();
+    
+    toastr.success(`${palette.name} colors loaded!`);
+}
+
+function generateRandomPalette() {
+    const colors = [
+        '#6366f1', '#8b5cf6', '#06b6d4', '#10b981', '#f59e0b',
+        '#ef4444', '#ec4899', '#8b7355', '#059669', '#7c3aed',
+        '#0ea5e9', '#f97316', '#84cc16', '#ec4899', '#64748b'
+    ];
+    
+    const getRandomColor = () => colors[Math.floor(Math.random() * colors.length)];
+    
+    const randomPalette = {
+        light: {
+            primary: getRandomColor(),
+            secondary: getRandomColor(),
+            accent: getRandomColor(),
+            background: '#ffffff',
+            text: '#1a1a1a'
+        },
+        dark: {
+            primary: getRandomColor(),
+            secondary: getRandomColor(),
+            accent: getRandomColor(),
+            background: '#1a1a1a',
+            text: '#ffffff'
+        }
+    };
+    
+    fillColorFields(randomPalette);
+    updatePreview();
+    
+    toastr.info('Random colors generated!');
+}
+
+function generateComplementaryColors() {
+    // Generate a base color and create complementary colors
+    const baseHue = Math.floor(Math.random() * 360);
+    const complementaryHue = (baseHue + 180) % 360;
+    const triadicHue = (baseHue + 120) % 360;
+    
+    const complementaryPalette = {
+        light: {
+            primary: `hsl(${baseHue}, 70%, 50%)`,
+            secondary: `hsl(${complementaryHue}, 70%, 50%)`,
+            accent: `hsl(${triadicHue}, 70%, 50%)`,
+            background: `hsl(${baseHue}, 20%, 96%)`,
+            text: `hsl(${baseHue}, 20%, 20%)`
+        },
+        dark: {
+            primary: `hsl(${baseHue}, 60%, 65%)`,
+            secondary: `hsl(${complementaryHue}, 60%, 65%)`,
+            accent: `hsl(${triadicHue}, 60%, 65%)`,
+            background: `hsl(${baseHue}, 20%, 10%)`,
+            text: `hsl(${baseHue}, 20%, 90%)`
+        }
+    };
+    
+    fillColorFields(complementaryPalette);
+    updatePreview();
+    
+    toastr.info('Complementary colors generated!');
+}
+
+function fillColorFields(palette) {
+    // Helper function to fill color fields
+    const setFieldValue = (fieldName, value) => {
+        const field = document.getElementById(`id_${fieldName}`);
+        if (field) {
+            field.value = value;
+        }
+    };
+    
+    // Fill light mode colors
+    setFieldValue('light_primary', palette.light.primary);
+    setFieldValue('light_secondary', palette.light.secondary);
+    setFieldValue('light_accent', palette.light.accent);
+    setFieldValue('light_background', palette.light.background);
+    setFieldValue('light_text', palette.light.text);
+    
+    // Fill dark mode colors
+    setFieldValue('dark_primary', palette.dark.primary);
+    setFieldValue('dark_secondary', palette.dark.secondary);
+    setFieldValue('dark_accent', palette.dark.accent);
+    setFieldValue('dark_background', palette.dark.background);
+    setFieldValue('dark_text', palette.dark.text);
+}
+</script>
+{% endblock %}

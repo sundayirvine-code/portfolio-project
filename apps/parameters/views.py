@@ -145,7 +145,7 @@ def color_palette_list_view(request):
         'color_palettes': color_palettes,
     }
     
-    return render(request, 'parameters/color_palette_list.html', context)
+    return render(request, 'parameters/admin/color_palette_list.html', context)
 
 
 @staff_member_required
@@ -170,7 +170,7 @@ def color_palette_create_view(request):
         'action': 'Create',
     }
     
-    return render(request, 'parameters/color_palette_form.html', context)
+    return render(request, 'parameters/admin/color_palette_form.html', context)
 
 
 @staff_member_required
@@ -198,7 +198,7 @@ def color_palette_edit_view(request, pk):
         'action': 'Edit',
     }
     
-    return render(request, 'parameters/color_palette_form.html', context)
+    return render(request, 'parameters/admin/color_palette_form.html', context)
 
 
 @staff_member_required
@@ -542,6 +542,84 @@ def font_palette_delete_view(request, pk):
     font_palette.delete()
     messages.success(request, f'Font palette "{font_palette.name}" deleted successfully!')
     return redirect('parameters:font_palette_list')
+
+
+@staff_member_required
+@require_POST
+def font_palette_set_default(request, pk):
+    """Set font palette as default"""
+    font_palette = get_object_or_404(FontPalette, pk=pk)
+    
+    # Remove default from all other palettes
+    FontPalette.objects.update(is_default=False)
+    
+    # Set this palette as default
+    font_palette.is_default = True
+    font_palette.save()
+    
+    messages.success(request, f'Font palette "{font_palette.name}" set as default!')
+    return JsonResponse({'success': True})
+
+
+@staff_member_required
+@require_POST
+def apply_font_palette(request, pk):
+    """Apply font palette to site settings"""
+    font_palette = get_object_or_404(FontPalette, pk=pk)
+    site_settings = SiteParameter.get_settings()
+    
+    # Update active font palette in site settings
+    site_settings.active_font_palette = font_palette.slug
+    site_settings.save()
+    
+    messages.success(request, f'Font palette "{font_palette.name}" applied to site!')
+    return JsonResponse({'success': True})
+
+
+@staff_member_required
+def preview_font_palette(request, pk):
+    """Preview font palette"""
+    font_palette = get_object_or_404(FontPalette, pk=pk)
+    
+    palette_data = {
+        'name': font_palette.name,
+        'description': font_palette.description,
+        'heading_font': font_palette.heading_font,
+        'body_font': font_palette.body_font,
+        'accent_font': font_palette.accent_font,
+        'heading_weight': font_palette.heading_weight,
+        'body_weight': font_palette.body_weight,
+        'base_font_size': font_palette.base_font_size,
+        'google_fonts_url': font_palette.google_fonts_url,
+    }
+    
+    return JsonResponse(palette_data)
+
+
+@staff_member_required
+@require_POST
+def duplicate_font_palette(request, pk):
+    """Duplicate font palette"""
+    original_palette = get_object_or_404(FontPalette, pk=pk)
+    
+    # Create a copy
+    new_palette = FontPalette.objects.create(
+        name=f"{original_palette.name} (Copy)",
+        slug=f"{original_palette.slug}-copy",
+        description=original_palette.description,
+        heading_font=original_palette.heading_font,
+        body_font=original_palette.body_font,
+        accent_font=original_palette.accent_font,
+        heading_weight=original_palette.heading_weight,
+        body_weight=original_palette.body_weight,
+        base_font_size=original_palette.base_font_size,
+        google_fonts_url=original_palette.google_fonts_url,
+        is_active=False,  # Don't make the copy active by default
+        is_default=False  # Don't make the copy default
+    )
+    
+    messages.success(request, f'Font palette duplicated as "{new_palette.name}"!')
+    return JsonResponse({'success': True, 'new_id': new_palette.pk})
 
 
 # ===============================================================

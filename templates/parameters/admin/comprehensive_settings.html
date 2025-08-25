@@ -141,7 +141,7 @@
                                     {% if site_settings and site_settings.profile_image_url %}
                                     <img src="{{ site_settings.profile_image_url }}" alt="Profile Image" class="img-thumbnail w-100 rounded-circle profile-img-preview">
                                     {% else %}
-                                    <div class="placeholder-image d-flex align-items-center justify-content-center bg-light rounded-circle profile-img-placeholder">
+                                    <div class="placeholder-image d-flex align-items-center justify-content-center section-primary-bg rounded-circle profile-img-placeholder">
                                         <i class="bi bi-person text-muted fs-3"></i>
                                     </div>
                                     {% endif %}
@@ -575,7 +575,7 @@
                             {% if site_settings and site_settings.profile_image_url %}
                             <img src="{{ site_settings.profile_image_url }}" alt="Profile" class="rounded-circle mb-2" style="width: 80px; height: 80px; object-fit: cover;">
                             {% else %}
-                            <div class="bg-light rounded-circle d-inline-flex align-items-center justify-content-center mb-2" style="width: 80px; height: 80px;">
+                            <div class="section-primary-bg rounded-circle d-inline-flex align-items-center justify-content-center mb-2" style="width: 80px; height: 80px;">
                                 <i class="bi bi-person fs-3 text-muted"></i>
                             </div>
                             {% endif %}
